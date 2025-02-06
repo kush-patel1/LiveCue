@@ -32,7 +32,7 @@ function App() {
           LiveCue
         </h1>
         <p>
-          Welcome to LiveCue, a live cue sheet application for all types of events!
+          Welcome to LiveCue! A live cue sheet application for all types of events!
         </p>
         <a
           className="App-link"
