@@ -2,21 +2,38 @@
 > starter_helpi@0.1.0 test
 > react-scripts test --coverage
 
-PASS src/App.test.tsx
-  ✓ renders learn react link (37 ms)
+FAIL src/App.test.tsx
+  ● Test suite failed to run
 
---------------------|---------|----------|---------|---------|-------------------
-File                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
---------------------|---------|----------|---------|---------|-------------------
-All files           |   28.57 |    16.66 |      20 |   28.57 |                   
- App.tsx            |      60 |       50 |   33.33 |      60 | 11,19-25          
- index.tsx          |       0 |      100 |     100 |       0 | 7-19              
- reportWebVitals.ts |       0 |        0 |       0 |       0 | 3-10              
---------------------|---------|----------|---------|---------|-------------------
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
+    Your test suite must contain at least one test.
+
+      at onResult (node_modules/@jest/core/build/TestScheduler.js:175:18)
+      at node_modules/@jest/core/build/TestScheduler.js:316:17
+      at node_modules/emittery/index.js:260:13
+          at Array.map (<anonymous>)
+      at Emittery.emit (node_modules/emittery/index.js:258:23)
+
+--------------------------|---------|----------|---------|---------|-------------------
+File                      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+--------------------------|---------|----------|---------|---------|-------------------
+All files                 |       0 |        0 |       0 |       0 |                   
+ src                      |       0 |        0 |       0 |       0 |                   
+  App.tsx                 |       0 |      100 |       0 |       0 | 10                
+  index.tsx               |       0 |      100 |     100 |       0 | 8-22              
+  reportWebVitals.ts      |       0 |        0 |       0 |       0 | 3-10              
+ src/Pages/Cue Input      |       0 |      100 |       0 |       0 |                   
+  CueInput.tsx            |       0 |      100 |       0 |       0 | 5                 
+ src/Pages/Home Page      |       0 |      100 |       0 |       0 |                   
+  HomePage.tsx            |       0 |      100 |       0 |       0 | 5                 
+ src/Pages/Live Cue Sheet |       0 |      100 |       0 |       0 |                   
+  LiveCueSheet.tsx        |       0 |      100 |       0 |       0 | 5                 
+ src/Pages/Login Page     |       0 |        0 |       0 |       0 |                   
+  Login.tsx               |       0 |        0 |       0 |       0 | 6-39              
+--------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 1 failed, 1 total
+Tests:       0 total
 Snapshots:   0 total
-Time:        2.588 s
+Time:        2.454 s
 Ran all test suites.
 [0;33mOne of your dependencies, babel-preset-react-app, is importing the
 "@babel/plugin-proposal-private-property-in-object" package without
