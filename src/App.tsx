@@ -31,6 +31,9 @@ function App() {
         <h1>
           LiveCue
         </h1>
+        <p>
+          Welcome to LiveCue, a live cue sheet application for all types of events!
+        </p>
         <a
           className="App-link"
           href="https://reactjs.org"
