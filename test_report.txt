@@ -28,12 +28,12 @@ All files                 |       0 |        0 |       0 |       0 |
  src/Pages/Live Cue Sheet |       0 |      100 |       0 |       0 |                   
   LiveCueSheet.tsx        |       0 |      100 |       0 |       0 | 5                 
  src/Pages/Login Page     |       0 |        0 |       0 |       0 |                   
-  Login.tsx               |       0 |        0 |       0 |       0 | 6-39              
+  Login.tsx               |       0 |        0 |       0 |       0 | 6-50              
 --------------------------|---------|----------|---------|---------|-------------------
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        2.454 s
+Time:        2.451 s
 Ran all test suites.
 [0;33mOne of your dependencies, babel-preset-react-app, is importing the
 "@babel/plugin-proposal-private-property-in-object" package without
