@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import { Button, Form, Alert, Container, Row, Col, Card } from 'react-bootstrap';
-import logo from "/Users/kushpatel/Desktop/LiveCue/starter_helpi/src/LiveCuelogo.png";
+import logo from "./LiveCuelogo.png";
 
 const correctUsername = "admin";
 const correctPassword = "Media#344";
