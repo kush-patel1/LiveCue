@@ -28,7 +28,8 @@ function Login() {
                 <Col xs={10} sm={8} md={6} lg={4}>
                     <Card className="Login-popup">
                         <Card.Body>
-                            <h2 className="text-center mb-4">LiveCue Login</h2>
+                            <h1 className="text-center mb-4">LiveCue</h1>
+                            <h2 className="text-center mb-4">Login</h2>
                             {error && <Alert variant="danger">{error}</Alert>}
                             <Form onSubmit={handleSubmit}>
                                 <Form.Group controlId="formUsername" className="mb-3">
