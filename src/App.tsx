@@ -11,9 +11,9 @@ function App() {
     <>
       <Routes>
         <Route path="/CueInput" element={<CueInput />} />
-        <Route path="/HomePage" element={<HomePage />} />
+        <Route path="/Login" element={<Login />} />
         <Route path="/LiveCueSheet" element={<LiveCueSheet />} />
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<HomePage />} />
       </Routes>
     </>
   );
