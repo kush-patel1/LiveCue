@@ -1,19 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Routes, Route} from 'react-router-dom';
 import CueInput from './Pages/Cue Input/CueInput';
 import HomePage from './Pages/Home Page/HomePage';
 import LiveCueSheet from './Pages/Live Cue Sheet/LiveCueSheet';
 import Login from './Pages/Login Page/Login';
+import { User } from './Interfaces/User/User';
+import SignUp from './Pages/SignUp/SignUp';
 
 
 function App() {
+  const [user, setUser] = useState<User | null>(null);
+  
   return (
     <>
       <Routes>
         <Route path="/CueInput" element={<CueInput />} />
-        <Route path="/Login" element={<Login />} />
+        <Route path="/HomePage" element={<HomePage />} />
         <Route path="/LiveCueSheet" element={<LiveCueSheet />} />
-        <Route path="/" element={<HomePage />} />
+        <Route path="/SignUp" element={<SignUp setUser={setUser} />} />
+        <Route path="/" element={<Login setUser={setUser}/>} />
       </Routes>
     </>
   );
