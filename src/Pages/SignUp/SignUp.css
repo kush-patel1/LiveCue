@@ -1,14 +1,12 @@
-.Login-body {
+.SignUp-body {
     background-color: #141414;
-    min-height: 100vh;
+    min-height: 118vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0;
-    padding: 0;
 }
 
-.Login-header {
+.SignUp-header {
     background-color: #141414;
     display: flex;
     align-items: center;
@@ -19,7 +17,7 @@
     color: white;
 }
 
-.Login-popup {
+.SignUp-popup {
     font-family: "Inter-medium";
     background-color: #1b1c1d;
     padding: 2rem;
@@ -40,8 +38,12 @@
     }
 }
 
-.Login-popup {
+.SignUp-popup {
     animation: fadeIn 0.3s ease-in-out;
+}
+
+.Form-Labels{
+    padding-top: 2%;
 }
 
 /* Center button and style it */
