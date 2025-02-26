@@ -21,25 +21,6 @@
     overflow-y: hidden;
 }
 
-.container{
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-.row {
-    max-width: 100%;
-    flex-wrap: wrap;
-  }
-  
-.col {
-    max-width: 100%;
-    overflow: hidden;
-}
-
-.card{
-  padding: 2%;
-}
-
 .HomePage-Project1{
     min-width: 400px;
     max-width: 400px;
@@ -50,6 +31,19 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     padding-left: 3%;
     flex-shrink: 0;
+}
+
+.scroll-container {
+  flex-grow: .75;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 20px;
+  width: 100%;
+}
+
+.scroll-content {
+  display: inline-flex;
+  gap: 2%;
 }
 
 @font-face { 
@@ -120,17 +114,4 @@
     font-optical-sizing: auto;
     font-weight: 900;
     font-style: normal;
-  }
-
-  .scroll-container {
-    flex-grow: .75;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding: 20px;
-    width: 100%;
-  }
-  
-  .scroll-content {
-    display: inline-flex;
-    gap: 2%;
   }

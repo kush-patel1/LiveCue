@@ -4,8 +4,6 @@ import './CueInput.css';
 import { AppHeader } from '../../Components/Header/Header';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import addMoreButton from '../../Assets/Home-Page/Add-More-Button.png';
-import editButton from '../../Assets/Home-Page/Edit-Button.png';
-import liveButton from '../../Assets/Home-Page/Live-Button.png';
 import { Project } from '../../Interfaces/Project/Project';
 import { Cue } from '../../Interfaces/Cue/Cue';
 
@@ -16,29 +14,30 @@ function CueInput() {
     {cueNumber: 1, title: "Pre-show Seating", startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T17:40:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Logo Splash",
       centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Purple", notes: "Blackout, curtains closed, slow gobo movements, haze, audio is MM Jingle"}, 
       {cueNumber: 2, title: "Countdown", startTime: new Date("2024-12-21T17:40:00"), endTime: new Date("2024-12-21T17:45:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-        centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"}, 
-        {cueNumber: 3, title: "Bang Video", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Bang",
-          centerScreen: "Bang", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-          {cueNumber: 4, title: "Manglacharan", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-            centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-            {cueNumber: 5, title: "Welcome Emcee", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-              centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-              {cueNumber: 2, title: "Countdown", startTime: new Date("2024-12-21T17:40:00"), endTime: new Date("2024-12-21T17:45:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"}, 
-                {cueNumber: 3, title: "Bang Video", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Bang",
-                  centerScreen: "Bang", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-                  {cueNumber: 4, title: "Manglacharan", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                    centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-                    {cueNumber: 5, title: "Welcome Emcee", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                      centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"}
+        centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains closed, slow gobo movements, haze, 5 minute countdown video with pictures/video clips as smrutis of our Mandir"}, 
+        {cueNumber: 3, title: "Manglacharan", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Mangalcharan Slide",
+          centerScreen: "Mangalacharan Center Video", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains open"},
+          {cueNumber: 4, title: "Bang Video", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Side Bang Video",
+            centerScreen: "Center Bang Video", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains open, fast gobo movements, haze, volume high, bass boost, sync up all 3 screens so movements across screens are smooth."},
+              {cueNumber: 5, title: "Welcome Emcee", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Instrumental", audioSource: "Live & ProPres", sideScreens: "Countdown Vid",
+                centerScreen: "Welcome Emcee Backdrops 1-3", lighting: "Center Stage Spotlight", ambientLights: "Blue", notes: "Light instrumental, Move Spots with speaker"},
+                {cueNumber: 6, title: "Deep Pragatya", startTime: new Date("2024-12-21T17:40:00"), endTime: new Date("2024-12-21T17:45:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
+                  centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"}, 
+                  {cueNumber: 7, title: "Ghost Emcee 1: Mandir", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Bang",
+                    centerScreen: "Bang", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
+                    {cueNumber: 8, title: "Delaware History Video", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
+                      centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
+                      {cueNumber: 9, title: "Skit Emcee 1", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
+                        centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
+                        {cueNumber: 10, title: "Dynamic Speech", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
+                          centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
   ]
-
-  let cuesLength: number = cues.length - 1;
 
   const project1: Project = {
     title: "DE MMXXIV", date: new Date(2024, 11, 21), startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T20:16:00"), duration: new Date(0,0,0,2,51),
     cues: cues, cueAmount: 27
   }
+
   return (
     <>
       <AppHeader />
@@ -48,71 +47,119 @@ function CueInput() {
     {cues.map((cue) => (
       <Card key={cue.cueNumber} className="CueInput-Cue">
         <Card.Body>
-          <Row>
+          <Row style={{marginLeft: 5}}>
             <Col xs={3} className='cueNumber'>
               <h5 className="inter-bold" style={{ margin: 0 }}>{cue.cueNumber}</h5>
             </Col>
             <Col>
-              <h5 className="inter-bold" style={{ margin: 4 }}> {cue.title}</h5>
+              <h5 className="inter-bold" style={{ margin: 4, fontSizeAdjust: '0.475' }}> {cue.title}</h5>
             </Col>
           </Row>
-          <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '325px', marginTop: 10, marginBottom: 0, borderStyle: "solid", opacity: '1'}} />
+          <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '290px', marginTop: 10, marginBottom: 0, borderStyle: "solid", opacity: '1', marginLeft: -12}} />
 
-          <Row className="align-items-center">
+          <Row>
             <Col xs={5}>
-              <p className='inter-medium' style={{ margin: 10 }}>Start: {cue.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+              <p className='inter-medium' style={{ margin: 10, marginLeft: 0 }}>Start: {cue.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
             </Col>
-            <Col xs={2} className="d-flex justify-content-center" style={{ marginLeft: 11 }}>
+            <Col xs={2} className="d-flex justify-content-center" style={{ marginLeft: 0 }}>
               <div className="vertical-line"></div>
             </Col>
             <Col xs={1} style={{ paddingLeft: 0 }}>
-              <p className='inter-medium' style={{ margin: 10 }}>End: {cue.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+              <p className='inter-medium' style={{ margin: 10, marginLeft: -10 }}>End: {cue.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
             </Col>
           </Row>
-          <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '325px', marginTop: 0, borderStyle: "solid", opacity: '1'}} />
+          <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '290px', marginTop: 0, borderStyle: "solid", opacity: '1', marginLeft: -12}} />
 
-          <Row className='section'>
-            <p className='inter-medium' style={{ margin: 5 }}>Presenter: <span className='inter-bold'> {cue.presenter}</span></p>
-          </Row>
-          <Row className='section'>
-            <p className='inter-medium' style={{ margin: 5 }}>Location: <span className='inter-bold'> {cue.location}</span></p>
-          </Row>
-          <Row className='section'>
-            <p className='inter-medium' style={{ margin: 5 }}>AV Media/Audio: <span className='inter-bold'> {cue.avMedia}</span></p>
-          </Row>
-          <Row className='section'>
-            <p className='inter-medium' style={{ margin: 5 }}>Audio Source: <span className='inter-bold'> {cue.audioSource}</span></p>
-          </Row>
-          <Row className='section'>
-            <p className='inter-medium' style={{ margin: 5 }}>Side Screens: <span className='inter-bold' style={{ margin: 0 }}> {cue.sideScreens}</span></p>
-          </Row>
-          <Row className='section'>
-            <p className='inter-medium' style={{ margin: 5 }}>Center Screen: <span className='inter-bold'> {cue.centerScreen}</span></p>
-          </Row>
-          <Row className='section'>
-            <p className='inter-medium' style={{ margin: 5 }}>Lighting: <span className='inter-bold'> {cue.lighting}</span></p>
-          </Row>
-          <Row className='section'>
-            <p className='inter-medium' style={{ margin: 5 }}>Ambient Lights: <span className='inter-bold'> {cue.ambientLights}</span></p>
-          </Row>
-          <Row className="section d-flex justify-content-start w-100">
+          <Row className="section">
             <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 14 }}>Notes:</p>
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Presenter: </p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0 }}>{cue.notes}</p>
+              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.presenter}</p>
+            </Col>
+          </Row>
+
+          <Row className="section">
+            <Col xs="auto" className="p-1">
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Location: </p>
+            </Col>
+            <Col className="p-1">
+              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.location}</p>
+            </Col>
+          </Row>
+
+          <Row className="section">
+            <Col xs="auto" className="p-1">
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>AV Media/Audio: </p>
+            </Col>
+            <Col className="p-1">
+              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.avMedia}</p>
+            </Col>
+          </Row>
+
+          <Row className="section">
+            <Col xs="auto" className="p-1">
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Audio Source: </p>
+            </Col>
+            <Col className="p-1">
+              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.audioSource}</p>
+            </Col>
+          </Row>
+
+          <Row className="section">
+            <Col xs="auto" className="p-1">
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Side Screens: </p>
+            </Col>
+            <Col className="p-1">
+              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.sideScreens}</p>
+            </Col>
+          </Row>
+
+          <Row className="section">
+            <Col xs="auto" className="p-1">
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Center Screen: </p>
+            </Col>
+            <Col className="p-1">
+              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.centerScreen}</p>
+            </Col>
+          </Row>
+
+          <Row className="section">
+            <Col xs="auto" className="p-1">
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Lighting: </p>
+            </Col>
+            <Col className="p-1">
+              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.lighting}</p>
+            </Col>
+          </Row>
+          
+          <Row className="section">
+            <Col xs="auto" className="p-1">
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Ambient Lights:</p>
+            </Col>
+            <Col className="p-1">
+              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.ambientLights}</p>
+            </Col>
+          </Row>
+
+          <Row className="section">
+            <Col xs="auto" className="p-1">
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Notes:</p>
+            </Col>
+            <Col className="p-1">
+              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.notes}</p>
             </Col>
           </Row>
         </Card.Body>
       </Card>
     ))}
-    </div>
-    </div>
-        <Row className="justify-content-center text-center mt-3 mb-4" style={{padding: '2%'}}>
+    <Row className="justify-content-center mt-3 mb-4" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
           <Col>
             <img src={addMoreButton} height="70px" alt="Add More" />
           </Col>
         </Row>
+    </div>
+    </div>
       </Container>
     </>
   );

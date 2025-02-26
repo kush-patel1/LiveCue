@@ -21,29 +21,60 @@
     overflow-y: hidden;
 }
 
-.row {
-    max-width: 100%;
-    flex-wrap: wrap;
-  }
-  
-.col {
-    max-width: 100%;
-    overflow: hidden;
-}
-
-.card{
-  padding: 2%;
-}
-
 .CueInput-Cue{
-    width: 350px;
+    width: 300px;
     height: 700px;
     background-color: #1b1c1d;
     color: #fff6ee;
     border-radius: 5%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    padding-left: 3%;
+    padding: 0;
     flex-shrink: 0;
+    box-sizing:content-box;
+}
+
+.section {
+    border: 3px solid #578493;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    min-width: 280px;
+    text-wrap: auto;
+}
+
+.scroll-container-cueInput {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 20px;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.scroll-content-cueInput {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 15px;
+    width: auto; /* Allow flexible width */
+}
+
+.cueNumber {
+    background-color: #fff6ee;
+    color: #1b1c1d;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 33px;
+    height: 33px;
+}
+  
+.vertical-line {
+    width: 3px;
+    height: 45px; /* Adjust as needed */
+    background-color: #578493;
+    border-radius: 10px;
+    margin-right: 0;
 }
 
 @font-face { 
@@ -114,50 +145,5 @@
     font-optical-sizing: auto;
     font-weight: 900;
     font-style: normal;
-  }
-
-.scroll-container-cueInput {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding: 20px;
-    width: 100%;
-    justify-content: flex-start;
-}
-
-.scroll-content-cueInput {
-    display: flex;
-    flex-wrap: nowrap; /* Prevents wrapping */
-    gap: 1%;
-    min-width: max-content; /* Ensures it expands properly */
-}
-
-  .section {
-    border: 3px solid #578493;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    min-width: 325px;
-    text-wrap: auto;
-}
-
-.cueNumber {
-    background-color: #fff6ee;
-    color: #1b1c1d;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 33px;
-    max-width: 33px;
-    min-height: 33px;
-    max-height: 33px;
-}
-  
-.vertical-line {
-    width: 3px;
-    height: 45px; /* Adjust as needed */
-    background-color: #578493;
-    border-radius: 10px;
-    margin-right: 0;
   }
   

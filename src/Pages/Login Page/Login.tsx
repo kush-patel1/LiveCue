@@ -117,7 +117,7 @@ function Login({setUser} : LoginPageProps) : React.JSX.Element {
             {AppHeader()}
         </div><Container fluid className="Login-body d-flex align-items-center justify-content-center">
                 <Row className="w-100 justify-content-center">
-                    <Col xxs={15} xs={16} sm={8} md={6} lg={5} xl={4}>
+                    <Col xxs={15} xs={16} sm={8} md={6} lg={5} xl={3}>
                         <Card className="Login-popup">
                             <Card.Body>
                                 <h2 className="text-center mb-4">Login</h2>
