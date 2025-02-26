@@ -31,10 +31,30 @@ function CueInput() {
                         centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
                         {cueNumber: 10, title: "Dynamic Speech", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
                           centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
+                          {cueNumber: 11, title: "P. Sant Speech", startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T17:40:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Logo Splash",
+                            centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Purple", notes: "Blackout, curtains closed, slow gobo movements, haze, audio is MM Jingle"}, 
+                            {cueNumber: 12, title: "MSM Katha 1", startTime: new Date("2024-12-21T17:40:00"), endTime: new Date("2024-12-21T17:45:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
+                              centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains closed, slow gobo movements, haze, 5 minute countdown video with pictures/video clips as smrutis of our Mandir"}, 
+                              {cueNumber: 13, title: "Skit Emcee 2", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Mangalcharan Slide",
+                                centerScreen: "Mangalacharan Center Video", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains open"},
+                                {cueNumber: 14, title: "Community Services Video", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Side Bang Video",
+                                  centerScreen: "Center Bang Video", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains open, fast gobo movements, haze, volume high, bass boost, sync up all 3 screens so movements across screens are smooth."},
+                                    {cueNumber: 15, title: "Spoken Word Poem", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Instrumental", audioSource: "Live & ProPres", sideScreens: "Countdown Vid",
+                                      centerScreen: "Welcome Emcee Backdrops 1-3", lighting: "Center Stage Spotlight", ambientLights: "Blue", notes: "Light instrumental, Move Spots with speaker"},
+                                      {cueNumber: 16, title: "P. Sant Speech 2", startTime: new Date("2024-12-21T17:40:00"), endTime: new Date("2024-12-21T17:45:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
+                                        centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"}, 
+                                        {cueNumber: 17, title: "PSM Katha 1", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Bang",
+                                          centerScreen: "Bang", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
+                                          {cueNumber: 18, title: "Skit Emcee 3", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
+                                            centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
+                                            {cueNumber: 19, title: "I-Family Becomes Mandir Video", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
+                                              centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
+                                              {cueNumber: 20, title: "E-Family Becomes Mandir", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
+                                                centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
   ]
 
   const project1: Project = {
-    title: "DE MMXXIV", date: new Date(2024, 11, 21), startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T20:16:00"), duration: new Date(0,0,0,2,51),
+    id:1, title: "DE MMXXIV", date: new Date(2024, 11, 21), startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T20:16:00"), duration: new Date(0,0,0,2,51),
     cues: cues, cueAmount: 27
   }
 
@@ -44,15 +64,15 @@ function CueInput() {
       <Container fluid className="CueInput-body d-flex align-items-center justify-content-center">
       <div className="scroll-container-cueInput">
   <div className="scroll-content-cueInput">
-    {cues.map((cue) => (
+    {cues.sort((a, b) => a.cueNumber - b.cueNumber).map((cue) => (
       <Card key={cue.cueNumber} className="CueInput-Cue">
         <Card.Body>
           <Row style={{marginLeft: 5}}>
             <Col xs={3} className='cueNumber'>
               <h5 className="inter-bold" style={{ margin: 0 }}>{cue.cueNumber}</h5>
             </Col>
-            <Col>
-              <h5 className="inter-bold" style={{ margin: 4, fontSizeAdjust: '0.475' }}> {cue.title}</h5>
+            <Col className='title-CueInput'>
+              <h5 className="inter-bold title-CueInput" style={{ margin: 4, fontSizeAdjust: '0.475' }}> {cue.title}</h5>
             </Col>
           </Row>
           <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '290px', marginTop: 10, marginBottom: 0, borderStyle: "solid", opacity: '1', marginLeft: -12}} />

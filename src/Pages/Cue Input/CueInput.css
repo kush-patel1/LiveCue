@@ -77,6 +77,14 @@
     margin-right: 0;
 }
 
+.title-CueInput {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width:100%; /* Ensure it stays within the card */
+}
+
 @font-face { 
     font-family: 'Jitter'; 
     src: url('../../Jitter.otf') format('opentype'); 

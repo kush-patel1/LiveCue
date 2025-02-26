@@ -29,9 +29,19 @@
     color: #fff6ee;
     border-radius: 4%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    padding-left: 3%;
     flex-shrink: 0;
+    box-sizing: content-box;
 }
+
+.title-HomePage {
+  font-size: 2rem; /* Default size */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 100%; /* Ensure it stays within the card */
+}
+
 
 .scroll-container {
   flex-grow: .75;

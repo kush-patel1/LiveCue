@@ -27,10 +27,26 @@ function HomePage() {
 
   let cuesLength: number = cues.length - 1;
 
-  const project1: Project = {
-    title: "DE MMXXIV", date: new Date(2024, 11, 21), startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T20:16:00"), duration: new Date(0,0,0,2,51),
-    cues: cues, cueAmount: 27
-  }
+  const projects: Project[] = [
+    {id: 1, title: "Hari Jayanti 2024", date: new Date(2024, 3, 14), startTime: new Date("2025-04-06T16:30:00"), endTime: new Date("2025-04-06T18:30:00"), duration: new Date(0,0,0,2,0),
+    cues: cues, cueAmount: 35
+    },
+    {id: 2, title: "DE MMXXIV", date: new Date(2024, 11, 21), startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T20:16:00"), duration: new Date(0,0,0,2,51),
+      cues: cues, cueAmount: 27
+    }, 
+    {id: 3, title: "Swaminarayan Jayanti 2025", date: new Date(2025, 3, 6), startTime: new Date("2025-04-06T16:30:00"), endTime: new Date("2025-04-06T18:30:00"), duration: new Date(0,0,0,2,0),
+    cues: cues, cueAmount: 35
+    }, 
+    {id: 4, title: "Hari Jayanti 2024", date: new Date(2024, 3, 14), startTime: new Date("2025-04-06T16:30:00"), endTime: new Date("2025-04-06T18:30:00"), duration: new Date(0,0,0,2,0),
+      cues: cues, cueAmount: 35
+      },
+      {id: 5, title: "DE MMXXIV", date: new Date(2024, 11, 21), startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T20:16:00"), duration: new Date(0,0,0,2,51),
+        cues: cues, cueAmount: 27
+      }, 
+      {id: 6, title: "Hari Jayanti 2025", date: new Date(2025, 3, 6), startTime: new Date("2025-04-06T16:30:00"), endTime: new Date("2025-04-06T18:30:00"), duration: new Date(0,0,0,2,0),
+      cues: cues, cueAmount: 35
+      },];
+
   return (
     <>
       <AppHeader />
@@ -42,61 +58,36 @@ function HomePage() {
         </Row>
         <div className="scroll-container">
           <div className="scroll-content">
-          <Card className="HomePage-Project1">
-              <Card.Body>
-                <h1 className="inter-bold">{project1.title.toString()}</h1>
-                <h3 className="inter-semibold" style={{paddingBottom: '5%'}}>{project1.date.toLocaleDateString([], {month: 'long', day: 'numeric', year: 'numeric'})}</h3>
+          {projects.sort((a, b) => b.id - a.id).map((project) => (
+      <Card key={project.id} className="HomePage-Project1">
+        <Card.Body>
+                <h1 className="inter-bold title-HomePage">{project.title.toString()}</h1>
+                <h3 className="inter-semibold" style={{paddingBottom: '5%'}}>{project.date.toLocaleDateString([], {month: 'long', day: 'numeric', year: 'numeric'})}</h3>
                 <h3 className="inter-semibold">Details</h3>
                 <p className="inter-medium" style={{marginBottom: '1%'}}>
-                  Start Time: {cues[0].startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                  Start Time: {project.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                 </p>
                 <p className="inter-medium" style={{marginBottom: '1%'}}>
-                  End Time: {cues[cuesLength].endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                  End Time: {project.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                 </p>
                 <p className="inter-medium" style={{ paddingBottom: '5%', marginBottom:'1%'}} >
-                  Duration: {Math.floor((cues[cuesLength].endTime.getTime() - cues[0].startTime.getTime()) / 60000)} minutes
+                  Duration: {Math.floor((project.endTime.getTime() - project.startTime.getTime()) / 60000)} minutes
                 </p>
-                <h3 className="inter-semibold">Cues: {project1.cueAmount}</h3>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>01: {cues[0].title}</p>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>02: {cues[1].title}</p>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>03: {cues[2].title}</p>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>04: {cues[3].title}</p>
-                <p className="inter-medium" style={{marginBottom: '1%', paddingBottom: '5%'}}>05: {cues[4].title}</p>
+                <h3 className="inter-semibold">Cues: {project.cueAmount}</h3>
+                <p className="inter-medium" style={{marginBottom: '1%'}}>01: {project.cues[0].title}</p>
+                <p className="inter-medium" style={{marginBottom: '1%'}}>02: {project.cues[1].title}</p>
+                <p className="inter-medium" style={{marginBottom: '1%'}}>03: {project.cues[2].title}</p>
+                <p className="inter-medium" style={{marginBottom: '1%'}}>04: {project.cues[3].title}</p>
+                <p className="inter-medium" style={{marginBottom: '1%', paddingBottom: '5%'}}>05: {project.cues[4].title}</p>
                 <div className="d-flex justify-content-between">
                   <img src={editButton} height="40px" alt="Edit" onClick={() => navigate("/CueInput")} style={{paddingLeft: '15%'}}/>
                   <img src={liveButton} height="40px" alt="Live" onClick={() => navigate('/LiveCueSheet')} style={{paddingRight: '20%'}} />
                 </div>
               </Card.Body>
             </Card>
-            <Card className="HomePage-Project1">
-              <Card.Body>
-              <h1 className="inter-bold">Untitled</h1>
-                <h3 className="inter-semibold" style={{paddingBottom: '5%'}}>Date</h3>
-                <h3 className="inter-semibold">Details</h3>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>
-                  Start Time:
-                </p>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>
-                  End Time:
-                </p>
-                <p className="inter-medium" style={{ paddingBottom: '5%', marginBottom:'1%'}} >
-                  Duration: 
-                </p>
-                <h3 className="inter-semibold">Cues: </h3>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>01: </p>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>02: </p>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>03: </p>
-                <p className="inter-medium" style={{marginBottom: '1%'}}>04: </p>
-                <p className="inter-medium" style={{marginBottom: '1%', paddingBottom: '5%'}}>05: </p>
-                <div className="d-flex justify-content-between">
-                  <img src={editButton} height="40px" alt="Edit" onClick={() => navigate("/CueInput")} style={{paddingLeft: '15%'}}/>
-                  <img src={liveButton} height="40px" alt="Live" onClick={() => navigate('/LiveCueSheet')} style={{paddingRight: '20%'}} />
-                </div>
-              </Card.Body>
-            </Card>
-            
-          </div>
-        </div>
+          ))}
+            </div>
+            </div>
       </Container>
     </>
   );
