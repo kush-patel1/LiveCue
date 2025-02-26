@@ -111,7 +111,7 @@ export function SignUp({setUser} : SignUpPageProps) : React.JSX.Element  {
             {AppHeader()}
         </div><Container fluid className="SignUp-body d-flex align-items-center justify-content-center">
                 <Row className="w-100 justify-content-center">
-                    <Col xxs={12} xs={11} sm={9} md={7} lg={5}>
+                    <Col xxs={12} xs={11} sm={9} md={7} lg={4}>
                         <Card className="SignUp-popup">
                             <Card.Body>
                                 <h2 className="text-center mb-4">Sign Up</h2>

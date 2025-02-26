@@ -1,4 +1,4 @@
-.HomePage-header {
+.CueInput-header {
     background-color: #141414;
     display: flex;
     align-items: center;
@@ -9,7 +9,7 @@
     color: white;
 }
 
-.HomePage-body {
+.CueInput-body {
     background-color: #141414;
     min-height: 92vh;
     display: flex;
@@ -21,29 +21,60 @@
     overflow-y: hidden;
 }
 
-.HomePage-Project1{
-    min-width: 400px;
-    max-width: 400px;
-    width: 100%;
+.CueInput-Cue{
+    width: 300px;
+    height: 700px;
     background-color: #1b1c1d;
     color: #fff6ee;
-    border-radius: 4%;
+    border-radius: 5%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    padding-left: 3%;
+    padding: 0;
     flex-shrink: 0;
+    box-sizing:content-box;
 }
 
-.scroll-container {
-  flex-grow: .75;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 20px;
-  width: 100%;
+.section {
+    border: 3px solid #578493;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    min-width: 280px;
+    text-wrap: auto;
 }
 
-.scroll-content {
-  display: inline-flex;
-  gap: 2%;
+.scroll-container-cueInput {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 20px;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.scroll-content-cueInput {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 15px;
+    width: auto; /* Allow flexible width */
+}
+
+.cueNumber {
+    background-color: #fff6ee;
+    color: #1b1c1d;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 33px;
+    height: 33px;
+}
+  
+.vertical-line {
+    width: 3px;
+    height: 45px; /* Adjust as needed */
+    background-color: #578493;
+    border-radius: 10px;
+    margin-right: 0;
 }
 
 @font-face { 
@@ -115,3 +146,4 @@
     font-weight: 900;
     font-style: normal;
   }
+  
