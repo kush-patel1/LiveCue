@@ -23,7 +23,7 @@
 
 .CueInput-Cue{
     width: 300px;
-    height: 700px;
+    min-height: 700px;
     background-color: #1b1c1d;
     color: #fff6ee;
     border-radius: 5%;
