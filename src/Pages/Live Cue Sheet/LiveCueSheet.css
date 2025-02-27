@@ -83,44 +83,6 @@
   text-overflow: ellipsis;
   display: block;
   max-width:100%; /* Ensure it stays within the card */
-  font-size: 18px;
-}
-
-.notion-input {
-  max-width: 100%;
-  outline: none;
-  background: transparent;
-  color: #fff6ee;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Allow full text display while typing */
-.notion-input:focus {
-  overflow: visible;
-  white-space: normal;
-  text-overflow: clip;
-}
-
-.notion-input:empty:before {
-  content: attr(placeholder);
-  color: #fff6ee;
-  font-style: italic;
-}
-
-.notion-textarea {
-  width: 100%;
-  border: none;
-  outline: none;
-  resize: none;
-  background: transparent;
-}
-
-.notion-textarea::placeholder {
-  color: #aaa;
-  font-style: italic;
 }
 
 @font-face { 

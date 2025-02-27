@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CueInput.css';
 import { AppHeader } from '../../Components/Header/Header';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Placeholder } from 'react-bootstrap';
 import addMoreButton from '../../Assets/Home-Page/Add-More-Button.png';
 import { Project } from '../../Interfaces/Project/Project';
 import { Cue } from '../../Interfaces/Cue/Cue';
@@ -10,6 +10,7 @@ import { Cue } from '../../Interfaces/Cue/Cue';
 function CueInput() {
   const navigate = useNavigate();
 
+/*
   const cues: Cue[]=[
     {cueNumber: 1, title: "Pre-show Seating", startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T17:40:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Logo Splash",
       centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Purple", notes: "Blackout, curtains closed, slow gobo movements, haze, audio is MM Jingle"}, 
@@ -57,6 +58,53 @@ function CueInput() {
     id:1, title: "DE MMXXIV", date: new Date(2024, 11, 21), startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T20:16:00"), duration: new Date(0,0,0,2,51),
     cues: cues, cueAmount: 27
   }
+*/
+
+  const [cueAmount, setCueAmount] = useState(5); // Default to 5 cues
+  const [cues, setCues] = useState<Cue[]>(Array.from({ length: cueAmount }, (_, i) => ({
+    cueNumber: i + 1,
+    title: '',
+    startTime: new Date(),
+    endTime: new Date(),
+    presenter: '',
+    location: '',
+    avMedia: '',
+    audioSource: '',
+    sideScreens: '',
+    centerScreen: '',
+    lighting: '',
+    ambientLights: '',
+    notes: '',
+  })));
+
+  // Update field when user edits input
+  const handleInputChange = (index: number, field: keyof Cue, value: string) => {
+    const updatedCues = [...cues];
+    updatedCues[index] = { ...updatedCues[index], [field]: value };
+    setCues(updatedCues);
+  };
+
+  // Handle cue amount change
+  const addCue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const amount = Math.max(1, parseInt(e.target.value) || 1); // Ensure at least 1 cue
+    setCueAmount(amount);
+    setCues(Array.from({ length: amount }, (_, i) => ({
+      cueNumber: i + 1,
+      title: '',
+      startTime: new Date(),
+      endTime: new Date(),
+      presenter: '',
+      location: '',
+      avMedia: '',
+      audioSource: '',
+      sideScreens: '',
+      centerScreen: '',
+      lighting: '',
+      ambientLights: '',
+      notes: '',
+    })));
+  };
+
 
   return (
     <>
@@ -64,7 +112,7 @@ function CueInput() {
       <Container fluid className="CueInput-body d-flex align-items-center justify-content-center">
       <div className="scroll-container-cueInput">
   <div className="scroll-content-cueInput">
-    {cues.sort((a, b) => a.cueNumber - b.cueNumber).map((cue) => (
+    {cues.sort((a, b) => a.cueNumber - b.cueNumber).map((cue, index) => (
       <Card key={cue.cueNumber} className="CueInput-Cue">
         <Card.Body>
           <Row style={{marginLeft: 5}}>
@@ -72,7 +120,16 @@ function CueInput() {
               <h5 className="inter-bold" style={{ margin: 0 }}>{cue.cueNumber}</h5>
             </Col>
             <Col className='title-CueInput'>
-              <h5 className="inter-bold title-CueInput" style={{ margin: 4, fontSizeAdjust: '0.475' }}> {cue.title}</h5>
+            <Form className="inter-bold title-CueInput" style={{ margin: 4}}>
+            <div
+                    contentEditable
+                    className="notion-input"
+                    //placeholder='Enter Title'
+                    onBlur={(e) => handleInputChange(index, "title", e.target.innerText)}
+                  >
+                    {cue.title}
+            </div>
+            </Form>
             </Col>
           </Row>
           <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '290px', marginTop: 10, marginBottom: 0, borderStyle: "solid", opacity: '1', marginLeft: -12}} />
@@ -95,7 +152,17 @@ function CueInput() {
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Presenter: </p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.presenter}</p>
+            <Form >
+                <div
+                    contentEditable
+                    className="notion-input inter-bold text-wrap"
+                    style={{ margin: 0, fontSize: '14px' }}
+                    //placeholder='presenter'
+                    onBlur={(e) => handleInputChange(index, "presenter", e.target.innerText)}
+                  >
+                    {cue.presenter}
+                </div>
+            </Form>
             </Col>
           </Row>
 
@@ -104,7 +171,17 @@ function CueInput() {
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Location: </p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.location}</p>
+            <Form >
+                <div
+                    contentEditable
+                    className="notion-input inter-bold text-wrap"
+                    style={{ margin: 0, fontSize: '14px' }}
+                    //placeholder='location'
+                    onBlur={(e) => handleInputChange(index, "location", e.target.innerText)}
+                  >
+                    {cue.location}
+                </div>
+            </Form>
             </Col>
           </Row>
 
@@ -113,7 +190,17 @@ function CueInput() {
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>AV Media/Audio: </p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.avMedia}</p>
+            <Form >
+                <div
+                    contentEditable
+                    className="notion-input inter-bold text-wrap"
+                    style={{ margin: 0, fontSize: '14px' }}
+                    //placeholder='avMedia'
+                    onBlur={(e) => handleInputChange(index, "avMedia", e.target.innerText)}
+                  >
+                    {cue.avMedia}
+                </div>
+            </Form>
             </Col>
           </Row>
 
@@ -122,7 +209,17 @@ function CueInput() {
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Audio Source: </p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.audioSource}</p>
+            <Form >
+                <div
+                    contentEditable
+                    className="notion-input inter-bold text-wrap"
+                    style={{ margin: 0, fontSize: '14px' }}
+                    //placeholder='audioSource'
+                    onBlur={(e) => handleInputChange(index, "audioSource", e.target.innerText)}
+                  >
+                    {cue.audioSource}
+                </div>
+            </Form>
             </Col>
           </Row>
 
@@ -131,7 +228,17 @@ function CueInput() {
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Side Screens: </p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.sideScreens}</p>
+            <Form >
+                <div
+                    contentEditable
+                    className="notion-input inter-bold text-wrap"
+                    style={{ margin: 0, fontSize: '14px' }}
+                    //placeholder='sideScreens'
+                    onBlur={(e) => handleInputChange(index, "sideScreens", e.target.innerText)}
+                  >
+                    {cue.sideScreens}
+                </div>
+            </Form>
             </Col>
           </Row>
 
@@ -140,7 +247,17 @@ function CueInput() {
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Center Screen: </p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.centerScreen}</p>
+            <Form >
+                <div
+                    contentEditable
+                    className="notion-input inter-bold text-wrap"
+                    style={{ margin: 0, fontSize: '14px' }}
+                    //placeholder='centerScreen'
+                    onBlur={(e) => handleInputChange(index, "centerScreen", e.target.innerText)}
+                  >
+                    {cue.centerScreen}
+                </div>
+            </Form>
             </Col>
           </Row>
 
@@ -149,7 +266,17 @@ function CueInput() {
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Lighting: </p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.lighting}</p>
+              <Form >
+                <div
+                    contentEditable
+                    className="notion-input inter-bold text-wrap"
+                    style={{ margin: 0, fontSize: '14px' }}
+                    //placeholder='lighting'
+                    onBlur={(e) => handleInputChange(index, "lighting", e.target.innerText)}
+                  >
+                    {cue.lighting}
+                </div>
+            </Form>
             </Col>
           </Row>
           
@@ -158,7 +285,17 @@ function CueInput() {
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Ambient Lights:</p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.ambientLights}</p>
+              <Form >
+                <div
+                    contentEditable
+                    className="notion-input inter-bold text-wrap"
+                    style={{ margin: 0, fontSize: '14px' }}
+                    //placeholder='ambient lighting'
+                    onBlur={(e) => handleInputChange(index, "ambientLights", e.target.innerText)}
+                  >
+                    {cue.ambientLights}
+                </div>
+            </Form>
             </Col>
           </Row>
 
@@ -167,7 +304,17 @@ function CueInput() {
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Notes:</p>
             </Col>
             <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.notes}</p>
+            <Form >
+                <div
+                    contentEditable
+                    className="notion-input inter-bold text-wrap"
+                    style={{ margin: 0, fontSize: '14px' }}
+                    //placeholder='notes'
+                    onBlur={(e) => handleInputChange(index, "notes", e.target.innerText)}
+                  >
+                    {cue.notes}
+                </div>
+            </Form>
             </Col>
           </Row>
         </Card.Body>
