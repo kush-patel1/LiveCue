@@ -85,25 +85,28 @@ function CueInput() {
   };
 
   // Handle cue amount change
-  const addCue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const amount = Math.max(1, parseInt(e.target.value) || 1); // Ensure at least 1 cue
-    setCueAmount(amount);
-    setCues(Array.from({ length: amount }, (_, i) => ({
-      cueNumber: i + 1,
-      title: '',
-      startTime: new Date(),
-      endTime: new Date(),
-      presenter: '',
-      location: '',
-      avMedia: '',
-      audioSource: '',
-      sideScreens: '',
-      centerScreen: '',
-      lighting: '',
-      ambientLights: '',
-      notes: '',
-    })));
+  const addCue = () => {
+    setCueAmount((prevAmount) => {
+      const newAmount = prevAmount + 1; // Increment by 1
+      setCues(Array.from({ length: newAmount }, (_, i) => ({
+        cueNumber: i + 1,
+        title: '',
+        startTime: new Date(),
+        endTime: new Date(),
+        presenter: '',
+        location: '',
+        avMedia: '',
+        audioSource: '',
+        sideScreens: '',
+        centerScreen: '',
+        lighting: '',
+        ambientLights: '',
+        notes: '',
+      })));
+      return newAmount;
+    });
   };
+  
 
 
   return (
@@ -115,10 +118,15 @@ function CueInput() {
     {cues.sort((a, b) => a.cueNumber - b.cueNumber).map((cue, index) => (
       <Card key={cue.cueNumber} className="CueInput-Cue">
         <Card.Body>
+          
           <Row style={{marginLeft: 5}}>
+
+            {/* Cue Number Box */}
             <Col xs={3} className='cueNumber'>
               <h5 className="inter-bold" style={{ margin: 0 }}>{cue.cueNumber}</h5>
             </Col>
+
+            {/* Title */}
             <Col className='title-CueInput'>
             <Form className="inter-bold title-CueInput" style={{ margin: 4}}>
             <div
@@ -131,26 +139,43 @@ function CueInput() {
             </div>
             </Form>
             </Col>
+
           </Row>
+
+          {/* Horizontal Line for under the cue number and title*/}
           <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '290px', marginTop: 10, marginBottom: 0, borderStyle: "solid", opacity: '1', marginLeft: -12}} />
 
           <Row>
+
+            {/* Start Time */}
             <Col xs={5}>
               <p className='inter-medium' style={{ margin: 10, marginLeft: 0 }}>Start: {cue.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
             </Col>
+
+            {/* Verticle Line */}
             <Col xs={2} className="d-flex justify-content-center" style={{ marginLeft: 0 }}>
               <div className="vertical-line"></div>
             </Col>
+
+            {/* End Time*/}
             <Col xs={1} style={{ paddingLeft: 0 }}>
               <p className='inter-medium' style={{ margin: 10, marginLeft: -10 }}>End: {cue.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
             </Col>
+
           </Row>
+
+          {/* Horizontal line for under the start time and end time */}
           <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '290px', marginTop: 0, borderStyle: "solid", opacity: '1', marginLeft: -12}} />
 
+
           <Row className="section">
+
+            {/* Presenter Heading */}
             <Col xs="auto" className="p-1">
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Presenter: </p>
             </Col>
+
+            {/* Presenter Form */}
             <Col className="p-1">
             <Form >
                 <div
@@ -164,12 +189,17 @@ function CueInput() {
                 </div>
             </Form>
             </Col>
+
           </Row>
 
           <Row className="section">
+
+            {/* Location Heading */}
             <Col xs="auto" className="p-1">
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Location: </p>
             </Col>
+
+            {/* Loaction Form */}
             <Col className="p-1">
             <Form >
                 <div
@@ -183,12 +213,17 @@ function CueInput() {
                 </div>
             </Form>
             </Col>
+
           </Row>
 
           <Row className="section">
+
+            {/* AV Media Heading */}
             <Col xs="auto" className="p-1">
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>AV Media/Audio: </p>
             </Col>
+
+            {/* AV Media Form */}
             <Col className="p-1">
             <Form >
                 <div
@@ -202,12 +237,17 @@ function CueInput() {
                 </div>
             </Form>
             </Col>
+
           </Row>
 
           <Row className="section">
+
+            {/* Audio Source Heading */}
             <Col xs="auto" className="p-1">
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Audio Source: </p>
             </Col>
+
+            {/* Audio Source Form */}
             <Col className="p-1">
             <Form >
                 <div
@@ -221,12 +261,17 @@ function CueInput() {
                 </div>
             </Form>
             </Col>
+
           </Row>
 
           <Row className="section">
+
+            {/* Side Screens Heading */}
             <Col xs="auto" className="p-1">
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Side Screens: </p>
             </Col>
+
+            {/* Side Screens Form */}
             <Col className="p-1">
             <Form >
                 <div
@@ -240,12 +285,17 @@ function CueInput() {
                 </div>
             </Form>
             </Col>
+
           </Row>
 
           <Row className="section">
+
+            {/* Center Screen Heading */}
             <Col xs="auto" className="p-1">
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Center Screen: </p>
             </Col>
+
+            {/* Center Screen Form */}
             <Col className="p-1">
             <Form >
                 <div
@@ -259,12 +309,17 @@ function CueInput() {
                 </div>
             </Form>
             </Col>
+
           </Row>
 
           <Row className="section">
+
+            {/* Lighting Heading */}
             <Col xs="auto" className="p-1">
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Lighting: </p>
             </Col>
+
+            {/* Lighting Heading Form */}
             <Col className="p-1">
               <Form >
                 <div
@@ -278,12 +333,17 @@ function CueInput() {
                 </div>
             </Form>
             </Col>
+
           </Row>
           
           <Row className="section">
+
+            {/* Ambient Lights Heading */}
             <Col xs="auto" className="p-1">
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Ambient Lights:</p>
             </Col>
+
+            {/* Ambient Lights Form */}
             <Col className="p-1">
               <Form >
                 <div
@@ -297,12 +357,17 @@ function CueInput() {
                 </div>
             </Form>
             </Col>
+
           </Row>
 
           <Row className="section">
+
+            {/* Notes Heading */}
             <Col xs="auto" className="p-1">
               <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Notes:</p>
             </Col>
+
+            {/* Notes Form */}
             <Col className="p-1">
             <Form >
                 <div
@@ -316,13 +381,14 @@ function CueInput() {
                 </div>
             </Form>
             </Col>
+
           </Row>
         </Card.Body>
       </Card>
     ))}
     <Row className="justify-content-center mt-3 mb-4" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
           <Col>
-            <img src={addMoreButton} height="70px" alt="Add More" />
+            <img src={addMoreButton} height="70px" alt="Add More" onClick = {addCue} style={{ cursor: "pointer" }} />
           </Col>
         </Row>
     </div>
