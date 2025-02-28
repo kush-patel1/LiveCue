@@ -9,7 +9,7 @@ export function AppHeader(): React.JSX.Element{
     return (
         <header className="app-header">
 
-          <h1 className = "app-header--heading"  onClick={() => {navigate("/home")}}>
+          <h1 className = "app-header--heading"  /*onClick={() => {navigate("/HomePage")}}*/>
             <img className = "heading--logo" src={logo} alt = "LiveCue"/>
           </h1>
 
