@@ -23,7 +23,7 @@
 
 .CueInput-Cue{
     width: 300px;
-    min-height: 700px;
+    height: 'auto';
     background-color: #1b1c1d;
     color: #fff6ee;
     border-radius: 5%;
@@ -33,6 +33,9 @@
     box-sizing:content-box;
 }
 
+.CueInput-TimePicker{
+  width: 110px;
+}
 .section {
     border: 3px solid #578493;
     height: auto;

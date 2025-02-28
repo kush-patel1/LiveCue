@@ -2,10 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CueInput.css';
 import { AppHeader } from '../../Components/Header/Header';
-import { Container, Row, Col, Card, Form, Placeholder } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form } from 'react-bootstrap';
 import addMoreButton from '../../Assets/Home-Page/Add-More-Button.png';
 import { Project } from '../../Interfaces/Project/Project';
 import { Cue } from '../../Interfaces/Cue/Cue';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { TimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
+
+
 
 function CueInput() {
   const navigate = useNavigate();
@@ -84,6 +90,13 @@ function CueInput() {
     setCues(updatedCues);
   };
 
+  const handleTimeChange = (index: number, field: keyof Cue, value: dayjs.Dayjs | null) => {
+    if (!value) return;
+    const updatedCues = [...cues];
+    updatedCues[index] = { ...updatedCues[index], [field]: value.toDate() };
+    setCues(updatedCues);
+  };
+
   // Handle cue amount change
   const addCue = () => {
     setCueAmount((prevAmount) => {
@@ -149,7 +162,49 @@ function CueInput() {
 
             {/* Start Time */}
             <Col xs={5}>
-              <p className='inter-medium' style={{ margin: 10, marginLeft: 0 }}>Start: {cue.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <TimePicker
+                label = 'Start Time: '
+                slotProps={{ textField: { size: 'small', sx: {
+                  backgroundColor: "transparent", // Transparent background
+                  fontSize: "0.75rem", // Smaller font size
+                  "& .MuiInputBase-input": {
+                    marginTop: "10px",
+                    color: "white", // White text
+                    fontSize: "1rem", // Smaller text inside the input
+                    padding: "4px 8px", // Adjust padding to reduce height
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    marginTop: "5px",
+                    minHeight: "30px", // Smaller input field height
+                    "& fieldset": {
+                      borderColor: "transparent", // White border
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "transparent", // White border on hover
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "transparent", // White border when focused
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    fontFamily: 'inter-bold',
+                    marginTop: "10px",
+                    marginLeft: '-6px',
+                    color: "white", // White label text
+                    fontSize: "1.2rem", // Smaller label
+                  },
+                  "& .MuiSvgIcon-root": {
+                    marginRight: -4,
+                    color: "white", // White clock icon
+                    fontSize: "1rem", // Smaller clock icon
+                  },
+                }, }}}
+                className='CueInput-TimePicker'
+                value={dayjs(cue.startTime)}
+                onChange={(value) => handleTimeChange(index, "startTime", value)}/>  
+            </LocalizationProvider>
+              {/*<p className='inter-medium' style={{ margin: 10, marginLeft: 0 }}>Start: {cue.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>*/}
             </Col>
 
             {/* Verticle Line */}
@@ -159,7 +214,51 @@ function CueInput() {
 
             {/* End Time*/}
             <Col xs={1} style={{ paddingLeft: 0 }}>
-              <p className='inter-medium' style={{ margin: 10, marginLeft: -10 }}>End: {cue.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <TimePicker
+                label = 'End Time: '
+                slotProps={{ textField: { size: 'small', sx: {
+                  backgroundColor: "transparent", // Transparent background
+                  fontSize: "0.75rem", // Smaller font size
+                  "& .MuiInputBase-input": {
+                    marginTop: "10px",
+                    marginLeft: "-10px",
+                    color: "white", // White text
+                    fontSize: "1rem", // Smaller text inside the input
+                    padding: "4px 8px", // Adjust padding to reduce height
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    marginTop: "5px",
+                    minHeight: "30px", // Smaller input field height
+                    "& fieldset": {
+                      borderColor: "transparent", // White border
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "transparent", // White border on hover
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "transparent", // White border when focused
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    fontFamily: 'inter-bold',
+                    marginTop: "10px",
+                    marginLeft: '-16px',
+                    color: "white", // White label text
+                    fontSize: "1.2rem", // Smaller label
+                  },
+                  "& .MuiSvgIcon-root": {
+                    marginRight: -1,
+                    color: "white", // White clock icon
+                    fontSize: "1rem", // Smaller clock icon
+                  },
+                }, }}}
+                className='CueInput-TimePicker'
+                value={dayjs(cue.endTime)}
+                onChange={(value) => handleTimeChange(index, "endTime", value)}/>  
+            </LocalizationProvider>
+
+              {/*<p className='inter-medium' style={{ margin: 10, marginLeft: -10 }}>End: {cue.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>*/}
             </Col>
 
           </Row>
@@ -220,7 +319,7 @@ function CueInput() {
 
             {/* AV Media Heading */}
             <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>AV Media/Audio: </p>
+              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>AV Media: </p>
             </Col>
 
             {/* AV Media Form */}
