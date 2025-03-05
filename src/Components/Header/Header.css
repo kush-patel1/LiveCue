@@ -1,17 +1,17 @@
-.app-header--heading{
-    background-color: #141414;
-    min-width: 100%;
-    padding-top: 2%;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow-x: hidden;
-    margin-bottom: 0;
-    max-width: 100vw;
+.app-header--heading {
+  background-color: #141414;
+  min-width: 100%;
+  padding-top: 2%;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  margin-bottom: 0;
+  max-width: 100vw;
 }
 
 .heading--logo {
-    height: 50px;
-    width: auto;
+  height: 50px;
+  width: auto;
 }

@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './LiveCueSheet.css';
-import { AppHeader } from '../../Components/Header/Header';
-import { Container, Row, Col, Card } from 'react-bootstrap';
-import addMoreButton from '../../Assets/Home-Page/Add-More-Button.png';
-import { Project } from '../../Interfaces/Project/Project';
-import { Cue } from '../../Interfaces/Cue/Cue';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./LiveCueSheet.css";
+import { AppHeader } from "../../Components/Header/Header";
+import { Container, Row, Col, Card } from "react-bootstrap";
+import addMoreButton from "../../Assets/Home-Page/Add-More-Button.png";
+import { Project } from "../../Interfaces/Project/Project";
+import { Cue } from "../../Interfaces/Cue/Cue";
 
 function CueInput() {
   const navigate = useNavigate();
 
-/*
+  /*
   const cues: Cue[]=[
     {cueNumber: 1, title: "Pre-show Seating", startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T17:40:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Logo Splash",
       centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Purple", notes: "Blackout, curtains closed, slow gobo movements, haze, audio is MM Jingle"}, 
@@ -61,21 +61,23 @@ function CueInput() {
 */
 
   const [cueAmount, setCueAmount] = useState(5); // Default to 5 cues
-  const [cues, setCues] = useState<Cue[]>(Array.from({ length: cueAmount }, (_, i) => ({
-    cueNumber: i + 1,
-    title: '',
-    startTime: new Date(),
-    endTime: new Date,
-    presenter: '',
-    location: '',
-    avMedia: '',
-    audioSource: '',
-    sideScreens: '',
-    centerScreen: '',
-    lighting: '',
-    ambientLights: '',
-    notes: '',
-  })));
+  const [cues, setCues] = useState<Cue[]>(
+    Array.from({ length: cueAmount }, (_, i) => ({
+      cueNumber: i + 1,
+      title: "",
+      startTime: new Date(),
+      endTime: new Date(),
+      presenter: "",
+      location: "",
+      avMedia: "",
+      audioSource: "",
+      sideScreens: "",
+      centerScreen: "",
+      lighting: "",
+      ambientLights: "",
+      notes: "",
+    })),
+  );
 
   // Update field when user edits input
   const handleChange = (index: number, field: keyof Cue, value: string) => {
@@ -88,146 +90,338 @@ function CueInput() {
   const handleCueAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const amount = Math.max(1, parseInt(e.target.value) || 1); // Ensure at least 1 cue
     setCueAmount(amount);
-    setCues(Array.from({ length: amount }, (_, i) => ({
-      cueNumber: i + 1,
-      title: '',
-      startTime: new Date(),
-      endTime: new Date(),
-      presenter: '',
-      location: '',
-      avMedia: '',
-      audioSource: '',
-      sideScreens: '',
-      centerScreen: '',
-      lighting: '',
-      ambientLights: '',
-      notes: '',
-    })));
+    setCues(
+      Array.from({ length: amount }, (_, i) => ({
+        cueNumber: i + 1,
+        title: "",
+        startTime: new Date(),
+        endTime: new Date(),
+        presenter: "",
+        location: "",
+        avMedia: "",
+        audioSource: "",
+        sideScreens: "",
+        centerScreen: "",
+        lighting: "",
+        ambientLights: "",
+        notes: "",
+      })),
+    );
   };
-
 
   return (
     <>
       <AppHeader />
-      <Container fluid className="CueInput-body d-flex align-items-center justify-content-center">
-      <div className="scroll-container-cueInput">
-  <div className="scroll-content-cueInput">
-    {cues.sort((a, b) => a.cueNumber - b.cueNumber).map((cue) => (
-      <Card key={cue.cueNumber} className="CueInput-Cue">
-        <Card.Body>
-          <Row style={{marginLeft: 5}}>
-            <Col xs={3} className='cueNumber'>
-              <h5 className="inter-bold" style={{ margin: 0 }}>{cue.cueNumber}</h5>
-            </Col>
-            <Col className='title-CueInput'>
-              <h5 className="inter-bold title-CueInput" style={{ margin: 4, fontSizeAdjust: '0.475' }}> {cue.title}</h5>
-            </Col>
-          </Row>
-          <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '290px', marginTop: 10, marginBottom: 0, borderStyle: "solid", opacity: '1', marginLeft: -12}} />
+      <Container
+        fluid
+        className="CueInput-body d-flex align-items-center justify-content-center"
+      >
+        <div className="scroll-container-cueInput">
+          <div className="scroll-content-cueInput">
+            {cues
+              .sort((a, b) => a.cueNumber - b.cueNumber)
+              .map((cue) => (
+                <Card key={cue.cueNumber} className="CueInput-Cue">
+                  <Card.Body>
+                    <Row style={{ marginLeft: 5 }}>
+                      <Col xs={3} className="cueNumber">
+                        <h5 className="inter-bold" style={{ margin: 0 }}>
+                          {cue.cueNumber}
+                        </h5>
+                      </Col>
+                      <Col className="title-CueInput">
+                        <h5
+                          className="inter-bold title-CueInput"
+                          style={{ margin: 4, fontSizeAdjust: "0.475" }}
+                        >
+                          {" "}
+                          {cue.title}
+                        </h5>
+                      </Col>
+                    </Row>
+                    <hr
+                      style={{
+                        borderTop: "3px solid #578493",
+                        borderRadius: "10px",
+                        minWidth: "290px",
+                        marginTop: 10,
+                        marginBottom: 0,
+                        borderStyle: "solid",
+                        opacity: "1",
+                        marginLeft: -12,
+                      }}
+                    />
 
-          <Row>
-            <Col xs={5}>
-              <p className='inter-medium' style={{ margin: 10, marginLeft: 0 }}>Start: {cue.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
-            </Col>
-            <Col xs={2} className="d-flex justify-content-center" style={{ marginLeft: 0 }}>
-              <div className="vertical-line"></div>
-            </Col>
-            <Col xs={1} style={{ paddingLeft: 0 }}>
-              <p className='inter-medium' style={{ margin: 10, marginLeft: -10 }}>End: {cue.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
-            </Col>
-          </Row>
-          <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '290px', marginTop: 0, borderStyle: "solid", opacity: '1', marginLeft: -12}} />
+                    <Row>
+                      <Col xs={5}>
+                        <p
+                          className="inter-medium"
+                          style={{ margin: 10, marginLeft: 0 }}
+                        >
+                          Start:{" "}
+                          {cue.startTime.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                        </p>
+                      </Col>
+                      <Col
+                        xs={2}
+                        className="d-flex justify-content-center"
+                        style={{ marginLeft: 0 }}
+                      >
+                        <div className="vertical-line"></div>
+                      </Col>
+                      <Col xs={1} style={{ paddingLeft: 0 }}>
+                        <p
+                          className="inter-medium"
+                          style={{ margin: 10, marginLeft: -10 }}
+                        >
+                          End:{" "}
+                          {cue.endTime.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                        </p>
+                      </Col>
+                    </Row>
+                    <hr
+                      style={{
+                        borderTop: "3px solid #578493",
+                        borderRadius: "10px",
+                        minWidth: "290px",
+                        marginTop: 0,
+                        borderStyle: "solid",
+                        opacity: "1",
+                        marginLeft: -12,
+                      }}
+                    />
 
-          <Row className="section">
-            <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Presenter: </p>
-            </Col>
-            <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.presenter}</p>
-            </Col>
-          </Row>
+                    <Row className="section">
+                      <Col xs="auto" className="p-1">
+                        <p
+                          className="inter-medium"
+                          style={{
+                            marginLeft: 13,
+                            fontSize: "14px",
+                            marginBottom: 0,
+                          }}
+                        >
+                          Presenter:{" "}
+                        </p>
+                      </Col>
+                      <Col className="p-1">
+                        <p
+                          className="inter-bold text-wrap"
+                          style={{ margin: 0, fontSize: "14px" }}
+                        >
+                          {cue.presenter}
+                        </p>
+                      </Col>
+                    </Row>
 
-          <Row className="section">
-            <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Location: </p>
-            </Col>
-            <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.location}</p>
-            </Col>
-          </Row>
+                    <Row className="section">
+                      <Col xs="auto" className="p-1">
+                        <p
+                          className="inter-medium"
+                          style={{
+                            marginLeft: 13,
+                            fontSize: "14px",
+                            marginBottom: 0,
+                          }}
+                        >
+                          Location:{" "}
+                        </p>
+                      </Col>
+                      <Col className="p-1">
+                        <p
+                          className="inter-bold text-wrap"
+                          style={{ margin: 0, fontSize: "14px" }}
+                        >
+                          {cue.location}
+                        </p>
+                      </Col>
+                    </Row>
 
-          <Row className="section">
-            <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>AV Media/Audio: </p>
-            </Col>
-            <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.avMedia}</p>
-            </Col>
-          </Row>
+                    <Row className="section">
+                      <Col xs="auto" className="p-1">
+                        <p
+                          className="inter-medium"
+                          style={{
+                            marginLeft: 13,
+                            fontSize: "14px",
+                            marginBottom: 0,
+                          }}
+                        >
+                          AV Media/Audio:{" "}
+                        </p>
+                      </Col>
+                      <Col className="p-1">
+                        <p
+                          className="inter-bold text-wrap"
+                          style={{ margin: 0, fontSize: "14px" }}
+                        >
+                          {cue.avMedia}
+                        </p>
+                      </Col>
+                    </Row>
 
-          <Row className="section">
-            <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Audio Source: </p>
-            </Col>
-            <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.audioSource}</p>
-            </Col>
-          </Row>
+                    <Row className="section">
+                      <Col xs="auto" className="p-1">
+                        <p
+                          className="inter-medium"
+                          style={{
+                            marginLeft: 13,
+                            fontSize: "14px",
+                            marginBottom: 0,
+                          }}
+                        >
+                          Audio Source:{" "}
+                        </p>
+                      </Col>
+                      <Col className="p-1">
+                        <p
+                          className="inter-bold text-wrap"
+                          style={{ margin: 0, fontSize: "14px" }}
+                        >
+                          {cue.audioSource}
+                        </p>
+                      </Col>
+                    </Row>
 
-          <Row className="section">
-            <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Side Screens: </p>
-            </Col>
-            <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.sideScreens}</p>
-            </Col>
-          </Row>
+                    <Row className="section">
+                      <Col xs="auto" className="p-1">
+                        <p
+                          className="inter-medium"
+                          style={{
+                            marginLeft: 13,
+                            fontSize: "14px",
+                            marginBottom: 0,
+                          }}
+                        >
+                          Side Screens:{" "}
+                        </p>
+                      </Col>
+                      <Col className="p-1">
+                        <p
+                          className="inter-bold text-wrap"
+                          style={{ margin: 0, fontSize: "14px" }}
+                        >
+                          {cue.sideScreens}
+                        </p>
+                      </Col>
+                    </Row>
 
-          <Row className="section">
-            <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Center Screen: </p>
-            </Col>
-            <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.centerScreen}</p>
-            </Col>
-          </Row>
+                    <Row className="section">
+                      <Col xs="auto" className="p-1">
+                        <p
+                          className="inter-medium"
+                          style={{
+                            marginLeft: 13,
+                            fontSize: "14px",
+                            marginBottom: 0,
+                          }}
+                        >
+                          Center Screen:{" "}
+                        </p>
+                      </Col>
+                      <Col className="p-1">
+                        <p
+                          className="inter-bold text-wrap"
+                          style={{ margin: 0, fontSize: "14px" }}
+                        >
+                          {cue.centerScreen}
+                        </p>
+                      </Col>
+                    </Row>
 
-          <Row className="section">
-            <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Lighting: </p>
-            </Col>
-            <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.lighting}</p>
-            </Col>
-          </Row>
-          
-          <Row className="section">
-            <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Ambient Lights:</p>
-            </Col>
-            <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.ambientLights}</p>
-            </Col>
-          </Row>
+                    <Row className="section">
+                      <Col xs="auto" className="p-1">
+                        <p
+                          className="inter-medium"
+                          style={{
+                            marginLeft: 13,
+                            fontSize: "14px",
+                            marginBottom: 0,
+                          }}
+                        >
+                          Lighting:{" "}
+                        </p>
+                      </Col>
+                      <Col className="p-1">
+                        <p
+                          className="inter-bold text-wrap"
+                          style={{ margin: 0, fontSize: "14px" }}
+                        >
+                          {cue.lighting}
+                        </p>
+                      </Col>
+                    </Row>
 
-          <Row className="section">
-            <Col xs="auto" className="p-1">
-              <p className="inter-medium" style={{ marginLeft: 13, fontSize: '14px', marginBottom: 0 }}>Notes:</p>
-            </Col>
-            <Col className="p-1">
-              <p className="inter-bold text-wrap" style={{ margin: 0, fontSize: '14px' }}>{cue.notes}</p>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
-    ))}
-    <Row className="justify-content-center mt-3 mb-4" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-          <Col>
-            <img src={addMoreButton} height="70px" alt="Add More" />
-          </Col>
-        </Row>
-    </div>
-    </div>
+                    <Row className="section">
+                      <Col xs="auto" className="p-1">
+                        <p
+                          className="inter-medium"
+                          style={{
+                            marginLeft: 13,
+                            fontSize: "14px",
+                            marginBottom: 0,
+                          }}
+                        >
+                          Ambient Lights:
+                        </p>
+                      </Col>
+                      <Col className="p-1">
+                        <p
+                          className="inter-bold text-wrap"
+                          style={{ margin: 0, fontSize: "14px" }}
+                        >
+                          {cue.ambientLights}
+                        </p>
+                      </Col>
+                    </Row>
+
+                    <Row className="section">
+                      <Col xs="auto" className="p-1">
+                        <p
+                          className="inter-medium"
+                          style={{
+                            marginLeft: 13,
+                            fontSize: "14px",
+                            marginBottom: 0,
+                          }}
+                        >
+                          Notes:
+                        </p>
+                      </Col>
+                      <Col className="p-1">
+                        <p
+                          className="inter-bold text-wrap"
+                          style={{ margin: 0, fontSize: "14px" }}
+                        >
+                          {cue.notes}
+                        </p>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+              ))}
+            <Row
+              className="justify-content-center mt-3 mb-4"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Col>
+                <img src={addMoreButton} height="70px" alt="Add More" />
+              </Col>
+            </Row>
+          </div>
+        </div>
       </Container>
     </>
   );

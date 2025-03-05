@@ -1,80 +1,82 @@
 .CueInput-header {
-    background-color: #141414;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: "Jitter";
-    padding: 1%;
-    font-size: 500%;
-    color: white;
+  background-color: #141414;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Jitter";
+  padding: 1%;
+  font-size: 500%;
+  color: white;
 }
 
 .CueInput-body {
-    background-color: #141414;
-    min-height: 92vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-    overflow-x:hidden;
-    overflow-y: hidden;
+  background-color: #141414;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
-.CueInput-Cue{
-    width: 300px;
-    height: 700px;
-    background-color: #1b1c1d;
-    color: #fff6ee;
-    border-radius: 5%;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    padding: 0;
-    flex-shrink: 0;
-    box-sizing:content-box;
+.CueInput-Cue {
+  width: 300px;
+  height: 700px;
+  background-color: #1b1c1d;
+  color: #fff6ee;
+  border-radius: 5%;
+  box-shadow:
+    0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  padding: 0;
+  flex-shrink: 0;
+  box-sizing: content-box;
 }
 
 .section {
-    border: 3px solid #578493;
-    height: auto;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    min-width: 280px;
-    text-wrap: auto;
+  border: 3px solid #578493;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  min-width: 280px;
+  text-wrap: auto;
 }
 
 .scroll-container-cueInput {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding: 20px;
-    width: 100%;
-    justify-content: flex-start;
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 20px;
+  width: 100%;
+  justify-content: flex-start;
 }
 
 .scroll-content-cueInput {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 15px;
-    width: auto; /* Allow flexible width */
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 15px;
+  width: auto; /* Allow flexible width */
 }
 
 .cueNumber {
-    background-color: #fff6ee;
-    color: #1b1c1d;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 33px;
-    height: 33px;
+  background-color: #fff6ee;
+  color: #1b1c1d;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 33px;
+  height: 33px;
 }
-  
+
 .vertical-line {
-    width: 3px;
-    height: 45px; /* Adjust as needed */
-    background-color: #578493;
-    border-radius: 10px;
-    margin-right: 0;
+  width: 3px;
+  height: 45px; /* Adjust as needed */
+  background-color: #578493;
+  border-radius: 10px;
+  margin-right: 0;
 }
 
 .title-CueInput {
@@ -82,76 +84,75 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
-  max-width:100%; /* Ensure it stays within the card */
+  max-width: 100%; /* Ensure it stays within the card */
 }
 
-@font-face { 
-    font-family: 'Jitter'; 
-    src: url('../../Jitter.otf') format('opentype'); 
-    font-weight: normal; 
-    font-style: normal; 
-  } 
+@font-face {
+  font-family: "Jitter";
+  src: url("../../Jitter.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
 
-  .inter-thin {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 100;
-    font-style: normal;
-  }
-  
-  .inter-extralight {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 200;
-    font-style: normal;
-  }
-  
-  .inter-light {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 300;
-    font-style: normal;
-  }
-  
-  .inter-regular {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-  }
-  
-  .inter-medium {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 500;
-    font-style: normal;
-  }
-  
-  .inter-semibold {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 600;
-    font-style: normal;
-  }
-  
-  .inter-bold {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 700;
-    font-style: normal;
-  }
-  
-  .inter-extrabold {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 800;
-    font-style: normal;
-  }
-  
-  .inter-black {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 900;
-    font-style: normal;
-  }
-  
+.inter-thin {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.inter-extralight {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.inter-light {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.inter-regular {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.inter-medium {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.inter-semibold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.inter-bold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.inter-extrabold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.inter-black {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+}
