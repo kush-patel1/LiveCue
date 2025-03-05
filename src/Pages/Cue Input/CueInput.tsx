@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './CueInput.css';
 import { AppHeader } from '../../Components/Header/Header';
 import { Container, Row, Col, Card, Form } from 'react-bootstrap';

@@ -1,36 +1,38 @@
 .HomePage-header {
-    background-color: #141414;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: "Jitter";
-    padding: 1%;
-    font-size: 500%;
-    color: white;
+  background-color: #141414;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Jitter";
+  padding: 1%;
+  font-size: 500%;
+  color: white;
 }
 
 .HomePage-body {
-    background-color: #141414;
-    min-height: 92vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-    overflow-x:hidden;
-    overflow-y: hidden;
+  background-color: #141414;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
-.HomePage-Project1{
-    min-width: 400px;
-    max-width: 400px;
-    width: 100%;
-    background-color: #1b1c1d;
-    color: #fff6ee;
-    border-radius: 4%;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    flex-shrink: 0;
-    box-sizing: content-box;
+.HomePage-Project1 {
+  min-width: 400px;
+  max-width: 400px;
+  width: 100%;
+  background-color: #1b1c1d;
+  color: #fff6ee;
+  border-radius: 4%;
+  box-shadow:
+    0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  flex-shrink: 0;
+  box-sizing: content-box;
 }
 
 .title-HomePage {
@@ -42,9 +44,8 @@
   max-width: 100%; /* Ensure it stays within the card */
 }
 
-
 .scroll-container {
-  flex-grow: .75;
+  flex-grow: 0.75;
   overflow-x: auto;
   white-space: nowrap;
   padding: 20px;
@@ -56,72 +57,87 @@
   gap: 2%;
 }
 
-@font-face { 
-    font-family: 'Jitter'; 
-    src: url('../../Jitter.otf') format('opentype'); 
-    font-weight: normal; 
-    font-style: normal; 
-  } 
+.modal-dark {
+  background-color: #141414 !important;
+  color: #fff6ee !important;
+}
 
-  .inter-thin {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 100;
-    font-style: normal;
-  }
-  
-  .inter-extralight {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 200;
-    font-style: normal;
-  }
-  
-  .inter-light {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 300;
-    font-style: normal;
-  }
-  
-  .inter-regular {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-  }
-  
-  .inter-medium {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 500;
-    font-style: normal;
-  }
-  
-  .inter-semibold {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 600;
-    font-style: normal;
-  }
-  
-  .inter-bold {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 700;
-    font-style: normal;
-  }
-  
-  .inter-extrabold {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 800;
-    font-style: normal;
-  }
-  
-  .inter-black {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 900;
-    font-style: normal;
-  }
+.modal-dark .modal-header,
+.modal-dark .modal-footer {
+  background-color: #141414 !important;
+}
+
+.modal-dark .modal-body {
+  background-color: #141414 !important;
+  color: #fff6ee !important;
+}
+
+@font-face {
+  font-family: "Jitter";
+  src: url("../../Jitter.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.inter-thin {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.inter-extralight {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.inter-light {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.inter-regular {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.inter-medium {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.inter-semibold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.inter-bold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.inter-extrabold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.inter-black {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+}

@@ -1,19 +1,17 @@
-
 .loading-screen-body {
-    margin: 10vh;
-    height: 50%;
-    width: 100%;
+  margin: 10vh;
+  height: 50%;
+  width: 100%;
 }
 
 .loading-screen--image img {
-    max-width: 300px;
+  max-width: 300px;
 }
 
-
 .loading-screen--message-container {
-    padding: 50px
+  padding: 50px;
 }
 
 .loading-screen--message-container h1 {
-    font-size: xx-large;
+  font-size: xx-large;
 }
