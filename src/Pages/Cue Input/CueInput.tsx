@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './CueInput.css';
-import { AppHeader } from '../../Components/Header/Header';
+import logo from '../../Assets/Logo/LIVECUE-Logo.png'
 import { Container, Row, Col, Card, Form } from 'react-bootstrap';
 import addMoreButton from '../../Assets/Home-Page/Add-More-Button.png';
 import { Project } from '../../Interfaces/Project/Project';
@@ -11,67 +11,22 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 
+interface CueInputProps {
+  projects: Project[];
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+}
 
-
-function CueInput() {
+function CueInput({ projects, setProjects }: CueInputProps) {
   const navigate = useNavigate();
+  const {projectId} = useParams();
+  const project = projects.find(p => p.id === Number(projectId));
 
-/*
-  const cues: Cue[]=[
-    {cueNumber: 1, title: "Pre-show Seating", startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T17:40:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Logo Splash",
-      centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Purple", notes: "Blackout, curtains closed, slow gobo movements, haze, audio is MM Jingle"}, 
-      {cueNumber: 2, title: "Countdown", startTime: new Date("2024-12-21T17:40:00"), endTime: new Date("2024-12-21T17:45:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-        centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains closed, slow gobo movements, haze, 5 minute countdown video with pictures/video clips as smrutis of our Mandir"}, 
-        {cueNumber: 3, title: "Manglacharan", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Mangalcharan Slide",
-          centerScreen: "Mangalacharan Center Video", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains open"},
-          {cueNumber: 4, title: "Bang Video", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Side Bang Video",
-            centerScreen: "Center Bang Video", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains open, fast gobo movements, haze, volume high, bass boost, sync up all 3 screens so movements across screens are smooth."},
-              {cueNumber: 5, title: "Welcome Emcee", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Instrumental", audioSource: "Live & ProPres", sideScreens: "Countdown Vid",
-                centerScreen: "Welcome Emcee Backdrops 1-3", lighting: "Center Stage Spotlight", ambientLights: "Blue", notes: "Light instrumental, Move Spots with speaker"},
-                {cueNumber: 6, title: "Deep Pragatya", startTime: new Date("2024-12-21T17:40:00"), endTime: new Date("2024-12-21T17:45:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                  centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"}, 
-                  {cueNumber: 7, title: "Ghost Emcee 1: Mandir", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Bang",
-                    centerScreen: "Bang", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-                    {cueNumber: 8, title: "Delaware History Video", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                      centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-                      {cueNumber: 9, title: "Skit Emcee 1", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                        centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-                        {cueNumber: 10, title: "Dynamic Speech", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                          centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-                          {cueNumber: 11, title: "P. Sant Speech", startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T17:40:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Logo Splash",
-                            centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Purple", notes: "Blackout, curtains closed, slow gobo movements, haze, audio is MM Jingle"}, 
-                            {cueNumber: 12, title: "MSM Katha 1", startTime: new Date("2024-12-21T17:40:00"), endTime: new Date("2024-12-21T17:45:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                              centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains closed, slow gobo movements, haze, 5 minute countdown video with pictures/video clips as smrutis of our Mandir"}, 
-                              {cueNumber: 13, title: "Skit Emcee 2", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Mangalcharan Slide",
-                                centerScreen: "Mangalacharan Center Video", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains open"},
-                                {cueNumber: 14, title: "Community Services Video", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Side Bang Video",
-                                  centerScreen: "Center Bang Video", lighting: "Gobos", ambientLights: "Blue", notes: "Blackout, curtains open, fast gobo movements, haze, volume high, bass boost, sync up all 3 screens so movements across screens are smooth."},
-                                    {cueNumber: 15, title: "Spoken Word Poem", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Instrumental", audioSource: "Live & ProPres", sideScreens: "Countdown Vid",
-                                      centerScreen: "Welcome Emcee Backdrops 1-3", lighting: "Center Stage Spotlight", ambientLights: "Blue", notes: "Light instrumental, Move Spots with speaker"},
-                                      {cueNumber: 16, title: "P. Sant Speech 2", startTime: new Date("2024-12-21T17:40:00"), endTime: new Date("2024-12-21T17:45:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                                        centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"}, 
-                                        {cueNumber: 17, title: "PSM Katha 1", startTime: new Date("2024-12-21T17:45:00"), endTime: new Date("2024-12-21T17:48:00"), presenter: "AV", location: "Center & Sidescreens", avMedia: "Audio", audioSource: "Resolume", sideScreens: "Bang",
-                                          centerScreen: "Bang", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-                                          {cueNumber: 18, title: "Skit Emcee 3", startTime: new Date("2024-12-21T17:48:00"), endTime: new Date("2024-12-21T17:51:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                                            centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-                                            {cueNumber: 19, title: "I-Family Becomes Mandir Video", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                                              centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-                                              {cueNumber: 20, title: "E-Family Becomes Mandir", startTime: new Date("2024-12-21T17:51:00"), endTime: new Date("2024-12-21T17:53:00"), presenter: "AV", location: "Sidescreens", avMedia: "Audio", audioSource: "ProPres", sideScreens: "Countdown Vid",
-                                                centerScreen: "Blackout", lighting: "Gobos", ambientLights: "Blue", notes: "Slow movements"},
-  ]
-
-  const project1: Project = {
-    id:1, title: "DE MMXXIV", date: new Date(2024, 11, 21), startTime: new Date("2024-12-21T17:25:00"), endTime: new Date("2024-12-21T20:16:00"), duration: new Date(0,0,0,2,51),
-    cues: cues, cueAmount: 27
-  }
-*/
-
-  const [cueAmount, setCueAmount] = useState(5); // Default to 5 cues
+  const [cueAmount, setCueAmount] = useState(project?.cueAmount ?? 5); // Default to 5 cues
   const [cues, setCues] = useState<Cue[]>(Array.from({ length: cueAmount }, (_, i) => ({
     cueNumber: i + 1,
     title: '',
-    startTime: new Date(),
-    endTime: new Date(),
+    startTime: new Date(0,0,0,12,0,0),
+    endTime: new Date(0,0,0,12,0,0),
     presenter: '',
     location: '',
     avMedia: '',
@@ -83,19 +38,31 @@ function CueInput() {
     notes: '',
   })));
 
-  // Update field when user edits input
+  const updateProjectCues = (updatedCues: Cue[]) => {
+    if (!project) return;
+  
+    const updatedProjects = projects.map(p => 
+      p.id === project.id ? { ...p, cues: updatedCues, cueAmount: updatedCues.length } : p
+    );
+  
+    setProjects(updatedProjects);
+  };
+  
   const handleInputChange = (index: number, field: keyof Cue, value: string) => {
     const updatedCues = [...cues];
     updatedCues[index] = { ...updatedCues[index], [field]: value };
     setCues(updatedCues);
+    updateProjectCues(updatedCues);
   };
-
+  
   const handleTimeChange = (index: number, field: keyof Cue, value: dayjs.Dayjs | null) => {
     if (!value) return;
     const updatedCues = [...cues];
     updatedCues[index] = { ...updatedCues[index], [field]: value.toDate() };
     setCues(updatedCues);
+    updateProjectCues(updatedCues);
   };
+
 
   // Handle cue amount change
   const addCue = () => {
@@ -104,8 +71,8 @@ function CueInput() {
       setCues(Array.from({ length: newAmount }, (_, i) => ({
         cueNumber: i + 1,
         title: '',
-        startTime: new Date(),
-        endTime: new Date(),
+        startTime: new Date(0,0,0,12,0,0),
+        endTime: new Date(0,0,0,12,0,0),
         presenter: '',
         location: '',
         avMedia: '',
@@ -120,11 +87,23 @@ function CueInput() {
     });
   };
   
-
+  useEffect(() => {
+    if (project?.cues && project.cues.length > 0) {
+      setCues(project.cues);
+    }
+  }, [project]);
 
   return (
     <>
-      <AppHeader />
+       <header className="app-header-CueInput">
+        <h1 className="project-title inter-bold">{project?.title}</h1>
+        <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => {navigate("/HomePage")}}/>
+        <h1 className="project-date inter-bold">
+          {project?.date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
+        </h1>
+      </header>
+
+
       <Container fluid className="CueInput-body d-flex align-items-center justify-content-center">
       <div className="scroll-container-cueInput">
   <div className="scroll-content-cueInput">

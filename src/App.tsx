@@ -17,11 +17,11 @@ function App() {
       <Routes>
         <Route
           path="/CueInput/:projectId"
-          element={<CueInput projects={projects} setProjects={setProjects} />}
+          element={<CueInput projects={projects} setProjects={setProjects}/>}
         />
         <Route
           path="/HomePage"
-          element={<HomePage projects={projects} setProjects={setProjects} />}
+          element={<HomePage projects={projects} setProjects={setProjects}/>}
         />
         <Route path="/LiveCueSheet" element={<LiveCueSheet />} />
         <Route path="/SignUp" element={<SignUp setUser={setUser} />} />
