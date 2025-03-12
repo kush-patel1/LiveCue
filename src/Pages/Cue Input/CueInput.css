@@ -1,12 +1,32 @@
-.CueInput-header {
-  background-color: #141414;
+.app-header-CueInput {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-family: "Jitter";
-  padding: 1%;
-  font-size: 500%;
-  color: white;
+  justify-content: space-between; /* Ensures spacing between elements */
+  padding: 10px 20px;
+  color: #fff6ee;
+  background-color: #141414;
+  padding-top: 28px;
+}
+
+.project-title {
+  padding-top: 8px;
+  margin-left: 75px;
+  font-size: 200%;
+  flex: 1;
+  text-align: left;
+}
+
+.heading-CueInput--logo {
+  flex-shrink: 0;
+  height: 50px; /* Adjust based on your needs */
+}
+
+.project-date {
+  padding-top: 8px;
+  font-size: 200%;
+  margin-right: 75px;
+  flex: 1;
+  text-align: right;
 }
 
 .CueInput-body {
