@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./AdminPage.css";
-import { AppHeader } from "../../Components/Header/Header";
+import logo from '../../Assets/Logo/LIVECUE-Logo.png'
 import { Container, Row, Col, Card } from "react-bootstrap";
-import addMoreButton from "../../Assets/Home-Page/Add-More-Button.png";
 import { Project } from "../../Interfaces/Project/Project";
 
 interface AdminPageProps {
@@ -15,13 +14,37 @@ function AdminPage({projects}: AdminPageProps) {
   const {projectId} = useParams();
   const project = projects.find(p => p.id === Number(projectId));
 
+  let time  = new Date().toLocaleTimeString()
+  const [ctime,setTime] = useState(time)
+  const UpdateTime=()=>{
+    time =  new Date().toLocaleTimeString()
+    setTime(time)
+  }
+  setInterval(UpdateTime)
+
   return (
     <>
-      <AppHeader />
+      <header className="app-header-CueInput">
+        <h1 className="project-title inter-bold">{project?.title}</h1>
+        <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => {navigate("/HomePage")}}/>
+        <h1 className="project-date inter-bold">
+          {project?.date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
+        </h1>
+      </header>
+
       <Container
         fluid
         className="AdminPage-body d-flex align-items-center justify-content-center"
       >
+        <div>
+          <Card className="controlPanel-AdminPage">
+            <Card.Body>
+              <Row >
+                <h1 className="inter-bold" style={{fontSize: '35px'}}>{ctime}</h1>
+              </Row>
+            </Card.Body>
+          </Card>
+        </div>
         <div className="scroll-container-AdminPage">
           <div className="scroll-content-AdminPage">
             {project?.cues

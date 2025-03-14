@@ -34,6 +34,20 @@
     flex-shrink: 0;
     box-sizing: content-box;
   }
+
+  .controlPanel-AdminPage{
+    width: 300px;
+    height: 700px;
+    color: #fff6ee;
+    border-radius: 5%;
+    padding: 0;
+    flex-shrink: 0;
+    box-sizing: content-box;
+    background-color: #1b1c1d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   
   .section {
     border: 3px solid #578493;
@@ -49,7 +63,7 @@
     overflow-x: auto;
     white-space: nowrap;
     padding: 20px;
-    width: 100%;
+    width: 83%;
     justify-content: flex-start;
   }
   
