@@ -66,13 +66,14 @@ function CueInput({ projects, setProjects }: CueInputProps) {
 
   // Handle cue amount change
   const addCue = () => {
-    setCueAmount((prevAmount) => {
-      const newAmount = prevAmount + 1; // Increment by 1
-      setCues(Array.from({ length: newAmount }, (_, i) => ({
-        cueNumber: i + 1,
+    setCueAmount(prevAmount => prevAmount + 1);
+    setCues(prevCues => [
+      ...prevCues,
+      {
+        cueNumber: prevCues.length + 1,
         title: '',
-        startTime: new Date(0,0,0,12,0,0),
-        endTime: new Date(0,0,0,12,0,0),
+        startTime: new Date(0, 0, 0, 12, 0, 0),
+        endTime: new Date(0, 0, 0, 12, 0, 0),
         presenter: '',
         location: '',
         avMedia: '',
@@ -82,9 +83,8 @@ function CueInput({ projects, setProjects }: CueInputProps) {
         lighting: '',
         ambientLights: '',
         notes: '',
-      })));
-      return newAmount;
-    });
+      },
+    ]);
   };
   
   useEffect(() => {

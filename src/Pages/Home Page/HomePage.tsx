@@ -119,7 +119,7 @@ const HomePage: React.FC<HomePageProps> = ({ projects, setProjects }) => {
                     onClick={() => navigate(`/CueInput/${project.id}`)}  // Pass project ID in URL
                     style={{ paddingLeft: '15%', cursor: 'pointer' }} 
                   />
-                    <img src={liveButton} height="40px" alt="Live" onClick={() => navigate('/LiveCueSheet')} style={{ paddingRight: '20%' }} />
+                    <img src={liveButton} height="40px" alt="Live" onClick={() => navigate(`/AdminPage/${project.id}`)} style={{ paddingRight: '20%' }} />
                   </div>
                 </Card.Body>
               </Card>
