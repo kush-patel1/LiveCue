@@ -7,6 +7,7 @@ import Login from "./Pages/Login Page/Login";
 import { User } from "./Interfaces/User/User";
 import SignUp from "./Pages/SignUp/SignUp";
 import { Project } from "./Interfaces/Project/Project";
+import AdminPage from "./Pages/Admin Page/AdminPage";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -23,9 +24,18 @@ function App() {
           path="/HomePage"
           element={<HomePage projects={projects} setProjects={setProjects}/>}
         />
-        <Route path="/LiveCueSheet" element={<LiveCueSheet />} />
-        <Route path="/SignUp" element={<SignUp setUser={setUser} />} />
-        <Route path="/" element={<Login setUser={setUser} />} />
+        <Route 
+          path="/LiveCueSheet" 
+          element={<LiveCueSheet />} />
+        <Route 
+          path="/AdminPage/:projectId" 
+          element={<AdminPage projects={projects}/>} />
+        <Route 
+          path="/SignUp" 
+          element={<SignUp setUser={setUser} />} />
+        <Route  
+          path="/" 
+          element={<Login setUser={setUser} />} />
       </Routes>
     </>
   );
