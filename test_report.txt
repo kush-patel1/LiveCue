@@ -13,28 +13,6 @@ FAIL src/App.test.tsx
           at Array.map (<anonymous>)
       at Emittery.emit (node_modules/emittery/index.js:258:23)
 
---------------------------|---------|----------|---------|---------|-------------------
-File                      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
---------------------------|---------|----------|---------|---------|-------------------
-All files                 |       0 |        0 |       0 |       0 |                   
- src                      |       0 |        0 |       0 |       0 |                   
-  App.tsx                 |       0 |      100 |       0 |       0 | 10                
-  index.tsx               |       0 |      100 |     100 |       0 | 8-22              
-  reportWebVitals.ts      |       0 |        0 |       0 |       0 | 3-10              
- src/Pages/Cue Input      |       0 |      100 |       0 |       0 |                   
-  CueInput.tsx            |       0 |      100 |       0 |       0 | 5                 
- src/Pages/Home Page      |       0 |      100 |       0 |       0 |                   
-  HomePage.tsx            |       0 |      100 |       0 |       0 | 6-10              
- src/Pages/Live Cue Sheet |       0 |      100 |       0 |       0 |                   
-  LiveCueSheet.tsx        |       0 |      100 |       0 |       0 | 5                 
- src/Pages/Login Page     |       0 |        0 |       0 |       0 |                   
-  Login.tsx               |       0 |        0 |       0 |       0 | 7-52              
---------------------------|---------|----------|---------|---------|-------------------
-Test Suites: 1 failed, 1 total
-Tests:       0 total
-Snapshots:   0 total
-Time:        2.469 s
-Ran all test suites.
 [0;33mOne of your dependencies, babel-preset-react-app, is importing the
 "@babel/plugin-proposal-private-property-in-object" package without
 declaring it in its dependencies. This is currently working because
@@ -47,3 +25,50 @@ ever be fixed. Add "@babel/plugin-proposal-private-property-in-object" to
 your devDependencies to work around this error. This will make this message
 go away.[0m
   
+------------------------------|---------|----------|---------|---------|-------------------
+File                          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+------------------------------|---------|----------|---------|---------|-------------------
+All files                     |       0 |        0 |       0 |       0 |                   
+ src                          |       0 |        0 |       0 |       0 |                   
+  App.tsx                     |       0 |      100 |       0 |       0 | 13-16             
+  index.tsx                   |       0 |      100 |     100 |       0 | 8-22              
+  reportWebVitals.ts          |       0 |        0 |       0 |       0 | 3-10              
+ src/Backend                  |       0 |      100 |     100 |       0 |                   
+  firebase.js                 |       0 |      100 |     100 |       0 | 10-23             
+ src/Components/Header        |       0 |      100 |       0 |       0 |                   
+  Header.tsx                  |       0 |      100 |       0 |       0 | 7-12              
+ src/Components/LoadingScreen |       0 |      100 |       0 |       0 |                   
+  CredentialLoadingScreen.tsx |       0 |      100 |       0 |       0 | 4-8               
+  LoadingScreen.tsx           |       0 |      100 |       0 |       0 | 4-7               
+ src/Interfaces/Cue           |       0 |        0 |       0 |       0 |                   
+  Cue.ts                      |       0 |        0 |       0 |       0 |                   
+ src/Interfaces/Project       |       0 |        0 |       0 |       0 |                   
+  Project.ts                  |       0 |        0 |       0 |       0 |                   
+ src/Interfaces/Responses     |       0 |        0 |       0 |       0 |                   
+  ApiCallResponse.ts          |       0 |        0 |       0 |       0 |                   
+  ApiCallResponseError.ts     |       0 |        0 |       0 |       0 |                   
+ src/Interfaces/User          |       0 |        0 |       0 |       0 |                   
+  User.ts                     |       0 |        0 |       0 |       0 |                   
+  UserProjectData.ts          |       0 |        0 |       0 |       0 |                   
+ src/Pages/Admin Page         |       0 |      100 |       0 |       0 |                   
+  AdminPage.tsx               |       0 |      100 |       0 |       0 | 13-53             
+ src/Pages/Cue Input          |       0 |        0 |       0 |       0 |                   
+  CueInput.tsx                |       0 |        0 |       0 |       0 | 20-458            
+ src/Pages/Home Page          |       0 |        0 |       0 |       0 |                   
+  HomePage.tsx                |       0 |        0 |       0 |       0 | 19-188            
+ src/Pages/Live Cue Sheet     |       0 |      100 |       0 |       0 |                   
+  LiveCueSheet.tsx            |       0 |      100 |       0 |       0 | 7                 
+ src/Pages/Login Page         |       0 |        0 |       0 |       0 |                   
+  Login.tsx                   |       0 |        0 |       0 |       0 | 14-143            
+  LoginProps.ts               |       0 |        0 |       0 |       0 |                   
+ src/Pages/SignUp             |       0 |        0 |       0 |       0 |                   
+  SignUp.tsx                  |       0 |        0 |       0 |       0 | 12-147            
+  SignUpProps.ts              |       0 |        0 |       0 |       0 |                   
+ src/Services/UserServices    |       0 |      100 |       0 |       0 |                   
+  UserCredentialService.ts    |       0 |      100 |       0 |       0 | 6-26              
+------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        3.317 s
+Ran all test suites.
