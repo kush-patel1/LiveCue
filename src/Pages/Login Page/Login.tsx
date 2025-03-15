@@ -10,15 +10,15 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { ApiCallResponse } from "../../Interfaces/Responses/ApiCallResponse";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 
-const correctUsername = "admin";
+const correctEmail = "admin";
 const correctPassword = "Media#344";
 
 function Login({ setUser }: LoginPageProps): React.JSX.Element {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  //error messages for invaild username or password inputs
-  const [usernameMessage, setUsernameMessage] = useState<string>("");
+  //error messages for invaild email or password inputs
+  const [emailMessage, setEmailMessage] = useState<string>("");
   const [passwordMessage, setPasswordMessage] = useState<string>("");
 
   const [validated, setValidated] = useState(false);
@@ -40,8 +40,8 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
   }, [onLanding]);
 
   function setErrorMessages() {
-    if (username === "") {
-      setUsernameMessage("Username is required");
+    if (email === "") {
+      setEmailMessage("Email is required");
     }
 
     if (password === "") {
@@ -60,7 +60,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
       return;
     }
 
-    if (username === correctUsername && password === correctPassword) {
+    if (email === correctEmail && password === correctPassword) {
       navigate("/HomePage");
       return;
     }
@@ -68,7 +68,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
     setLoading(true);
 
     //backend post request to authenticate the user
-    authenticateUser(username, password)
+    authenticateUser(email, password)
       .then((response: AxiosResponse<ApiCallResponse<User>>) => {
         const user = response.data.responseContent;
         if (user !== null) {
@@ -90,13 +90,13 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
 
           //checks the error sent from backend and parses the contents.
           if (message !== undefined) {
-            if (message.detailedMessage.toLowerCase().includes("username")) {
-              setUsernameMessage(message.detailedMessage);
+            if (message.detailedMessage.toLowerCase().includes("email")) {
+              setEmailMessage(message.detailedMessage);
               setPasswordMessage("");
             }
             if (message.detailedMessage.toLowerCase().includes("password")) {
               setPasswordMessage(message.detailedMessage);
-              setUsernameMessage("");
+              setEmailMessage("");
             }
           }
         }
@@ -120,21 +120,21 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
               <Card.Body>
                 <h2 className="text-center mb-4">Login</h2>
                 <Form noValidate validated={validated} onSubmit={signIn}>
-                  <Form.Group controlId="formUsername" className="mb-3">
-                    <Form.Label>Username</Form.Label>
+                  <Form.Group controlId="formEmail" className="mb-3">
+                    <Form.Label>Email</Form.Label>
                     <Form.Control
                       required
                       placeholder="admin"
-                      value={username}
+                      value={email}
                       size="lg"
                       onChange={(e) => {
-                        setUsername(e.target.value);
+                        setEmail(e.target.value);
                         console.log(e);
                       }}
-                      isInvalid={usernameMessage !== ""}
+                      isInvalid={emailMessage !== ""}
                     ></Form.Control>
                     <Form.Control.Feedback type="invalid">
-                      {usernameMessage}
+                      {emailMessage}
                     </Form.Control.Feedback>
                   </Form.Group>
 
