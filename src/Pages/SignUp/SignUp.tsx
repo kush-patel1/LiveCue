@@ -3,9 +3,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { User } from "../../Interfaces/User/User";
 import { Link, useNavigate } from "react-router-dom";
 import { SignUpPageProps } from "./SignUpProps";
-import { createUser } from "../../Services/UserServices/UserCredentialService";
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { ApiCallResponse } from "../../Interfaces/Responses/ApiCallResponse";
+import { auth, db, createUserWithEmailAndPassword, setDoc, doc } from "../../Backend/firebase";  // Import Firebase functions
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import { AppHeader } from "../../Components/Header/Header";
 import "./SignUp.css";
@@ -32,10 +30,10 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
     }
   }, [onLanding]);
 
-
+  // Create the user object for Firestore
   function createUserObject(): User {
     const newAccount: User = {
-      id: -1,
+      id: '',
       firstName: firstName,
       lastName: lastName,
       email: email,
@@ -44,12 +42,12 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
     return newAccount;
   }
 
-  function createAccount(event: FormEvent<HTMLFormElement>) {
+  // Handle Firebase sign-up and store user in Firestore
+  async function createAccount(event: FormEvent<HTMLFormElement>) {
     const form = event.currentTarget;
-    //checks if the form and input fields are actually valid or not
+
     if (!form.checkValidity()) {
       setEmailMessage("Invalid email");
-
       event.preventDefault();
       event.stopPropagation();
       setValidated(true);
@@ -58,56 +56,49 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
       const newAccount = createUserObject();
       setLoading(true);
 
-      //sends request to the backend to create new user account
-      createUser(newAccount)
-        .then((response: AxiosResponse<ApiCallResponse<User>>) => {
-          setLoading(false);
-          const responseData = response.data;
+      try {
+        // Firebase Authentication - Create User
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-          //parses the data into a string and saves it to the session storage
-          const accountJSONString = JSON.stringify(
-            responseData.responseContent,
-            null,
-            4,
-          );
-          sessionStorage.setItem("CURRENT_USER", accountJSONString);
-          setUser(responseData.responseContent);
-          navigate("/HomePage");
-          //for whatever reason it may fail
-        })
-        .catch((e: AxiosError<ApiCallResponse<User>>) => {
-          setLoading(false);
-          if (axios.isAxiosError(e) && e.response && e.response.data) {
-            const errorResponse = e.response?.data;
-
-            //really there is only one backend error and that is the email is already in use.
-            //future will have email validation here to check if email exists.
-            //Also profanity check might be good just in case any hooligans decide to be funny...
-            if (errorResponse.detailedMessage.includes("email")) {
-              setEmailMessage(errorResponse.detailedMessage);
-            }
-          }
+        // Create the user object in Firestore
+        const userRef = doc(db, "users", userCredential.user.uid);
+        await setDoc(userRef, {
+          firstName: newAccount.firstName,
+          lastName: newAccount.lastName,
+          email: newAccount.email,
+          password: newAccount.password,
         });
+
+        // If successful, save user data and navigate
+        const userData = { ...newAccount, id: userCredential.user.uid };
+        setUser(userData);
+        sessionStorage.setItem("CURRENT_USER", JSON.stringify(userData, null, 4));
+        navigate("/HomePage");
+
+      } catch (error) {
+        setLoading(false);
+        if (error instanceof Error) {
+          setEmailMessage(error.message);
+        }
+      }
     }
   }
 
   if (loading) {
-    return <CredentialLoadingScreen></CredentialLoadingScreen>;
+    return <CredentialLoadingScreen />;
   }
 
   return (
     <>
-      <div>{AppHeader()}</div>
-      <Container
-        fluid
-        className="SignUp-body d-flex align-items-center justify-content-center"
-      >
+      <AppHeader />
+      <Container fluid className="SignUp-body d-flex align-items-center justify-content-center">
         <Row className="w-100 justify-content-center">
           <Col xxs={12} xs={11} sm={9} md={7} lg={4}>
             <Card className="SignUp-popup">
               <Card.Body>
                 <h2 className="text-center mb-4">Sign Up</h2>
                 <Form noValidate validated={validated} onSubmit={createAccount}>
+                  {/* Form fields remain the same */}
                   <Form.Label>First Name:</Form.Label>
                   <Form.Group>
                     <Form.Control
@@ -116,14 +107,9 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
                       placeholder="First Name"
                       size="lg"
                       value={firstName}
-                      onChange={(e) => {
-                        setFirstName(e.target.value);
-                        console.log(firstName);
-                      }}
-                    ></Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                      First Name Required
-                    </Form.Control.Feedback>
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
+                    <Form.Control.Feedback type="invalid">First Name Required</Form.Control.Feedback>
                   </Form.Group>
                   <Form.Label className="Form-Labels">Last Name:</Form.Label>
                   <Form.Group>
@@ -133,14 +119,9 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
                       placeholder="Last Name"
                       size="lg"
                       value={lastName}
-                      onChange={(e) => {
-                        setLastName(e.target.value);
-                        console.log(lastName);
-                      }}
-                    ></Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                      Last Name Required
-                    </Form.Control.Feedback>
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
+                    <Form.Control.Feedback type="invalid">Last Name Required</Form.Control.Feedback>
                   </Form.Group>
                   <Form.Label className="Form-Labels">Email:</Form.Label>
                   <Form.Group>
@@ -150,15 +131,10 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
                       placeholder="email"
                       value={email}
                       size="lg"
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        console.log(e);
-                      }}
+                      onChange={(e) => setEmail(e.target.value)}
                       isInvalid={emailMessage !== ""}
-                    ></Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                      {emailMessage}
-                    </Form.Control.Feedback>
+                    />
+                    <Form.Control.Feedback type="invalid">{emailMessage}</Form.Control.Feedback>
                   </Form.Group>
                   <Form.Label className="Form-Labels">Password:</Form.Label>
                   <Form.Group>
@@ -168,15 +144,10 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
                       placeholder="password123"
                       value={password}
                       size="lg"
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        console.log(e);
-                      }}
+                      onChange={(e) => setPassword(e.target.value)}
                       pattern=".{7,}"
-                    ></Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                      Invalid Password
-                    </Form.Control.Feedback>
+                    />
+                    <Form.Control.Feedback type="invalid">Invalid Password</Form.Control.Feedback>
                   </Form.Group>
 
                   <div style={{ paddingTop: "5%", paddingBottom: "2%" }}>
@@ -188,7 +159,7 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
                     Already have an account? Login&nbsp;
                     <Link to="/" relative="path">
                       here
-                    </Link>{" "}
+                    </Link>
                   </span>
                 </Form>
               </Card.Body>

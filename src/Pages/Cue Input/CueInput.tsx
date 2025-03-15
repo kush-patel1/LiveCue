@@ -19,10 +19,11 @@ interface CueInputProps {
 function CueInput({ projects, setProjects }: CueInputProps) {
   const navigate = useNavigate();
   const {projectId} = useParams();
-  const project = projects.find(p => p.id === Number(projectId));
+  const project = projects.find(p => p.projectID === Number(projectId));
 
   const [cueAmount, setCueAmount] = useState(project?.cueAmount ?? 5); // Default to 5 cues
   const [cues, setCues] = useState<Cue[]>(Array.from({ length: cueAmount }, (_, i) => ({
+    id: '',
     cueNumber: i + 1,
     title: '',
     startTime: new Date(0,0,0,12,0,0),
@@ -70,6 +71,7 @@ function CueInput({ projects, setProjects }: CueInputProps) {
     setCues(prevCues => [
       ...prevCues,
       {
+        id: '',
         cueNumber: prevCues.length + 1,
         title: '',
         startTime: new Date(0, 0, 0, 12, 0, 0),

@@ -1,56 +1,79 @@
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import "./AdminPage.css";
-import logo from '../../Assets/Logo/LIVECUE-Logo.png'
+import { useNavigate } from "react-router-dom";
+import "./LiveCueSheet.css";
+import { AppHeader } from "../../Components/Header/Header";
 import { Container, Row, Col, Card } from "react-bootstrap";
+import addMoreButton from "../../Assets/Home-Page/Add-More-Button.png";
 import { Project } from "../../Interfaces/Project/Project";
+import { Cue } from "../../Interfaces/Cue/Cue";
 
-interface AdminPageProps {
-  projects: Project[];
-}
-
-function AdminPage({projects}: AdminPageProps) {
+function CueInput() {
   const navigate = useNavigate();
-  const {projectId} = useParams();
-  const project = projects.find(p => p.projectID === Number(projectId));
 
-  let time  = new Date().toLocaleTimeString()
-  const [ctime,setTime] = useState(time)
-  const UpdateTime=()=>{
-    time =  new Date().toLocaleTimeString()
-    setTime(time)
-  }
-  setInterval(UpdateTime)
+  const [cueAmount, setCueAmount] = useState(5); // Default to 5 cues
+  const [cues, setCues] = useState<Cue[]>(
+    Array.from({ length: cueAmount }, (_, i) => ({
+      id: '',
+      cueNumber: i + 1,
+      title: "",
+      startTime: new Date(),
+      endTime: new Date(),
+      presenter: "",
+      location: "",
+      avMedia: "",
+      audioSource: "",
+      sideScreens: "",
+      centerScreen: "",
+      lighting: "",
+      ambientLights: "",
+      notes: "",
+    })),
+  );
+
+  // Update field when user edits input
+  const handleChange = (index: number, field: keyof Cue, value: string) => {
+    const updatedCues = [...cues];
+    updatedCues[index] = { ...updatedCues[index], [field]: value };
+    setCues(updatedCues);
+  };
+
+  // Handle cue amount change
+  const handleCueAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const amount = Math.max(1, parseInt(e.target.value) || 1); // Ensure at least 1 cue
+    setCueAmount(amount);
+    setCues(
+      Array.from({ length: amount }, (_, i) => ({
+        id: '',
+        cueNumber: i + 1,
+        title: "",
+        startTime: new Date(),
+        endTime: new Date(),
+        presenter: "",
+        location: "",
+        avMedia: "",
+        audioSource: "",
+        sideScreens: "",
+        centerScreen: "",
+        lighting: "",
+        ambientLights: "",
+        notes: "",
+      })),
+    );
+  };
 
   return (
     <>
-      <header className="app-header-CueInput">
-        <h1 className="project-title inter-bold">{project?.title}</h1>
-        <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => {navigate("/HomePage")}}/>
-        <h1 className="project-date inter-bold">
-          {project?.date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
-        </h1>
-      </header>
-
+      <AppHeader />
       <Container
         fluid
-        className="AdminPage-body d-flex align-items-center justify-content-center"
+        className="CueInput-body d-flex align-items-center justify-content-center"
       >
-        <div>
-          <Card className="controlPanel-AdminPage">
-            <Card.Body>
-              <Row >
-                <h1 className="inter-bold" style={{fontSize: '35px'}}>{ctime}</h1>
-              </Row>
-            </Card.Body>
-          </Card>
-        </div>
-        <div className="scroll-container-AdminPage">
-          <div className="scroll-content-AdminPage">
-            {project?.cues
+        <div className="scroll-container-cueInput">
+          <div className="scroll-content-cueInput">
+            {cues
               .sort((a, b) => a.cueNumber - b.cueNumber)
               .map((cue) => (
-                <Card key={cue.cueNumber} className="AdminPage-Cue">
+                <Card key={cue.cueNumber} className="CueInput-Cue">
                   <Card.Body>
                     <Row style={{ marginLeft: 5 }}>
                       <Col xs={3} className="cueNumber">
@@ -58,9 +81,9 @@ function AdminPage({projects}: AdminPageProps) {
                           {cue.cueNumber}
                         </h5>
                       </Col>
-                      <Col className="title-AdminPage">
+                      <Col className="title-CueInput">
                         <h5
-                          className="inter-bold title-AdminPage"
+                          className="inter-bold title-CueInput"
                           style={{ margin: 4, fontSizeAdjust: "0.475" }}
                         >
                           {" "}
@@ -345,6 +368,9 @@ function AdminPage({projects}: AdminPageProps) {
                 justifyContent: "center",
               }}
             >
+              <Col>
+                <img src={addMoreButton} height="70px" alt="Add More" />
+              </Col>
             </Row>
           </div>
         </div>
@@ -353,4 +379,4 @@ function AdminPage({projects}: AdminPageProps) {
   );
 }
 
-export default AdminPage;
+export default CueInput;

@@ -12,10 +12,11 @@ import { Project } from '../../Interfaces/Project/Project';
 interface HomePageProps {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   projects: Project[];
+  user?: any;
 }
 
 
-const HomePage: React.FC<HomePageProps> = ({ projects, setProjects }) => {
+const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects }) => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [newProjectTitle, setNewProjectTitle] = useState('');
@@ -26,7 +27,7 @@ const HomePage: React.FC<HomePageProps> = ({ projects, setProjects }) => {
   const [newProjectCueAmount, setNewProjectCueAmount] = useState(1);
 
   const getNextProjectID = () => {
-    return projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
+    return projects.length > 0 ? Math.max(...projects.map(p => p.projectID)) + 1 : 1;
   };
 
   const handleAddProject = () => {
@@ -47,7 +48,8 @@ const HomePage: React.FC<HomePageProps> = ({ projects, setProjects }) => {
     const newID = getNextProjectID();
 
     const newProject: Project = {
-      id: newID,
+      id: '',
+      projectID: newID,
       title: newProjectTitle,
       date: new Date(newProjectDate),
       startTime,
@@ -84,7 +86,7 @@ const HomePage: React.FC<HomePageProps> = ({ projects, setProjects }) => {
         </Row>
         <div className="scroll-container">
           <div className="scroll-content">
-            {projects.sort((a, b) => b.id - a.id).map((project) => (
+            {projects.sort((a, b) => b.projectID - a.projectID).map((project) => (
               <Card key={project.id} className="HomePage-Project1">
                 <Card.Body>
                   <h1 className="inter-bold title-HomePage">{project.title}</h1>
