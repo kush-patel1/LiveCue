@@ -13,28 +13,16 @@ FAIL src/App.test.tsx
           at Array.map (<anonymous>)
       at Emittery.emit (node_modules/emittery/index.js:258:23)
 
-[0;33mOne of your dependencies, babel-preset-react-app, is importing the
-"@babel/plugin-proposal-private-property-in-object" package without
-declaring it in its dependencies. This is currently working because
-"@babel/plugin-proposal-private-property-in-object" is already in your
-node_modules folder for unrelated reasons, but it [1mmay break at any time[0;33m.
-
-babel-preset-react-app is part of the create-react-app project, [1mwhich
-is not maintianed anymore[0;33m. It is thus unlikely that this bug will
-ever be fixed. Add "@babel/plugin-proposal-private-property-in-object" to
-your devDependencies to work around this error. This will make this message
-go away.[0m
-  
 ------------------------------|---------|----------|---------|---------|-------------------
 File                          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
 ------------------------------|---------|----------|---------|---------|-------------------
 All files                     |       0 |        0 |       0 |       0 |                   
  src                          |       0 |        0 |       0 |       0 |                   
-  App.tsx                     |       0 |      100 |       0 |       0 | 13-16             
-  index.tsx                   |       0 |      100 |     100 |       0 | 7-19              
+  App.tsx                     |       0 |      100 |       0 |       0 | 14-17             
+  index.tsx                   |       0 |      100 |     100 |       0 | 7-20              
   reportWebVitals.ts          |       0 |        0 |       0 |       0 | 3-10              
- src/Backend                  |       0 |      100 |     100 |       0 |                   
-  firebase.js                 |       0 |      100 |     100 |       0 | 10-23             
+ src/Backend                  |       0 |        0 |     100 |       0 |                   
+  firebase.js                 |       0 |        0 |     100 |       0 | 10-23             
  src/Components/Header        |       0 |      100 |       0 |       0 |                   
   Header.tsx                  |       0 |      100 |       0 |       0 | 7-12              
  src/Components/LoadingScreen |       0 |      100 |       0 |       0 |                   
@@ -70,5 +58,17 @@ All files                     |       0 |        0 |       0 |       0 |
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        3.372 s
+Time:        3.35 s
 Ran all test suites.
+[0;33mOne of your dependencies, babel-preset-react-app, is importing the
+"@babel/plugin-proposal-private-property-in-object" package without
+declaring it in its dependencies. This is currently working because
+"@babel/plugin-proposal-private-property-in-object" is already in your
+node_modules folder for unrelated reasons, but it [1mmay break at any time[0;33m.
+
+babel-preset-react-app is part of the create-react-app project, [1mwhich
+is not maintianed anymore[0;33m. It is thus unlikely that this bug will
+ever be fixed. Add "@babel/plugin-proposal-private-property-in-object" to
+your devDependencies to work around this error. This will make this message
+go away.[0m
+  
