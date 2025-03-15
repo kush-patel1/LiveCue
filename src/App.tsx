@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, HashRouter } from "react-router-dom";
 import CueInput from "./Pages/Cue Input/CueInput";
 import HomePage from "./Pages/Home Page/HomePage";
 import LiveCueSheet from "./Pages/Live Cue Sheet/LiveCueSheet";
@@ -15,6 +15,7 @@ function App() {
 
   return (
     <>
+    <HashRouter>
       <Routes>
         <Route
           path="/CueInput/:projectId"
@@ -37,6 +38,7 @@ function App() {
           path="/" 
           element={<Login setUser={setUser} />} />
       </Routes>
+    </HashRouter>
     </>
   );
 }
