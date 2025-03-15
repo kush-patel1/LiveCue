@@ -31,10 +31,10 @@ File                          | % Stmts | % Branch | % Funcs | % Lines | Uncover
 All files                     |       0 |        0 |       0 |       0 |                   
  src                          |       0 |        0 |       0 |       0 |                   
   App.tsx                     |       0 |      100 |       0 |       0 | 13-16             
-  index.tsx                   |       0 |      100 |     100 |       0 | 8-22              
+  index.tsx                   |       0 |      100 |     100 |       0 | 7-19              
   reportWebVitals.ts          |       0 |        0 |       0 |       0 | 3-10              
- src/Backend                  |       0 |        0 |     100 |       0 |                   
-  firebase.js                 |       0 |        0 |     100 |       0 | 10-23             
+ src/Backend                  |       0 |      100 |     100 |       0 |                   
+  firebase.js                 |       0 |      100 |     100 |       0 | 10-23             
  src/Components/Header        |       0 |      100 |       0 |       0 |                   
   Header.tsx                  |       0 |      100 |       0 |       0 | 7-12              
  src/Components/LoadingScreen |       0 |      100 |       0 |       0 |                   
@@ -70,5 +70,5 @@ All files                     |       0 |        0 |       0 |       0 |
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        3.43 s
+Time:        3.372 s
 Ran all test suites.
