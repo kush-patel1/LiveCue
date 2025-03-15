@@ -22,7 +22,7 @@ function App() {
         />
         <Route
           path="/HomePage"
-          element={<HomePage projects={projects} setProjects={setProjects}/>}
+          element={<HomePage user={user} projects={projects} setProjects={setProjects}/>}
         />
         <Route 
           path="/LiveCueSheet" 

@@ -1,4 +1,5 @@
 export interface Cue {
+  id: string;
   cueNumber: number;
   title: string;
   startTime: Date;

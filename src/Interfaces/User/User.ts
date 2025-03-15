@@ -1,11 +1,7 @@
 export interface User {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
-  age: number;
-  birthday: string;
-  username: string;
+  email: string;
   password: string;
-  //have they created a cuesheet yet?
-  newAccount: boolean;
 }

@@ -4,21 +4,17 @@ import { Button, Form, Container, Row, Col, Card } from "react-bootstrap";
 import { AppHeader } from "../../Components/Header/Header";
 import { LoginPageProps } from "./LoginProps";
 import { Link, useNavigate } from "react-router-dom";
-import { User } from "../../Interfaces/User/User";
-import { authenticateUser } from "../../Services/UserServices/UserCredentialService";
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { ApiCallResponse } from "../../Interfaces/Responses/ApiCallResponse";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
-
-const correctUsername = "admin";
-const correctPassword = "Media#344";
+import { auth } from "../../Backend/firebase"; // Importing auth from firebase.js
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { User as FirebaseUser } from "firebase/auth";
+import { User } from "../../Interfaces/User/User";
 
 function Login({ setUser }: LoginPageProps): React.JSX.Element {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  //error messages for invaild username or password inputs
-  const [usernameMessage, setUsernameMessage] = useState<string>("");
+  const [emailMessage, setEmailMessage] = useState<string>("");
   const [passwordMessage, setPasswordMessage] = useState<string>("");
 
   const [validated, setValidated] = useState(false);
@@ -27,9 +23,6 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
 
   const navigate = useNavigate();
 
-  //used to scroll to the top when landing on page
-  //easiest solution to workaround being unable to access browser history
-  //cursed hash router...
   const [onLanding, setOnLanding] = useState(true);
 
   useEffect(() => {
@@ -40,13 +33,54 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
   }, [onLanding]);
 
   function setErrorMessages() {
-    if (username === "") {
-      setUsernameMessage("Username is required");
+    if (email === "") {
+      setEmailMessage("Email is required");
     }
 
     if (password === "") {
       setPasswordMessage("Password is required");
     }
+  }
+
+  function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser): User {
+    return {
+      id: firebaseUser.uid,
+      email: firebaseUser.email || "",
+      firstName: "",  // You can fetch this data from Firestore or leave it empty for now
+      lastName: "",   // Same as above
+      password: "",   // Firebase doesn't return the password, so you'll handle it elsewhere
+    };
+  }
+  
+
+  // Firebase SignIn function using auth from firebase.js
+  function signInWithFirebase() {
+    setLoading(true);
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in successfully
+        const firebaseUser = userCredential.user;
+        const appUser = mapFirebaseUserToAppUser(firebaseUser);
+          // Save user session
+          sessionStorage.setItem("CURRENT_USER", JSON.stringify(appUser));
+          setUser(appUser);
+          setLoading(false);
+          navigate("/HomePage");
+      })
+      .catch((error) => {
+        // Handle errors
+        setLoading(false);
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        if (errorCode === "auth/user-not-found") {
+          setEmailMessage("Email not found");
+        } else if (errorCode === "auth/wrong-password") {
+          setPasswordMessage("Incorrect password");
+        } else {
+          setEmailMessage(errorMessage);
+        }
+      });
   }
 
   function signIn(event: FormEvent<HTMLFormElement>) {
@@ -60,56 +94,16 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
       return;
     }
 
-    if (username === correctUsername && password === correctPassword) {
-      navigate("/HomePage");
-      return;
-    }
-
-    setLoading(true);
-
-    //backend post request to authenticate the user
-    authenticateUser(username, password)
-      .then((response: AxiosResponse<ApiCallResponse<User>>) => {
-        const user = response.data.responseContent;
-        if (user !== null) {
-          //sets the retrieved data to the current user in session storage then navigates to home
-          sessionStorage.setItem("CURRENT_USER", JSON.stringify(user));
-          setUser(user);
-          setLoading(false);
-          navigate("/HomePage");
-        }
-        //for whatever reason that it might fail...
-      })
-      .catch((e: AxiosError<ApiCallResponse<User>>) => {
-        if (axios.isAxiosError(e) && e.response && e.response.data) {
-          console.log(e);
-          setLoading(false);
-          //placeholder until I can deduce proper embeded type...
-          //Proper typing has been deduced :)
-          const message = e.response.data;
-
-          //checks the error sent from backend and parses the contents.
-          if (message !== undefined) {
-            if (message.detailedMessage.toLowerCase().includes("username")) {
-              setUsernameMessage(message.detailedMessage);
-              setPasswordMessage("");
-            }
-            if (message.detailedMessage.toLowerCase().includes("password")) {
-              setPasswordMessage(message.detailedMessage);
-              setUsernameMessage("");
-            }
-          }
-        }
-      });
+    signInWithFirebase(); // Use Firebase sign-in
   }
 
   if (loading) {
-    return <CredentialLoadingScreen></CredentialLoadingScreen>;
+    return <CredentialLoadingScreen />;
   }
 
   return (
     <>
-      <div>{AppHeader()}</div>
+      <AppHeader/>
       <Container
         fluid
         className="Login-body d-flex align-items-center justify-content-center"
@@ -120,21 +114,20 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
               <Card.Body>
                 <h2 className="text-center mb-4">Login</h2>
                 <Form noValidate validated={validated} onSubmit={signIn}>
-                  <Form.Group controlId="formUsername" className="mb-3">
-                    <Form.Label>Username</Form.Label>
+                  <Form.Group controlId="formEmail" className="mb-3">
+                    <Form.Label>Email</Form.Label>
                     <Form.Control
                       required
                       placeholder="admin"
-                      value={username}
+                      value={email}
                       size="lg"
                       onChange={(e) => {
-                        setUsername(e.target.value);
-                        console.log(e);
+                        setEmail(e.target.value);
                       }}
-                      isInvalid={usernameMessage !== ""}
+                      isInvalid={emailMessage !== ""}
                     ></Form.Control>
                     <Form.Control.Feedback type="invalid">
-                      {usernameMessage}
+                      {emailMessage}
                     </Form.Control.Feedback>
                   </Form.Group>
 
@@ -148,7 +141,6 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
                       size="lg"
                       onChange={(e) => {
                         setPassword(e.target.value);
-                        console.log(e);
                       }}
                       isInvalid={passwordMessage !== ""}
                     ></Form.Control>
@@ -163,11 +155,10 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
                   </div>
                 </Form>
                 <span>
-                  {" "}
                   Don't have an account? Sign up&nbsp;
                   <Link to="/SignUp" relative="path">
                     here
-                  </Link>{" "}
+                  </Link>
                 </span>
               </Card.Body>
             </Card>
