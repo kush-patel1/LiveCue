@@ -8,6 +8,7 @@ import { User } from "./Interfaces/User/User";
 import SignUp from "./Pages/SignUp/SignUp";
 import { Project } from "./Interfaces/Project/Project";
 import AdminPage from "./Pages/Admin Page/AdminPage";
+import './App.css'
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -17,26 +18,12 @@ function App() {
     <>
     <HashRouter>
       <Routes>
-        <Route
-          path="/CueInput/:projectId"
-          element={<CueInput projects={projects} setProjects={setProjects}/>}
-        />
-        <Route
-          path="/HomePage"
-          element={<HomePage user={user} projects={projects} setProjects={setProjects}/>}
-        />
-        <Route 
-          path="/LiveCueSheet" 
-          element={<LiveCueSheet />} />
-        <Route 
-          path="/AdminPage/:projectId" 
-          element={<AdminPage projects={projects}/>} />
-        <Route 
-          path="/SignUp" 
-          element={<SignUp setUser={setUser} />} />
-        <Route  
-          path="/" 
-          element={<Login setUser={setUser} />} />
+        <Route path="/CueInput/:projectId" element={<CueInput projects={projects} setProjects={setProjects}/>}/>
+        <Route path="/HomePage" element={<HomePage user={user} projects={projects} setProjects={setProjects}/>}/>
+        <Route path="/LiveCueSheet" element={<LiveCueSheet />} />
+        <Route path="/AdminPage/:projectId" element={<AdminPage projects={projects}/>} />
+        <Route path="/SignUp" element={<SignUp setUser={setUser} />} />
+        <Route path="/" element={<Login setUser={setUser} />} />
       </Routes>
     </HashRouter>
     </>
