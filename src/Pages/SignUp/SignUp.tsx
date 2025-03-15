@@ -13,12 +13,11 @@ import "./SignUp.css";
 export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
-  const [birthday, setBirthday] = useState<string>("");
   const [validated, setValidated] = useState(false);
-  const [username, setUserName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const [usernameMessage, setUsernameMessage] = useState<string>("");
+  const [emailMessage, setEmailMessage] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
 
@@ -33,29 +32,14 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
     }
   }, [onLanding]);
 
-  function getAge(): number {
-    let today = new Date();
-    let birthDate = new Date(birthday);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    let month = today.getMonth() - birthDate.getMonth();
-
-    if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  }
 
   function createUserObject(): User {
-    const age = getAge();
     const newAccount: User = {
       id: -1,
       firstName: firstName,
       lastName: lastName,
-      age: age,
-      birthday: birthday,
-      username: username,
+      email: email,
       password: password,
-      newAccount: true,
     };
     return newAccount;
   }
@@ -64,7 +48,7 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
     const form = event.currentTarget;
     //checks if the form and input fields are actually valid or not
     if (!form.checkValidity()) {
-      setUsernameMessage("Invalid username");
+      setEmailMessage("Invalid email");
 
       event.preventDefault();
       event.stopPropagation();
@@ -99,8 +83,8 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
             //really there is only one backend error and that is the email is already in use.
             //future will have email validation here to check if email exists.
             //Also profanity check might be good just in case any hooligans decide to be funny...
-            if (errorResponse.detailedMessage.includes("username")) {
-              setUsernameMessage(errorResponse.detailedMessage);
+            if (errorResponse.detailedMessage.includes("email")) {
+              setEmailMessage(errorResponse.detailedMessage);
             }
           }
         });
@@ -158,22 +142,22 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
                       Last Name Required
                     </Form.Control.Feedback>
                   </Form.Group>
-                  <Form.Label className="Form-Labels">Username:</Form.Label>
+                  <Form.Label className="Form-Labels">Email:</Form.Label>
                   <Form.Group>
                     <Form.Control
                       required
                       className="form--font"
-                      placeholder="username"
-                      value={username}
+                      placeholder="email"
+                      value={email}
                       size="lg"
                       onChange={(e) => {
-                        setUserName(e.target.value);
+                        setEmail(e.target.value);
                         console.log(e);
                       }}
-                      isInvalid={usernameMessage !== ""}
+                      isInvalid={emailMessage !== ""}
                     ></Form.Control>
                     <Form.Control.Feedback type="invalid">
-                      {usernameMessage}
+                      {emailMessage}
                     </Form.Control.Feedback>
                   </Form.Group>
                   <Form.Label className="Form-Labels">Password:</Form.Label>
@@ -195,23 +179,6 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
                     </Form.Control.Feedback>
                   </Form.Group>
 
-                  <Form.Label className="Form-Labels">Birthday:</Form.Label>
-                  <Form.Group>
-                    <Form.Control
-                      required
-                      value={birthday}
-                      type="date"
-                      className="form--date-picker"
-                      size="lg"
-                      onChange={(e) => {
-                        setBirthday(e.target.value);
-                        console.log(birthday);
-                      }}
-                    ></Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                      Birthday Required
-                    </Form.Control.Feedback>
-                  </Form.Group>
                   <div style={{ paddingTop: "5%", paddingBottom: "2%" }}>
                     <Button className="Submit-Button" type="submit">
                       Create Account
