@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 import { AppHeader } from '../../Components/Header/Header';
@@ -7,66 +7,139 @@ import addMoreButton from '../../Assets/Home-Page/Add-More-Button.png';
 import editButton from '../../Assets/Home-Page/Edit-Button.png';
 import liveButton from '../../Assets/Home-Page/Live-Button.png';
 import { Project } from '../../Interfaces/Project/Project';
+import { db, collection, addDoc, getDocs, query, where, auth } from '../../Backend/firebase'; // Firebase imports
+import { User } from '../../Interfaces/User/User';
+import { User as FirebaseUser } from "firebase/auth";
+import { onAuthStateChanged } from 'firebase/auth';
 
 
 interface HomePageProps {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   projects: Project[];
-  user?: any;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 
-const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects }) => {
+const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser }) => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [newProjectTitle, setNewProjectTitle] = useState('');
   const [newProjectDate, setNewProjectDate] = useState('');
   const [newProjectStartTime, setNewProjectStartTime] = useState('');
   const [newProjectEndTime, setNewProjectEndTime] = useState('');
-  const [newProjectID, setNewProjectID] = useState(1);
   const [newProjectCueAmount, setNewProjectCueAmount] = useState(1);
 
   const getNextProjectID = () => {
     return projects.length > 0 ? Math.max(...projects.map(p => p.projectID)) + 1 : 1;
   };
 
-  const handleAddProject = () => {
+  const handleAddProject = async () => {
     if (!newProjectTitle || !newProjectDate || !newProjectStartTime || !newProjectEndTime) {
       alert("Please enter all fields!");
       return;
     }
-
+  
+    if (!user) {
+      alert("You must be logged in to add a project.");
+      return;
+    }
+  
     const startTime = new Date(`${newProjectDate}T${newProjectStartTime}:00`);
     const endTime = new Date(`${newProjectDate}T${newProjectEndTime}:00`);
-    
+  
     if (startTime >= endTime) {
       alert("End time must be after start time!");
       return;
     }
-
+  
     const durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / 60000);
     const newID = getNextProjectID();
-
+  
     const newProject: Project = {
-      id: '',
+      id: '', // Will be set by Firestore
       projectID: newID,
       title: newProjectTitle,
       date: new Date(newProjectDate),
       startTime,
       endTime,
-      duration: new Date(0, 0, 0, Math.floor(durationMinutes / 60), durationMinutes % 60), // Store duration in minutes
+      duration: new Date(0, 0, 0, Math.floor(durationMinutes / 60), durationMinutes % 60),
       cues: [],
       cueAmount: newProjectCueAmount,
+      owner: user.id, // Store the user ID in the project
     };
-
-    setProjects([...projects, newProject]); 
-    setNewProjectID(newProjectID + 1); 
+  
+    try {
+      const docRef = await addDoc(collection(db, "projects"), newProject);
+      newProject.id = docRef.id; // Assign the Firestore ID to the project
+      setProjects([...projects, newProject]); // Update local state
+    } catch (error) {
+      console.error("Error adding project:", error);
+      alert("Failed to add project. Try again.");
+    }
+  
+    // Reset form and close modal
     setShowModal(false);
     setNewProjectTitle('');
     setNewProjectDate('');
     setNewProjectStartTime('');
     setNewProjectEndTime('');
-    setNewProjectCueAmount(1); // Reset cue amount to initial state
+    setNewProjectCueAmount(1);
+  };
+
+  function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser | null): User | null {
+    if (!firebaseUser) return null; 
+  
+    return {
+      id: firebaseUser.uid,
+      email: firebaseUser.email || "",
+      firstName: "",  // Fetch from Firestore if needed
+      lastName: "",   // Fetch from Firestore if needed
+      password: "",   // Firebase does not return passwords
+    };
+  }
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      const appUser = mapFirebaseUserToAppUser(firebaseUser);
+      setUser(appUser);
+  
+      if (appUser) {
+        await fetchProjects(appUser.id);  // Ensure fetchProjects uses correct ID
+      } else {
+        setProjects([]);
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
+  
+  const fetchProjects = async (userId: string) => {
+    try {
+      const q = query(collection(db, "projects"), where("owner", "==", userId));
+      const querySnapshot = await getDocs(q);
+      const userProjects: Project[] = [];
+  
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        userProjects.push({
+          id: doc.id,
+          projectID: data.projectID,
+          title: data.title,
+          date: data.date.toDate(),
+          startTime: data.startTime.toDate(),
+          endTime: data.endTime.toDate(),
+          duration: data.duration.toDate(),
+          cues: data.cues || [],
+          cueAmount: data.cueAmount,
+          owner: data.owner,
+        });
+      });
+  
+      setProjects(userProjects);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
   };
 
   return (

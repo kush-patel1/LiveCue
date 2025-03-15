@@ -10,4 +10,5 @@ export interface Project {
   duration: Date;
   cues: Cue[];
   cueAmount: number;
+  owner: string;
 }

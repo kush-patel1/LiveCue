@@ -1,7 +1,11 @@
 .loading-screen-body {
-  margin: 10vh;
-  height: 50%;
+  background-color: #141414;
+  height: 100vh;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
 }
 
 .loading-screen--image img {
@@ -13,5 +17,6 @@
 }
 
 .loading-screen--message-container h1 {
+  color: white;
   font-size: xx-large;
 }
