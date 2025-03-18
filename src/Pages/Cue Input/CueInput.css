@@ -43,6 +43,7 @@
 
 .CueInput-Cue {
   width: 300px;
+  min-height: 650px;
   height: "auto";
   background-color: #1b1c1d;
   color: #fff6ee;
