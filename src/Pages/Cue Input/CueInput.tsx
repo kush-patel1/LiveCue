@@ -10,6 +10,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
+import { db, collection, addDoc, getDocs, query, where, doc, updateDoc, } from "../../Backend/firebase";
+import { debounce } from 'lodash';
+
+
 
 interface CueInputProps {
   projects: Project[];
@@ -17,83 +21,83 @@ interface CueInputProps {
 }
 
 function CueInput({ projects, setProjects }: CueInputProps) {
+  
   const navigate = useNavigate();
-  const {projectId} = useParams();
-  const project = projects.find(p => p.projectID === Number(projectId));
+  const { projectId } = useParams();
+  const [cues, setCues] = useState<Cue[]>([]);
+  const [project, setProject] = useState<Project | null>(null);
 
-  const [cueAmount, setCueAmount] = useState(project?.cueAmount ?? 5); // Default to 5 cues
-  const [cues, setCues] = useState<Cue[]>(Array.from({ length: cueAmount }, (_, i) => ({
-    id: '',
-    cueNumber: i + 1,
-    title: '',
-    startTime: new Date(0,0,0,12,0,0),
-    endTime: new Date(0,0,0,12,0,0),
-    presenter: '',
-    location: '',
-    avMedia: '',
-    audioSource: '',
-    sideScreens: '',
-    centerScreen: '',
-    lighting: '',
-    ambientLights: '',
-    notes: '',
-  })));
+  useEffect(() => {
+    if (projectId) {
+      fetchCues(projectId);
+      const foundProject = projects.find(proj => proj.id === projectId);
+      setProject(foundProject || null);
+    }
+  }, [projectId, projects]);
 
-  const updateProjectCues = (updatedCues: Cue[]) => {
-    if (!project) return;
-  
-    const updatedProjects = projects.map(p => 
-      p.id === project.id ? { ...p, cues: updatedCues, cueAmount: updatedCues.length } : p
-    );
-  
-    setProjects(updatedProjects);
+  const fetchCues = async (projectId: string) => {
+    try {
+      const q = query(collection(db, "cues"), where("projectRef", "==", projectId));
+      const querySnapshot = await getDocs(q);
+      const fetchedCues = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Cue));
+      setCues(fetchedCues);
+    } catch (error) {
+      console.error("Error fetching cues:", error);
+    }
   };
-  
+
   const handleInputChange = (index: number, field: keyof Cue, value: string) => {
     const updatedCues = [...cues];
     updatedCues[index] = { ...updatedCues[index], [field]: value };
     setCues(updatedCues);
-    updateProjectCues(updatedCues);
+    debouncedUpdateCue(updatedCues[index]);
   };
-  
+
   const handleTimeChange = (index: number, field: keyof Cue, value: dayjs.Dayjs | null) => {
     if (!value) return;
     const updatedCues = [...cues];
-    updatedCues[index] = { ...updatedCues[index], [field]: value.toDate() };
+    updatedCues[index] = { ...updatedCues[index], [field]: value.toISOString() };
     setCues(updatedCues);
-    updateProjectCues(updatedCues);
-  };
+    debouncedUpdateCue(updatedCues[index]);
+  }; 
 
-
-  // Handle cue amount change
-  const addCue = () => {
-    setCueAmount(prevAmount => prevAmount + 1);
-    setCues(prevCues => [
-      ...prevCues,
-      {
-        id: '',
-        cueNumber: prevCues.length + 1,
-        title: '',
-        startTime: new Date(0, 0, 0, 12, 0, 0),
-        endTime: new Date(0, 0, 0, 12, 0, 0),
-        presenter: '',
-        location: '',
-        avMedia: '',
-        audioSource: '',
-        sideScreens: '',
-        centerScreen: '',
-        lighting: '',
-        ambientLights: '',
-        notes: '',
-      },
-    ]);
-  };
-  
-  useEffect(() => {
-    if (project?.cues && project.cues.length > 0) {
-      setCues(project.cues);
+  const debouncedUpdateCue = debounce(async (cue: Cue) => {
+    try {
+      const cueDocRef = doc(db, "cues", cue.id);
+      await updateDoc(cueDocRef, {...cue});
+    } catch (error) {
+      console.error("Error updating cue:", error);
     }
-  }, [project]);
+  }, 500);
+
+  const addCue = async () => {
+    if (!projectId) return;
+
+    const newCue: Cue = {
+      id: '',
+      cueNumber: cues.length + 1,
+      title: '',
+      startTime: new Date(),
+      endTime: new Date(),
+      presenter: '',
+      location: '',
+      avMedia: '',
+      audioSource: '',
+      sideScreens: '',
+      centerScreen: '',
+      lighting: '',
+      ambientLights: '',
+      notes: '',
+      projectRef: projectId
+    };
+
+    try {
+      const cueDocRef = await addDoc(collection(db, "cues"), newCue);
+      setCues([...cues, { ...newCue, id: cueDocRef.id }]);
+    } catch (error) {
+      console.error("Error adding cue:", error);
+    }
+  };
 
   return (
     <>

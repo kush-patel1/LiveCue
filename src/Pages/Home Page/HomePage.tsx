@@ -29,6 +29,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
   const [newProjectStartTime, setNewProjectStartTime] = useState('');
   const [newProjectEndTime, setNewProjectEndTime] = useState('');
   const [newProjectCueAmount, setNewProjectCueAmount] = useState(1);
+  
 
   const getNextProjectID = () => {
     return projects.length > 0 ? Math.max(...projects.map(p => p.projectID)) + 1 : 1;
@@ -112,7 +113,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
     });
   
     return () => unsubscribe();
-  }, []);
+  },);
   
   const fetchProjects = async (userId: string) => {
     try {

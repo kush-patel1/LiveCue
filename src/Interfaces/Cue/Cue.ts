@@ -13,4 +13,5 @@ export interface Cue {
   lighting: string;
   ambientLights: string;
   notes: string;
+  projectRef: string | undefined;
 }
