@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./AdminPage.css";
 import logo from '../../Assets/Logo/LIVECUE-Logo.png'
 import { Container, Row, Col, Card } from "react-bootstrap";
 import { Project } from "../../Interfaces/Project/Project";
+import { Cue } from "../../Interfaces/Cue/Cue";
+import { db, collection, getDocs, query, where, } from "../../Backend/firebase";
 
 interface AdminPageProps {
   projects: Project[];
@@ -12,8 +14,29 @@ interface AdminPageProps {
 function AdminPage({projects}: AdminPageProps) {
   const navigate = useNavigate();
   const {projectId} = useParams();
-  const project = projects.find(p => p.projectID === Number(projectId));
+  const [cues, setCues] = useState<Cue[]>([]);
+  const [project, setProject] = useState<Project | null>(null);
 
+  useEffect(() => {
+    if (projectId) {
+      fetchCues(projectId);
+      const foundProject = projects.find(proj => proj.id === projectId);
+      setProject(foundProject || null);
+    }
+  }, [projectId, projects]);
+
+  const fetchCues = async (projectId: string) => {
+    try {
+      const q = query(collection(db, "cues"), where("projectRef", "==", projectId));
+      const querySnapshot = await getDocs(q);
+      const fetchedCues = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Cue));
+      setCues(fetchedCues);
+    } catch (error) {
+      console.error("Error fetching cues:", error);
+    }
+  };
+
+  //Timer
   let time  = new Date().toLocaleTimeString()
   const [ctime,setTime] = useState(time)
   const UpdateTime=()=>{
@@ -47,7 +70,7 @@ function AdminPage({projects}: AdminPageProps) {
         </div>
         <div className="scroll-container-AdminPage">
           <div className="scroll-content-AdminPage">
-            {project?.cues
+            {cues
               .sort((a, b) => a.cueNumber - b.cueNumber)
               .map((cue) => (
                 <Card key={cue.cueNumber} className="AdminPage-Cue">
@@ -83,17 +106,14 @@ function AdminPage({projects}: AdminPageProps) {
 
                     <Row>
                       <Col xs={5}>
-                        <p
-                          className="inter-medium"
-                          style={{ margin: 10, marginLeft: 0 }}
-                        >
-                          Start:{" "}
-                          {cue.startTime.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}
-                        </p>
+                      <p className="inter-medium" style={{ margin: 10, marginLeft: 0 }}>
+                        Start:{" "}
+                        {new Date(cue.startTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </p>
                       </Col>
                       <Col
                         xs={2}
@@ -103,17 +123,14 @@ function AdminPage({projects}: AdminPageProps) {
                         <div className="vertical-line"></div>
                       </Col>
                       <Col xs={1} style={{ paddingLeft: 0 }}>
-                        <p
-                          className="inter-medium"
-                          style={{ margin: 10, marginLeft: -10 }}
-                        >
-                          End:{" "}
-                          {cue.endTime.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}
-                        </p>
+                      <p className="inter-medium" style={{ margin: 10, marginLeft: -10 }}>
+                        End:{" "}
+                        {new Date(cue.endTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </p>
                       </Col>
                     </Row>
                     <hr
