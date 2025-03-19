@@ -13,14 +13,12 @@ import dayjs from 'dayjs';
 import { db, collection, addDoc, getDocs, query, where, doc, updateDoc, } from "../../Backend/firebase";
 import { debounce } from 'lodash';
 
-
-
 interface CueInputProps {
   projects: Project[];
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
 }
 
-function CueInput({ projects, setProjects }: CueInputProps) {
+function CueInput({ projects }: CueInputProps) {
   
   const navigate = useNavigate();
   const { projectId } = useParams();
