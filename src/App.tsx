@@ -20,7 +20,7 @@ function App() {
       <Routes>
         <Route path="/CueInput/:projectId" element={<CueInput projects={projects} setProjects={setProjects}/>}/>
         <Route path="/HomePage" element={<HomePage user={user} setUser={setUser} projects={projects} setProjects={setProjects}/>}/>
-        <Route path="/LiveCueSheet" element={<LiveCueSheet />} />
+        <Route path="/LiveCueSheet/:projectId" element={<LiveCueSheet />} />
         <Route path="/AdminPage/:projectId" element={<AdminPage projects={projects}/>} />
         <Route path="/SignUp" element={<SignUp setUser={setUser} />} />
         <Route path="/" element={<Login setUser={setUser} />} />

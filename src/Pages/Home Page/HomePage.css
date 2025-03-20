@@ -72,6 +72,21 @@
   color: #fff6ee !important;
 }
 
+.logout-button {
+  background-color: #578493;
+  color: #1b1c1d;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-left: auto;
+}
+
+.logout-button:hover {
+  background-color: #457180;
+}
+
 @font-face {
   font-family: "Jitter";
   src: url("../../Jitter.otf") format("opentype");
