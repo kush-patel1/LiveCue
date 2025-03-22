@@ -11,7 +11,7 @@
   
   .AdminPage-body {
     background-color: #141414;
-    min-height: 92vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -63,9 +63,6 @@
     margin-bottom: 10px;
     min-width: 280px;
     text-wrap: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
   
   .section {
@@ -172,6 +169,23 @@
     max-width: 100%; /* Ensure it stays within the card */
   }
   
+  .PrevNext-Buttons{
+    background-color: #578493;
+    color: #fff6ee;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    width: 40%;
+    padding: 3%;
+    border-radius: 5px;
+    margin: 2%;
+    margin-top: 0;
+  }
+
+  .PrevNext-Button:hover {
+    background-color: #457180;
+  }
+
   @font-face {
     font-family: "Jitter";
     src: url("../../Jitter.otf") format("opentype");

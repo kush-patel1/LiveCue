@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
-import { AppHeader } from '../../Components/Header/Header';
+import logo from '../../Assets/Logo/LIVECUE-Logo.png'
 import { Container, Row, Col, Card, Modal, Form, Button } from 'react-bootstrap';
 import addMoreButton from '../../Assets/Home-Page/Add-More-Button.png';
 import editButton from '../../Assets/Home-Page/Edit-Button.png';
@@ -9,7 +9,7 @@ import liveButton from '../../Assets/Home-Page/Live-Button.png';
 import { Project } from '../../Interfaces/Project/Project';
 import { db, collection, addDoc, getDocs, query, where, auth } from '../../Backend/firebase'; // Firebase imports
 import { User } from '../../Interfaces/User/User';
-import { User as FirebaseUser } from "firebase/auth";
+import { User as FirebaseUser, signOut } from "firebase/auth";
 import { onAuthStateChanged } from 'firebase/auth';
 
 
@@ -144,9 +144,23 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/'); // Redirect to login page after logout
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <>
-      <AppHeader />
+      <header className="app-header-CueInput">
+        <div className="header-spacer"></div> {/* Spacer for centering */}
+        <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => {navigate("/HomePage")}}/>
+        <Button onClick={handleLogout} className='logout-button inter-medium'>Log Out</Button>
+      </header>
+
       <Container fluid className="HomePage-body d-flex align-items-center justify-content-center">
         <Row className="justify-content-center text-center mt-3 mb-4" style={{ padding: '2%' }}>
           <Col>

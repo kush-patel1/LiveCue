@@ -118,7 +118,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
                     <Form.Label>Email</Form.Label>
                     <Form.Control
                       required
-                      placeholder="admin"
+                      placeholder="email"
                       value={email}
                       size="lg"
                       onChange={(e) => {
@@ -136,7 +136,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
                     <Form.Control
                       required
                       className="form--font"
-                      placeholder="Media#344"
+                      placeholder="password"
                       value={password}
                       size="lg"
                       onChange={(e) => {

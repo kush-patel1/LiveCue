@@ -145,57 +145,50 @@ const handlePrevCue = async () => {
         fluid
         className="AdminPage-body d-flex align-items-center justify-content-center"
       >
-        <div>
-          <Card className="controlPanel-AdminPage">
-            <Card.Body>
-              <Row >
-                <h1 className="inter-bold" style={{fontSize: '35px'}}>{ctime}</h1>
+        <Card className="controlPanel-AdminPage text-center">
+          <Card.Body>
+            <Row className="justify-content-center" style={{marginTop: '10%'}}>
+              <h1 className="inter-bold" style={{ fontSize: '40px' }}>{ctime}</h1>
+            </Row>
+            <Row className="controlPanelSection justify-content-center" style={{marginTop: '7%'}}>
+              <h1 className="inter-medium" style={{ fontSize: '35px' }}>{formatTimer(elapsedTime)}</h1>
+              <Row className="justify-content-center" style={{ padding: '10px' }}>
+                {!isLive ? (
+                  <Button onClick={toggleLive} variant="success">Go Live</Button>
+                ) : (
+                  <span className="d-flex justify-content-center align-items-center gap-3">
+                    <img src={back} alt="back" style={{ maxHeight: '20px' }} onClick={() => adjustTime(-10)} />
+                    {isRunning ? (
+                      <img src={pause} alt="pause" style={{ maxHeight: '20px' }} onClick={togglePause} />
+                    ) : (
+                      <img src={play} alt="play" style={{ maxHeight: '20px' }} onClick={togglePause} />
+                    )}
+                    <img src={forward} alt="forward" style={{ maxHeight: '20px' }} onClick={() => adjustTime(10)} />
+                  </span>
+                )}
               </Row>
-              <Row className="controlPanelSection">
-                <Row>
-                <h1 className="inter-medium" style={{ fontSize: '35px' }}>{formatTimer(elapsedTime)}</h1>
-                </Row>
-                <Row style={{padding: '10px'}}>
-                  {!isLive ? (
-                    <Button onClick={toggleLive} variant="success">Go Live</Button>
-                  ) : (
-                    <span>
-                      <img src = {back} alt='back' style={{maxHeight: '20px'}} onClick={() => adjustTime(-10)} className="mx-2" />
-                      {isRunning ? (
-                        <img src={pause} alt='pause' style={{maxHeight: '20px', paddingLeft: '10px'}} onClick={togglePause} />
-                      ) : (
-                        <img src={play} alt='play' style={{maxHeight: '20px', paddingLeft: '10px'}} onClick={togglePause} />
-                      )}
-                      <img src={forward} alt='forward' style={{maxHeight: '20px', paddingLeft: '10px'}} onClick={() => adjustTime(10)} className="mx-2" />
-                    </span>
-                  )}
-                </Row>
+            </Row>
+            <Row className="controlPanelSection justify-content-center" style={{marginTop: '7%'}}>
+              <h1 className="inter-semibold">Cue Control</h1>
+              <Row className="justify-content-center" style={{ padding: '10px' }}>
+                <span>
+                <button onClick={handlePrevCue} disabled={cues.findIndex(cue => cue.isLive) <= 0} className="PrevNext-Buttons inter-medium">Prev</button>
+                <button onClick={handleNextCue} disabled={cues.findIndex(cue => cue.isLive) >= cues.length - 1} className="PrevNext-Buttons inter-medium">Next</button>
+                </span>
               </Row>
-              <Row className="controlPanelSection">
-                <Row>
-                <h1 className="inter-medium" style={{ fontSize: '35px' }}>Cue Control</h1>
-                </Row>
-                <Row style={{padding: '10px',}}>
-                  <span>
-                    <Button onClick={handlePrevCue} disabled={cues.findIndex(cue => cue.isLive) <= 0}>Prev</Button> 
-                    <Button onClick={handleNextCue} disabled={cues.findIndex(cue => cue.isLive) >= cues.length - 1}>Next</Button>
-                  </span>  
-                </Row>
+            </Row>
+            <Row className="controlPanelSection" style={{marginTop: '7%'}}>
+              <p className="inter-medium" style={{alignSelf: 'left'}}>Stream URL:</p>
+              <Row className="justify-content-center">
+                <Col xs="auto" className="p-1">
+                  <p className="inter-bold text-wrap" style={{ fontSize: "14px", wordBreak: "break-all" }}>
+                    {'https://kush-patel1.github.io/LiveCue/#/LiveCueSheet/' + projectId?.toString()}/
+                  </p>
+                </Col>
               </Row>
-              <Row className="controlPanelSection">
-                <Row>
-                <p className="inter-medium">Stream URL:</p>
-                </Row>
-                <Row>
-                  <Col xs="auto" className="p-1">
-                    <p className="inter-bold text-wrap" style={{ fontSize: "14px", wordBreak: "break-all" }}>
-                      {'https://kush-patel1.github.io/LiveCue/#/LiveCueSheet/' + projectId?.toString()}/</p>
-                  </Col>
-                </Row>
-              </Row>
-            </Card.Body>
-          </Card>
-        </div>
+            </Row>
+          </Card.Body>
+        </Card>
         <div className="scroll-container-AdminPage">
           <div className="scroll-content-AdminPage">
             {cues

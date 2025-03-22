@@ -8,6 +8,16 @@
   padding-top: 28px;
 }
 
+.heading-CueInput--logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.logout-button {
+  margin-left: auto;
+}
+
 .project-title {
   padding-top: 8px;
   margin-left: 75px;
