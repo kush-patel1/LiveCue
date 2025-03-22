@@ -1,18 +1,22 @@
 {
   "files": {
-    "main.css": "/LiveCue/static/css/main.44427d0a.css",
-    "main.js": "/LiveCue/static/js/main.005fd7fc.js",
+    "main.css": "/LiveCue/static/css/main.dac34e9a.css",
+    "main.js": "/LiveCue/static/js/main.f3c636ef.js",
     "static/js/453.bad6c33a.chunk.js": "/LiveCue/static/js/453.bad6c33a.chunk.js",
     "static/media/Inter-Medium.ttf": "/LiveCue/static/media/Inter-Medium.3f7acfe50aad7ad68548.ttf",
     "static/media/LoadingGif.gif": "/LiveCue/static/media/LoadingGif.3f40aeb2e7a9b1cc50e4.gif",
     "static/media/Jitter.otf": "/LiveCue/static/media/Jitter.2314105ee75ccae4b5fc.otf",
     "index.html": "/LiveCue/index.html",
-    "main.44427d0a.css.map": "/LiveCue/static/css/main.44427d0a.css.map",
-    "main.005fd7fc.js.map": "/LiveCue/static/js/main.005fd7fc.js.map",
+    "static/media/Back.svg": "/LiveCue/static/media/Back.9441b0c5956534add55c664826ff02ce.svg",
+    "static/media/Pause.svg": "/LiveCue/static/media/Pause.2f192a57269f5e7125df3798cc45e510.svg",
+    "static/media/Forward.svg": "/LiveCue/static/media/Forward.bd2e485252a32cc51acfa60701b2592a.svg",
+    "static/media/Play.svg": "/LiveCue/static/media/Play.da538c6ab634869aed6f820755452c46.svg",
+    "main.dac34e9a.css.map": "/LiveCue/static/css/main.dac34e9a.css.map",
+    "main.f3c636ef.js.map": "/LiveCue/static/js/main.f3c636ef.js.map",
     "453.bad6c33a.chunk.js.map": "/LiveCue/static/js/453.bad6c33a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.44427d0a.css",
-    "static/js/main.005fd7fc.js"
+    "static/css/main.dac34e9a.css",
+    "static/js/main.f3c636ef.js"
   ]
 }
