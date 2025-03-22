@@ -51,11 +51,11 @@ All files                     |       0 |        0 |       0 |       0 |
   User.ts                     |       0 |        0 |       0 |       0 |                   
   UserProjectData.ts          |       0 |        0 |       0 |       0 |                   
  src/Pages/Admin Page         |       0 |        0 |       0 |       0 |                   
-  AdminPage.tsx               |       0 |        0 |       0 |       0 | 19-204            
+  AdminPage.tsx               |       0 |        0 |       0 |       0 | 19-197            
  src/Pages/Cue Input          |       0 |        0 |       0 |       0 |                   
   CueInput.tsx                |       0 |        0 |       0 |       0 | 22-476            
  src/Pages/Home Page          |       0 |        0 |       0 |       0 |                   
-  HomePage.tsx                |       0 |        0 |       0 |       0 | 24-263            
+  HomePage.tsx                |       0 |        0 |       0 |       0 | 24-277            
  src/Pages/Live Cue Sheet     |       0 |        0 |       0 |       0 |                   
   LiveCueSheet.tsx            |       0 |        0 |       0 |       0 | 15-72             
  src/Pages/Login Page         |       0 |        0 |       0 |       0 |                   
@@ -70,5 +70,5 @@ All files                     |       0 |        0 |       0 |       0 |
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        3.557 s
+Time:        3.584 s
 Ran all test suites.
