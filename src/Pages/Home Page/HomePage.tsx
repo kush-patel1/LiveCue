@@ -113,6 +113,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
     });
   
     return () => unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const fetchProjects = async (userId: string) => {
