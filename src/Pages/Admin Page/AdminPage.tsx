@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./AdminPage.css";
 import logo from '../../Assets/Logo/LIVECUE-Logo.png'
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { Project } from "../../Interfaces/Project/Project";
 import { Cue } from "../../Interfaces/Cue/Cue";
-import { db, collection, getDocs, query, where, } from "../../Backend/firebase";
+import { db, collection, getDocs, query, where, updateDoc, doc, onSnapshot } from "../../Backend/firebase";
 import pause from '../../Assets/Admin-Page/Pause.svg'
 import play from '../../Assets/Admin-Page/Play.svg'
 import back from '../../Assets/Admin-Page/Back.svg'
@@ -23,7 +23,6 @@ function AdminPage({projects}: AdminPageProps) {
   const [isLive, setIsLive] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [activeCueIndex, setActiveCueIndex] = useState<number>(0); // Tracks current cue
 
   useEffect(() => {
     if (projectId) {
@@ -83,16 +82,51 @@ function AdminPage({projects}: AdminPageProps) {
     return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 };
 
-const handleNextCue = () => {
-  if (activeCueIndex < cues.length - 1) {
-    setActiveCueIndex(prevIndex => prevIndex + 1);
+useEffect(() => {
+  if (!projectId) return;
+
+  const q = query(collection(db, "cues"), where("projectRef", "==", projectId));
+
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const updatedCues = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Cue[];
+    setCues(updatedCues);
+  });
+
+  return () => unsubscribe(); // Cleanup listener on unmount
+}, [projectId]);
+
+const handleNextCue = async () => {
+  const liveCueIndex = cues.findIndex(cue => cue.isLive); // Find the currently live cue
+  if (liveCueIndex === -1 || liveCueIndex >= cues.length - 1) return; // No live cue or last cue
+
+  const currentCue = cues[liveCueIndex];
+  const nextCue = cues[liveCueIndex + 1];
+
+  try {
+    // Update Firebase
+    await updateDoc(doc(db, "cues", currentCue.id), { isLive: false });
+    await updateDoc(doc(db, "cues", nextCue.id), { isLive: true });
+  } catch (error) {
+    console.error("Error updating cues:", error);
   }
 };
 
-// Handles moving to the previous cue
-const handlePrevCue = () => {
-  if (activeCueIndex > 0) {
-    setActiveCueIndex(prevIndex => prevIndex - 1);
+const handlePrevCue = async () => {
+  const liveCueIndex = cues.findIndex(cue => cue.isLive);
+  if (liveCueIndex <= 0) return; // No previous cue or first cue
+
+  const currentCue = cues[liveCueIndex];
+  const prevCue = cues[liveCueIndex - 1];
+
+  try {
+    // Update Firebase
+    await updateDoc(doc(db, "cues", currentCue.id), { isLive: false });
+    await updateDoc(doc(db, "cues", prevCue.id), { isLive: true });
+  } catch (error) {
+    console.error("Error updating cues:", error);
   }
 };
 
@@ -143,8 +177,8 @@ const handlePrevCue = () => {
                 </Row>
                 <Row style={{padding: '10px',}}>
                   <span>
-                    <Button onClick={handlePrevCue} disabled={activeCueIndex === 0}>Prev</Button> 
-                    <Button onClick={handleNextCue} disabled={activeCueIndex === cues.length - 1}>Next</Button>
+                    <Button onClick={handlePrevCue} disabled={cues.findIndex(cue => cue.isLive) <= 0}>Prev</Button> 
+                    <Button onClick={handleNextCue} disabled={cues.findIndex(cue => cue.isLive) >= cues.length - 1}>Next</Button>
                   </span>  
                 </Row>
               </Row>
@@ -166,11 +200,11 @@ const handlePrevCue = () => {
           <div className="scroll-content-AdminPage">
             {cues
               .sort((a, b) => a.cueNumber - b.cueNumber)
-              .map((cue, index) => (
-                <Card key={cue.cueNumber} className={`AdminPage-Cue ${index === activeCueIndex ? "highlighted-cue" : ""}`}>
+              .map((cue) => (
+                <Card key={cue.cueNumber} className={`AdminPage-Cue ${cue.isLive ? "highlighted-cue" : ""}`}>
                   <Card.Body>
                     <Row style={{ marginLeft: 5 }}>
-                      <Col xs={3} className={`cueNumber ${index === activeCueIndex ? "highlightedCueNumber" : ""}`}>
+                      <Col xs={3} className={`cueNumber ${cue.isLive ? "highlightedCueNumber" : ""}`}>
                         <h5 className="inter-bold" style={{ margin: 0 }}>
                           {cue.cueNumber}
                         </h5>
@@ -185,7 +219,7 @@ const handlePrevCue = () => {
                         </h5>
                       </Col>
                     </Row>
-                    <hr className={`hrAdminPage ${index === activeCueIndex ? "highlightedHrAdminPage" : ""}`}/>
+                    <hr className={`hrAdminPage ${cue.isLive ? "highlightedHrAdminPage" : ""}`}/>
 
                     <Row>
                       <Col xs={5}>
@@ -203,7 +237,7 @@ const handlePrevCue = () => {
                         className="d-flex justify-content-center"
                         style={{ marginLeft: 0 }}
                       >
-                        <div className={`vertical-line ${index === activeCueIndex ? "highlightedVertical-line" : ""}`}></div>
+                        <div className={`vertical-line ${cue.isLive ? "highlightedVertical-line" : ""}`}></div>
                       </Col>
                       <Col xs={1} style={{ paddingLeft: 0 }}>
                       <p className="inter-medium" style={{ margin: 10, marginLeft: -10 }}>
@@ -217,9 +251,9 @@ const handlePrevCue = () => {
                       </Col>
                     </Row>
                     
-                    <hr style={{marginTop: 0, marginBottom: 10,}} className={`hrAdminPage ${index === activeCueIndex ? "highlightedHrAdminPage" : ""}`}/>
+                    <hr style={{marginTop: 0, marginBottom: 10,}} className={`hrAdminPage ${cue.isLive ? "highlightedHrAdminPage" : ""}`}/>
 
-                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
+                    <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -242,7 +276,7 @@ const handlePrevCue = () => {
                       </Col>
                     </Row>
 
-                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
+                    <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -265,7 +299,7 @@ const handlePrevCue = () => {
                       </Col>
                     </Row>
 
-                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
+                    <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -288,7 +322,7 @@ const handlePrevCue = () => {
                       </Col>
                     </Row>
 
-                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
+                    <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -311,7 +345,7 @@ const handlePrevCue = () => {
                       </Col>
                     </Row>
 
-                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
+                    <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -334,7 +368,7 @@ const handlePrevCue = () => {
                       </Col>
                     </Row>
 
-                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
+                    <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -357,7 +391,7 @@ const handlePrevCue = () => {
                       </Col>
                     </Row>
 
-                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
+                    <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -380,7 +414,7 @@ const handlePrevCue = () => {
                       </Col>
                     </Row>
 
-                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
+                    <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -403,7 +437,7 @@ const handlePrevCue = () => {
                       </Col>
                     </Row>
 
-                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
+                    <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"

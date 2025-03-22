@@ -1,4 +1,4 @@
-.CueInput-header {
+.LiveCueSheet-header {
   background-color: #141414;
   display: flex;
   align-items: center;
@@ -9,7 +9,7 @@
   color: white;
 }
 
-.CueInput-body {
+.LiveCueSheet-body {
   background-color: #141414;
   min-height: 92vh;
   display: flex;
@@ -21,11 +21,12 @@
   overflow-y: hidden;
 }
 
-.CueInput-Cue {
+.LiveCueSheet-Cue {
   width: 300px;
-  height: 700px;
-  background-color: #1b1c1d;
-  color: #fff6ee;
+  min-height: 650px;
+  height: auto;
+  background-color: #151515;
+  color: #918b85;
   border-radius: 5%;
   box-shadow:
     0 4px 8px 0 rgba(0, 0, 0, 0.2),
@@ -33,10 +34,42 @@
   padding: 0;
   flex-shrink: 0;
   box-sizing: content-box;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.highlighted-cue {
+  background-color: #1b1c1d;
+  color: #fff6ee;
+}
+
+.controlPanel-LiveCueSheet{
+  width: 300px;
+  height: 700px;
+  color: #fff6ee;
+  border-radius: 5%;
+  padding: 0;
+  flex-shrink: 0;
+  box-sizing: content-box;
+  background-color: #1b1c1d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.controlPanelSection {
+  border: 3px solid #578493;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  min-width: 280px;
+  text-wrap: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .section {
-  border: 3px solid #578493;
+  border: 3px solid #173038;
   height: auto;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -44,16 +77,47 @@
   text-wrap: auto;
 }
 
-.scroll-container-cueInput {
+.highlightedSection {
+  border: 3px solid #578493;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  min-width: 280px;
+  text-wrap: auto;
+  transition: border 0.3s ease, color 0.3s ease;
+}
+
+.hrLiveCueSheet{
+  border-top: 3px solid #173038;
+  border-radius: 10px;
+  min-width: 200px;
+  margin-top: 10;
+  margin-bottom: 0;
+  border-style: solid;
+  opacity: 1;
+  margin-left: -12;
+}
+
+.highlightedHrLiveCueSheet{
+  border-top: 3px solid #578493;
+  border-radius: 10px;
+  min-width: 200px;
+  margin-top: 10;
+  margin-bottom: 0;
+  border-style: solid;
+  opacity: 1;
+  margin-left: -12;
+}
+
+.scroll-container-LiveCueSheet {
   display: flex;
   overflow-x: auto;
   white-space: nowrap;
   padding: 20px;
-  width: 100%;
   justify-content: flex-start;
 }
 
-.scroll-content-cueInput {
+.scroll-content-LiveCueSheet {
   display: flex;
   flex-wrap: nowrap;
   gap: 15px;
@@ -61,6 +125,18 @@
 }
 
 .cueNumber {
+  background-color: #918b85;
+  color: #1b1c1d;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 33px;
+  height: 33px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.highlightedCueNumber {
   background-color: #fff6ee;
   color: #1b1c1d;
   border-radius: 10px;
@@ -74,12 +150,20 @@
 .vertical-line {
   width: 3px;
   height: 45px; /* Adjust as needed */
+  background-color: #173038;
+  border-radius: 10px;
+  margin-right: 0;
+}
+
+.highlightedVertical-line {
+  width: 3px;
+  height: 45px; /* Adjust as needed */
   background-color: #578493;
   border-radius: 10px;
   margin-right: 0;
 }
 
-.title-CueInput {
+.title-LiveCueSheet {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

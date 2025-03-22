@@ -9,7 +9,7 @@ import liveButton from '../../Assets/Home-Page/Live-Button.png';
 import { Project } from '../../Interfaces/Project/Project';
 import { db, collection, addDoc, getDocs, query, where, auth } from '../../Backend/firebase'; // Firebase imports
 import { User } from '../../Interfaces/User/User';
-import { User as FirebaseUser, signOut } from "firebase/auth";
+import { User as FirebaseUser } from "firebase/auth";
 import { onAuthStateChanged } from 'firebase/auth';
 
 
@@ -28,8 +28,8 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
   const [newProjectDate, setNewProjectDate] = useState('');
   const [newProjectStartTime, setNewProjectStartTime] = useState('');
   const [newProjectEndTime, setNewProjectEndTime] = useState('');
+
   const [newProjectCueAmount, setNewProjectCueAmount] = useState(1);
-  
 
   const getNextProjectID = () => {
     return projects.length > 0 ? Math.max(...projects.map(p => p.projectID)) + 1 : 1;
@@ -113,7 +113,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
     });
   
     return () => unsubscribe();
-  },);
+  }, []);
   
   const fetchProjects = async (userId: string) => {
     try {
@@ -143,21 +143,9 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate('/'); // Redirect to login page after logout
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
-  
   return (
     <>
       <AppHeader />
-      <div style={{backgroundColor:'#141414', display: 'flex', alignItems: 'left', justifyContent: 'left', paddingRight: '5%'}}>
-        <Button onClick={handleLogout} className='logout-button inter-medium'>Log Out</Button>
-      </div>
       <Container fluid className="HomePage-body d-flex align-items-center justify-content-center">
         <Row className="justify-content-center text-center mt-3 mb-4" style={{ padding: '2%' }}>
           <Col>
@@ -216,7 +204,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
         </div>
       </Container>
       <Modal show={showModal} onHide={() => setShowModal(false)} className="modal-dark">
-        
+
         <Modal.Header closeButton>
           <Modal.Title>Add New Project</Modal.Title>
         </Modal.Header>

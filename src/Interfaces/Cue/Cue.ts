@@ -14,4 +14,5 @@ export interface Cue {
   ambientLights: string;
   notes: string;
   projectRef: string | undefined;
+  isLive: boolean;
 }

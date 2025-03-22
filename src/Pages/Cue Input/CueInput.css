@@ -59,7 +59,7 @@
 .CueInput-TimePicker {
   width: 110px;
 }
-.section {
+.section-CueInput {
   border: 3px solid #578493;
   height: auto;
   border-radius: 10px;
@@ -84,7 +84,7 @@
   width: auto; /* Allow flexible width */
 }
 
-.cueNumber {
+.cueNumber-CueInput {
   background-color: #fff6ee;
   color: #1b1c1d;
   border-radius: 10px;
@@ -95,7 +95,7 @@
   height: 33px;
 }
 
-.vertical-line {
+.vertical-line-CueInput {
   width: 3px;
   height: 45px; /* Adjust as needed */
   background-color: #578493;
