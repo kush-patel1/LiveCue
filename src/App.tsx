@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Routes, Route, HashRouter } from "react-router-dom";
 import CueInput from "./Pages/Cue Input/CueInput";
 import HomePage from "./Pages/Home Page/HomePage";
@@ -18,9 +18,9 @@ function App() {
     <>
     <HashRouter>
       <Routes>
-        <Route path="/CueInput/:projectId" element={<CueInput projects={projects} setProjects={setProjects}/>}/>
+        <Route path="/CueInput/:projectId" element={<CueInput projects={projects}/>}/>
         <Route path="/HomePage" element={<HomePage user={user} setUser={setUser} projects={projects} setProjects={setProjects}/>}/>
-        <Route path="/LiveCueSheet" element={<LiveCueSheet />} />
+        <Route path="/LiveCueSheet/:projectId" element={<LiveCueSheet projects={projects}/>} />
         <Route path="/AdminPage/:projectId" element={<AdminPage projects={projects}/>} />
         <Route path="/SignUp" element={<SignUp setUser={setUser} />} />
         <Route path="/" element={<Login setUser={setUser} />} />

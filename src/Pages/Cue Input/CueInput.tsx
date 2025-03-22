@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './CueInput.css';
 import logo from '../../Assets/Logo/LIVECUE-Logo.png'
@@ -15,7 +15,6 @@ import { debounce } from 'lodash';
 
 interface CueInputProps {
   projects: Project[];
-  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
 }
 
 function CueInput({ projects }: CueInputProps) {
@@ -38,11 +37,27 @@ function CueInput({ projects }: CueInputProps) {
       const q = query(collection(db, "cues"), where("projectRef", "==", projectId));
       const querySnapshot = await getDocs(q);
       const fetchedCues = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Cue));
-      setCues(fetchedCues);
+  
+      // Sort cues by cueNumber
+      fetchedCues.sort((a, b) => a.cueNumber - b.cueNumber);
+  
+      // Ensure first cue is live, all others are not
+      const updatedCues = fetchedCues.map((cue, index) => ({
+        ...cue,
+        isLive: index === 0, // First cue is true, others false
+      }));
+  
+      setCues(updatedCues);
+  
+      // Update Firebase to ensure persistence
+      updatedCues.forEach(async (cue) => {
+        await updateDoc(doc(db, "cues", cue.id), { isLive: cue.isLive });
+      });
     } catch (error) {
       console.error("Error fetching cues:", error);
     }
   };
+  
 
   const handleInputChange = (index: number, field: keyof Cue, value: string) => {
     const updatedCues = [...cues];
@@ -86,7 +101,8 @@ function CueInput({ projects }: CueInputProps) {
       lighting: '',
       ambientLights: '',
       notes: '',
-      projectRef: projectId
+      projectRef: projectId,
+      isLive: false,
     };
 
     try {
@@ -118,7 +134,7 @@ function CueInput({ projects }: CueInputProps) {
           <Row style={{marginLeft: 5}}>
 
             {/* Cue Number Box */}
-            <Col xs={3} className='cueNumber'>
+            <Col xs={3} className='cueNumber-CueInput'>
               <h5 className="inter-bold" style={{ margin: 0 }}>{cue.cueNumber}</h5>
             </Col>
 
@@ -192,7 +208,7 @@ function CueInput({ projects }: CueInputProps) {
 
             {/* Verticle Line */}
             <Col xs={2} className="d-flex justify-content-center" style={{ marginLeft: 0 }}>
-              <div className="vertical-line"></div>
+              <div className="vertical-line-CueInput"></div>
             </Col>
 
             {/* End Time*/}
@@ -250,7 +266,7 @@ function CueInput({ projects }: CueInputProps) {
           <hr style={{ borderTop: '3px solid #578493', borderRadius: '10px', minWidth: '290px', marginTop: 0, borderStyle: "solid", opacity: '1', marginLeft: -12}} />
 
 
-          <Row className="section">
+          <Row className="section-CueInput">
 
             {/* Presenter Heading */}
             <Col xs="auto" className="p-1">
@@ -274,7 +290,7 @@ function CueInput({ projects }: CueInputProps) {
 
           </Row>
 
-          <Row className="section">
+          <Row className="section-CueInput">
 
             {/* Location Heading */}
             <Col xs="auto" className="p-1">
@@ -298,7 +314,7 @@ function CueInput({ projects }: CueInputProps) {
 
           </Row>
 
-          <Row className="section">
+          <Row className="section-CueInput">
 
             {/* AV Media Heading */}
             <Col xs="auto" className="p-1">
@@ -322,7 +338,7 @@ function CueInput({ projects }: CueInputProps) {
 
           </Row>
 
-          <Row className="section">
+          <Row className="section-CueInput">
 
             {/* Audio Source Heading */}
             <Col xs="auto" className="p-1">
@@ -346,7 +362,7 @@ function CueInput({ projects }: CueInputProps) {
 
           </Row>
 
-          <Row className="section">
+          <Row className="section-CueInput">
 
             {/* Side Screens Heading */}
             <Col xs="auto" className="p-1">
@@ -370,7 +386,7 @@ function CueInput({ projects }: CueInputProps) {
 
           </Row>
 
-          <Row className="section">
+          <Row className="section-CueInput">
 
             {/* Center Screen Heading */}
             <Col xs="auto" className="p-1">
@@ -394,7 +410,7 @@ function CueInput({ projects }: CueInputProps) {
 
           </Row>
 
-          <Row className="section">
+          <Row className="section-CueInput">
 
             {/* Lighting Heading */}
             <Col xs="auto" className="p-1">
@@ -418,7 +434,7 @@ function CueInput({ projects }: CueInputProps) {
 
           </Row>
           
-          <Row className="section">
+          <Row className="section-CueInput">
 
             {/* Ambient Lights Heading */}
             <Col xs="auto" className="p-1">
@@ -442,7 +458,7 @@ function CueInput({ projects }: CueInputProps) {
 
           </Row>
 
-          <Row className="section">
+          <Row className="section-CueInput">
 
             {/* Notes Heading */}
             <Col xs="auto" className="p-1">

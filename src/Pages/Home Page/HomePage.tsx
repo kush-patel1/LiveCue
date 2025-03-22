@@ -28,8 +28,8 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
   const [newProjectDate, setNewProjectDate] = useState('');
   const [newProjectStartTime, setNewProjectStartTime] = useState('');
   const [newProjectEndTime, setNewProjectEndTime] = useState('');
+
   const [newProjectCueAmount, setNewProjectCueAmount] = useState(1);
-  
 
   const getNextProjectID = () => {
     return projects.length > 0 ? Math.max(...projects.map(p => p.projectID)) + 1 : 1;
@@ -113,7 +113,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
     });
   
     return () => unsubscribe();
-  },);
+  }, []);
   
   const fetchProjects = async (userId: string) => {
     try {
@@ -204,7 +204,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
         </div>
       </Container>
       <Modal show={showModal} onHide={() => setShowModal(false)} className="modal-dark">
-        
+
         <Modal.Header closeButton>
           <Modal.Title>Add New Project</Modal.Title>
         </Modal.Header>

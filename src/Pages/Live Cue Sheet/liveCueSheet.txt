@@ -1,89 +1,72 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./LiveCueSheet.css";
-import { AppHeader } from "../../Components/Header/Header";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import "./AdminPage.css";
+import logo from '../../Assets/Logo/LIVECUE-Logo.png'
 import { Container, Row, Col, Card } from "react-bootstrap";
-import addMoreButton from "../../Assets/Home-Page/Add-More-Button.png";
 import { Project } from "../../Interfaces/Project/Project";
 import { Cue } from "../../Interfaces/Cue/Cue";
+import { db, collection, getDocs, query, where, } from "../../Backend/firebase";
 
-function CueInput() {
+interface LiveCueSheetProps {
+  projects: Project[];
+}
+
+function LiveCueSheet({projects}: LiveCueSheetProps) {
   const navigate = useNavigate();
+  const {projectId} = useParams();
+  const [cues, setCues] = useState<Cue[]>([]);
+  const [project, setProject] = useState<Project | null>(null);
+  const [activeCueIndex, setActiveCueIndex] = useState<number>(0); // Tracks current cue
 
-  const [cueAmount, setCueAmount] = useState(5); // Default to 5 cues
-  const [cues, setCues] = useState<Cue[]>(
-    Array.from({ length: cueAmount }, (_, i) => ({
-      id: '',
-      cueNumber: i + 1,
-      title: "",
-      startTime: new Date(),
-      endTime: new Date(),
-      presenter: "",
-      location: "",
-      avMedia: "",
-      audioSource: "",
-      sideScreens: "",
-      centerScreen: "",
-      lighting: "",
-      ambientLights: "",
-      notes: "",
-    })),
-  );
+  useEffect(() => {
+    if (projectId) {
+      fetchCues(projectId);
+      const foundProject = projects.find(proj => proj.id === projectId);
+      setProject(foundProject || null);
+    }
+  }, [projectId, projects]);
 
-  // Update field when user edits input
-  const handleChange = (index: number, field: keyof Cue, value: string) => {
-    const updatedCues = [...cues];
-    updatedCues[index] = { ...updatedCues[index], [field]: value };
-    setCues(updatedCues);
-  };
-
-  // Handle cue amount change
-  const handleCueAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const amount = Math.max(1, parseInt(e.target.value) || 1); // Ensure at least 1 cue
-    setCueAmount(amount);
-    setCues(
-      Array.from({ length: amount }, (_, i) => ({
-        id: '',
-        cueNumber: i + 1,
-        title: "",
-        startTime: new Date(),
-        endTime: new Date(),
-        presenter: "",
-        location: "",
-        avMedia: "",
-        audioSource: "",
-        sideScreens: "",
-        centerScreen: "",
-        lighting: "",
-        ambientLights: "",
-        notes: "",
-      })),
-    );
+  const fetchCues = async (projectId: string) => {
+    try {
+      const q = query(collection(db, "cues"), where("projectRef", "==", projectId));
+      const querySnapshot = await getDocs(q);
+      const fetchedCues = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Cue));
+      setCues(fetchedCues);
+    } catch (error) {
+      console.error("Error fetching cues:", error);
+    }
   };
 
   return (
     <>
-      <AppHeader />
+      <header className="app-header-CueInput">
+        <h1 className="project-title inter-bold">{project?.title}</h1>
+        <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => {navigate("/HomePage")}}/>
+        <h1 className="project-date inter-bold">
+          {project?.date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
+        </h1>
+      </header>
+
       <Container
         fluid
-        className="CueInput-body d-flex align-items-center justify-content-center"
+        className="AdminPage-body d-flex align-items-center justify-content-center"
       >
-        <div className="scroll-container-cueInput">
-          <div className="scroll-content-cueInput">
+        <div className="scroll-container-AdminPage">
+          <div className="scroll-content-AdminPage">
             {cues
               .sort((a, b) => a.cueNumber - b.cueNumber)
-              .map((cue) => (
-                <Card key={cue.cueNumber} className="CueInput-Cue">
+              .map((cue, index) => (
+                <Card key={cue.cueNumber} className={`AdminPage-Cue ${index === activeCueIndex ? "highlighted-cue" : ""}`}>
                   <Card.Body>
                     <Row style={{ marginLeft: 5 }}>
-                      <Col xs={3} className="cueNumber">
+                      <Col xs={3} className={`cueNumber ${index === activeCueIndex ? "highlightedCueNumber" : ""}`}>
                         <h5 className="inter-bold" style={{ margin: 0 }}>
                           {cue.cueNumber}
                         </h5>
                       </Col>
-                      <Col className="title-CueInput">
+                      <Col className="title-AdminPage">
                         <h5
-                          className="inter-bold title-CueInput"
+                          className="inter-bold title-AdminPage"
                           style={{ margin: 4, fontSizeAdjust: "0.475" }}
                         >
                           {" "}
@@ -91,67 +74,41 @@ function CueInput() {
                         </h5>
                       </Col>
                     </Row>
-                    <hr
-                      style={{
-                        borderTop: "3px solid #578493",
-                        borderRadius: "10px",
-                        minWidth: "290px",
-                        marginTop: 10,
-                        marginBottom: 0,
-                        borderStyle: "solid",
-                        opacity: "1",
-                        marginLeft: -12,
-                      }}
-                    />
+                    <hr className={`hrAdminPage ${index === activeCueIndex ? "highlightedHrAdminPage" : ""}`}/>
 
                     <Row>
                       <Col xs={5}>
-                        <p
-                          className="inter-medium"
-                          style={{ margin: 10, marginLeft: 0 }}
-                        >
-                          Start:{" "}
-                          {cue.startTime.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}
-                        </p>
+                      <p className="inter-medium" style={{ margin: 10, marginLeft: 0 }}>
+                        Start:{" "}
+                        {new Date(cue.startTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </p>
                       </Col>
                       <Col
                         xs={2}
                         className="d-flex justify-content-center"
                         style={{ marginLeft: 0 }}
                       >
-                        <div className="vertical-line"></div>
+                        <div className={`vertical-line ${index === activeCueIndex ? "highlightedVertical-line" : ""}`}></div>
                       </Col>
                       <Col xs={1} style={{ paddingLeft: 0 }}>
-                        <p
-                          className="inter-medium"
-                          style={{ margin: 10, marginLeft: -10 }}
-                        >
-                          End:{" "}
-                          {cue.endTime.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}
-                        </p>
+                      <p className="inter-medium" style={{ margin: 10, marginLeft: -10 }}>
+                        End:{" "}
+                        {new Date(cue.endTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </p>
                       </Col>
                     </Row>
-                    <hr
-                      style={{
-                        borderTop: "3px solid #578493",
-                        borderRadius: "10px",
-                        minWidth: "290px",
-                        marginTop: 0,
-                        borderStyle: "solid",
-                        opacity: "1",
-                        marginLeft: -12,
-                      }}
-                    />
+                    
+                    <hr style={{marginTop: 0, marginBottom: 10,}} className={`hrAdminPage ${index === activeCueIndex ? "highlightedHrAdminPage" : ""}`}/>
 
-                    <Row className="section">
+                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -174,7 +131,7 @@ function CueInput() {
                       </Col>
                     </Row>
 
-                    <Row className="section">
+                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -197,7 +154,7 @@ function CueInput() {
                       </Col>
                     </Row>
 
-                    <Row className="section">
+                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -220,7 +177,7 @@ function CueInput() {
                       </Col>
                     </Row>
 
-                    <Row className="section">
+                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -243,7 +200,7 @@ function CueInput() {
                       </Col>
                     </Row>
 
-                    <Row className="section">
+                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -266,7 +223,7 @@ function CueInput() {
                       </Col>
                     </Row>
 
-                    <Row className="section">
+                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -289,7 +246,7 @@ function CueInput() {
                       </Col>
                     </Row>
 
-                    <Row className="section">
+                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -312,7 +269,7 @@ function CueInput() {
                       </Col>
                     </Row>
 
-                    <Row className="section">
+                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -335,7 +292,7 @@ function CueInput() {
                       </Col>
                     </Row>
 
-                    <Row className="section">
+                    <Row className={`section ${index === activeCueIndex ? "highlightedSection" : ""}`}>
                       <Col xs="auto" className="p-1">
                         <p
                           className="inter-medium"
@@ -368,9 +325,6 @@ function CueInput() {
                 justifyContent: "center",
               }}
             >
-              <Col>
-                <img src={addMoreButton} height="70px" alt="Add More" />
-              </Col>
             </Row>
           </div>
         </div>
@@ -379,4 +333,4 @@ function CueInput() {
   );
 }
 
-export default CueInput;
+export default LiveCueSheet;
