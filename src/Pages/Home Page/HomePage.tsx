@@ -58,7 +58,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
     const newID = getNextProjectID();
   
     const newProject: Project = {
-      id: '', // Will be set by Firestore
+      firebaseID: '', // Will be set by Firestore
       projectID: newID,
       title: newProjectTitle,
       date: new Date(newProjectDate),
@@ -72,7 +72,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
   
     try {
       const docRef = await addDoc(collection(db, "projects"), newProject);
-      newProject.id = docRef.id; // Assign the Firestore ID to the project
+      newProject.firebaseID = docRef.id; // Assign the Firestore ID to the project
       setProjects([...projects, newProject]); // Update local state
     } catch (error) {
       console.error("Error adding project:", error);
@@ -125,7 +125,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         userProjects.push({
-          id: doc.id,
+          firebaseID: doc.id,
           projectID: data.projectID,
           title: data.title,
           date: data.date.toDate(),
@@ -176,7 +176,7 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
         <div className="scroll-container">
           <div className="scroll-content">
             {projects.sort((a, b) => b.projectID - a.projectID).map((project) => (
-              <Card key={project.id} className="HomePage-Project1">
+              <Card key={project.firebaseID} className="HomePage-Project1">
                 <Card.Body>
                   <h1 className="inter-bold title-HomePage">{project.title}</h1>
                   <h3 className="inter-semibold" style={{ paddingBottom: '5%' }}>
@@ -207,10 +207,10 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
                     src={editButton} 
                     height="40px" 
                     alt="Edit" 
-                    onClick={() => navigate(`/CueInput/${project.id}`)}  // Pass project ID in URL
+                    onClick={() => navigate(`/CueInput/${project.firebaseID}`)}  // Pass project ID in URL
                     style={{ paddingLeft: '15%', cursor: 'pointer' }} 
                   />
-                    <img src={liveButton} height="40px" alt="Live" onClick={() => navigate(`/AdminPage/${project.id}`)} style={{ paddingRight: '20%' }} />
+                    <img src={liveButton} height="40px" alt="Live" onClick={() => navigate(`/AdminPage/${project.firebaseID}`)} style={{ paddingRight: '20%' }} />
                   </div>
                 </Card.Body>
               </Card>

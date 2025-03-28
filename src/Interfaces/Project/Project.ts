@@ -1,7 +1,7 @@
 import { Cue } from "../Cue/Cue";
 
 export interface Project {
-  id: string;
+  firebaseID: string;
   projectID: number;
   title: string;
   date: Date;

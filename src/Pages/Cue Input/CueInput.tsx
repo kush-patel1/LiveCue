@@ -27,7 +27,7 @@ function CueInput({ projects }: CueInputProps) {
   useEffect(() => {
     if (projectId) {
       fetchCues(projectId);
-      const foundProject = projects.find(proj => proj.id === projectId);
+      const foundProject = projects.find(proj => proj.firebaseID === projectId);
       setProject(foundProject || null);
     }
   }, [projectId, projects]);
@@ -86,6 +86,8 @@ function CueInput({ projects }: CueInputProps) {
   const addCue = async () => {
     if (!projectId) return;
 
+    const isFirstCue = cues.length === 0; // Check if it's the first cue
+
     const newCue: Cue = {
       id: '',
       cueNumber: cues.length + 1,
@@ -102,7 +104,7 @@ function CueInput({ projects }: CueInputProps) {
       ambientLights: '',
       notes: '',
       projectRef: projectId,
-      isLive: false,
+      isLive: isFirstCue, // Make first cue live
     };
 
     try {
@@ -111,7 +113,8 @@ function CueInput({ projects }: CueInputProps) {
     } catch (error) {
       console.error("Error adding cue:", error);
     }
-  };
+};
+
 
   return (
     <>

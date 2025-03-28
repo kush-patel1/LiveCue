@@ -27,7 +27,7 @@ function AdminPage({projects}: AdminPageProps) {
   useEffect(() => {
     if (projectId) {
       fetchCues(projectId);
-      const foundProject = projects.find(proj => proj.id === projectId);
+      const foundProject = projects.find(proj => proj.firebaseID === projectId);
       setProject(foundProject || null);
     }
   }, [projectId, projects]);
