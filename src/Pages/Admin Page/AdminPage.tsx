@@ -134,11 +134,11 @@ const handlePrevCue = async () => {
   return (
     <>
       <header className="app-header-CueInput">
-        <h1 className="project-title inter-bold">{project?.title}</h1>
+        <h2 className="project-title inter-bold">{project?.title}</h2>
         <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => {navigate("/HomePage")}}/>
-        <h1 className="project-date inter-bold">
+        <h2 className="project-date inter-bold">
           {project?.date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
-        </h1>
+        </h2>
       </header>
 
       <Container

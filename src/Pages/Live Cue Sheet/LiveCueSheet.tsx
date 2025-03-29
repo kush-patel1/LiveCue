@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./LiveCueSheet.css";
 import logo from '../../Assets/Logo/LIVECUE-Logo.png'
@@ -16,6 +16,7 @@ function LiveCueSheet({projects}: LiveCueSheetProps) {
   const {projectId} = useParams();
   const [cues, setCues] = useState<Cue[]>([]);
   const [project, setProject] = useState<Project | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (projectId) {
@@ -52,19 +53,27 @@ useEffect(() => {
   return () => unsubscribe(); // Cleanup listener on unmount
 }, [projectId]);
 
+useEffect(() => {
+  const liveCueElement = document.querySelector(".highlighted-cue");
+  if (liveCueElement && scrollContainerRef.current) {
+    liveCueElement.scrollIntoView({ behavior: "smooth", inline: "center" });
+  }
+}, [cues]);
+
+
 
   return (
     <>
     <header className="app-header-CueInput">
-      <h1 className="project-title inter-bold">{project?.title}</h1>
+      <h2 className="project-title inter-bold">{project?.title}</h2>
       <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => { navigate("/HomePage"); } } />
-      <h1 className="project-date inter-bold">
+      <h2 className="project-date inter-bold">
         {project?.date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
-      </h1>
+      </h2>
     </header>
     
     <Container fluid className="LiveCueSheet-body d-flex align-items-center justify-content-center">
-    <div className="scroll-container-LiveCueSheet">
+    <div className="scroll-container-LiveCueSheet" ref={scrollContainerRef}>
         <div className="scroll-content-LiveCueSheet">
           {cues
             .sort((a, b) => a.cueNumber - b.cueNumber)

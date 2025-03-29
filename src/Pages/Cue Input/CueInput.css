@@ -19,10 +19,9 @@
 }
 
 .project-title {
-  padding-top: 8px;
-  margin-left: 75px;
-  font-size: 200%;
-  flex: 1;
+  padding-top: .5%;
+  margin-left: 4%;
+  font-size: auto;
   text-align: left;
 }
 
@@ -32,10 +31,9 @@
 }
 
 .project-date {
-  padding-top: 8px;
-  font-size: 200%;
-  margin-right: 75px;
-  flex: 1;
+  padding-top: .5%;
+  margin-right: 4%;
+  font-size: auto;
   text-align: right;
 }
 
