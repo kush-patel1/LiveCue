@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/LiveCue/static/css/main.8846c84c.css",
-    "main.js": "/LiveCue/static/js/main.d1825a96.js",
+    "main.css": "/LiveCue/static/css/main.de46ed58.css",
+    "main.js": "/LiveCue/static/js/main.3ff2a6a1.js",
     "static/js/453.bad6c33a.chunk.js": "/LiveCue/static/js/453.bad6c33a.chunk.js",
     "static/media/Inter-Medium.ttf": "/LiveCue/static/media/Inter-Medium.3f7acfe50aad7ad68548.ttf",
     "static/media/LoadingGif.gif": "/LiveCue/static/media/LoadingGif.3f40aeb2e7a9b1cc50e4.gif",
@@ -11,12 +11,12 @@
     "static/media/Pause.svg": "/LiveCue/static/media/Pause.2f192a57269f5e7125df3798cc45e510.svg",
     "static/media/Forward.svg": "/LiveCue/static/media/Forward.bd2e485252a32cc51acfa60701b2592a.svg",
     "static/media/Play.svg": "/LiveCue/static/media/Play.da538c6ab634869aed6f820755452c46.svg",
-    "main.8846c84c.css.map": "/LiveCue/static/css/main.8846c84c.css.map",
-    "main.d1825a96.js.map": "/LiveCue/static/js/main.d1825a96.js.map",
+    "main.de46ed58.css.map": "/LiveCue/static/css/main.de46ed58.css.map",
+    "main.3ff2a6a1.js.map": "/LiveCue/static/js/main.3ff2a6a1.js.map",
     "453.bad6c33a.chunk.js.map": "/LiveCue/static/js/453.bad6c33a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.8846c84c.css",
-    "static/js/main.d1825a96.js"
+    "static/css/main.de46ed58.css",
+    "static/js/main.3ff2a6a1.js"
   ]
 }
