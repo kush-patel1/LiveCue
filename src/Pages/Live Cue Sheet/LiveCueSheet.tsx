@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./LiveCueSheet.css";
 import logo from '../../Assets/Logo/LIVECUE-Logo.png'
@@ -16,6 +16,7 @@ function LiveCueSheet({projects}: LiveCueSheetProps) {
   const {projectId} = useParams();
   const [cues, setCues] = useState<Cue[]>([]);
   const [project, setProject] = useState<Project | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (projectId) {
@@ -52,6 +53,14 @@ useEffect(() => {
   return () => unsubscribe(); // Cleanup listener on unmount
 }, [projectId]);
 
+useEffect(() => {
+  const liveCueElement = document.querySelector(".highlighted-cue");
+  if (liveCueElement && scrollContainerRef.current) {
+    liveCueElement.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}, [cues]);
+
+
 
   return (
     <>
@@ -64,7 +73,7 @@ useEffect(() => {
     </header>
     
     <Container fluid className="LiveCueSheet-body d-flex align-items-center justify-content-center">
-    <div className="scroll-container-LiveCueSheet">
+    <div className="scroll-container-LiveCueSheet" ref={scrollContainerRef}>
         <div className="scroll-content-LiveCueSheet">
           {cues
             .sort((a, b) => a.cueNumber - b.cueNumber)
