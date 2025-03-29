@@ -56,7 +56,7 @@ useEffect(() => {
 useEffect(() => {
   const liveCueElement = document.querySelector(".highlighted-cue");
   if (liveCueElement && scrollContainerRef.current) {
-    liveCueElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    liveCueElement.scrollIntoView({ behavior: "smooth", inline: "center" });
   }
 }, [cues]);
 
@@ -65,11 +65,11 @@ useEffect(() => {
   return (
     <>
     <header className="app-header-CueInput">
-      <h1 className="project-title inter-bold">{project?.title}</h1>
+      <h2 className="project-title inter-bold">{project?.title}</h2>
       <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => { navigate("/HomePage"); } } />
-      <h1 className="project-date inter-bold">
+      <h2 className="project-date inter-bold">
         {project?.date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
-      </h1>
+      </h2>
     </header>
     
     <Container fluid className="LiveCueSheet-body d-flex align-items-center justify-content-center">
