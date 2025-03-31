@@ -118,6 +118,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
                     <Form.Label>Email</Form.Label>
                     <Form.Control
                       required
+                      type='email'
                       placeholder="email"
                       value={email}
                       size="lg"
@@ -132,9 +133,10 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
                   </Form.Group>
 
                   <Form.Label>Password</Form.Label>
-                  <Form.Group>
+                  <Form.Group >
                     <Form.Control
                       required
+                      type='password'
                       className="form--font"
                       placeholder="password"
                       value={password}
