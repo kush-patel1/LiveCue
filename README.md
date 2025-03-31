@@ -1,17 +1,14 @@
-# Getting Started with Helpi
+# Getting Started with LiveCue
 
 Packages Included:
 
 - npm
 - bootstrap
 - react
-- openai
 - other configurations
 
-Career Helpi Goal:
-To showcase various job fields and advise someone on which field or job would best suit them based on their answers to questions.
-
-- the ultimate decision making algorithm should be done through openai (GPT). Not a long list of if-else statements.
+LiveCue Goal:
+LiveCue is a live cue sheet application designed to help events of all sizes stay organized and synchronized. Whether you're managing a small gathering or a large-scale production, LiveCue ensures that every department knows which cue is live and what comes next, keeping all moving parts of a program prepared and ready to perform.
 
 ## React Project Information:
 
