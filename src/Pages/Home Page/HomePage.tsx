@@ -11,6 +11,7 @@ import { db, collection, addDoc, getDocs, query, where, auth } from '../../Backe
 import { User } from '../../Interfaces/User/User';
 import { User as FirebaseUser, signOut } from "firebase/auth";
 import { onAuthStateChanged } from 'firebase/auth';
+import { Cue } from '../../Interfaces/Cue/Cue';
 
 
 interface HomePageProps {
@@ -122,34 +123,53 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
       const querySnapshot = await getDocs(q);
       const userProjects: Project[] = [];
   
-      querySnapshot.forEach((doc) => {
+      for (const doc of querySnapshot.docs) {
         const data = doc.data();
+        const projectId = doc.id;
+        
+        // Fetch cues for the project
+        const cues = await fetchCues(projectId);
+  
         userProjects.push({
-          firebaseID: doc.id,
+          firebaseID: projectId,
           projectID: data.projectID,
           title: data.title,
           date: data.date.toDate(),
           startTime: data.startTime.toDate(),
           endTime: data.endTime.toDate(),
           duration: data.duration.toDate(),
-          cues: data.cues || [],
+          cues: cues,  // Include fetched cues
           cueAmount: data.cueAmount,
           owner: data.owner,
         });
-      });
+      }
   
       setProjects(userProjects);
     } catch (error) {
       console.error("Error fetching projects:", error);
     }
   };
-
+  
   const handleLogout = async () => {
     try {
       await signOut(auth);
       navigate('/'); // Redirect to login page after logout
     } catch (error) {
       console.error('Logout failed:', error);
+    }
+  };
+
+  const fetchCues = async (projectId: string): Promise<Cue[]> => {
+    try {
+      const q = query(collection(db, "cues"), where("projectRef", "==", projectId));
+      const querySnapshot = await getDocs(q);
+      const fetchedCues = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Cue));
+  
+      // Sort cues by cueNumber before returning
+      return fetchedCues.sort((a, b) => a.cueNumber - b.cueNumber);
+    } catch (error) {
+      console.error("Error fetching cues:", error);
+      return [];
     }
   };
 
@@ -202,13 +222,13 @@ const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser
                   ) : (
                     <p className="inter-medium" style={{ marginBottom: '1%' }}>No cues added yet</p>
                   )}
-                  <div className="d-flex justify-content-between">
+                  <div className="d-flex justify-content-between mt-auto">
                   <img 
                     src={editButton} 
                     height="40px" 
                     alt="Edit" 
                     onClick={() => navigate(`/CueInput/${project.firebaseID}`)}  // Pass project ID in URL
-                    style={{ paddingLeft: '15%', cursor: 'pointer' }} 
+                    style={{ paddingLeft: '15%', cursor: 'pointer'}} 
                   />
                     <img src={liveButton} height="40px" alt="Live" onClick={() => navigate(`/AdminPage/${project.firebaseID}`)} style={{ paddingRight: '20%' }} />
                   </div>
