@@ -55,11 +55,11 @@ All files                     |       0 |        0 |       0 |       0 |
  src/Pages/Cue Input          |       0 |        0 |       0 |       0 |                   
   CueInput.tsx                |       0 |        0 |       0 |       0 | 22-479            
  src/Pages/Home Page          |       0 |        0 |       0 |       0 |                   
-  HomePage.tsx                |       0 |        0 |       0 |       0 | 24-277            
+  HomePage.tsx                |       0 |        0 |       0 |       0 | 25-297            
  src/Pages/Live Cue Sheet     |       0 |        0 |       0 |       0 |                   
   LiveCueSheet.tsx            |       0 |        0 |       0 |       0 | 15-81             
  src/Pages/Login Page         |       0 |        0 |       0 |       0 |                   
-  Login.tsx                   |       0 |        0 |       0 |       0 | 14-143            
+  Login.tsx                   |       0 |        0 |       0 |       0 | 14-145            
   LoginProps.ts               |       0 |        0 |       0 |       0 |                   
  src/Pages/SignUp             |       0 |        0 |       0 |       0 |                   
   SignUp.tsx                  |       0 |        0 |       0 |       0 | 12-147            
@@ -70,5 +70,5 @@ All files                     |       0 |        0 |       0 |       0 |
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        3.62 s
+Time:        3.696 s
 Ran all test suites.
