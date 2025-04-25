@@ -1,3 +1,7 @@
+# Github Pages Link for LiveCue
+
+https://kush-patel1.github.io/LiveCue/
+
 # Getting Started with LiveCue
 
 Packages Included:
