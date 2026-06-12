@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/LiveCue/static/css/main.13a32b54.css",
-    "main.js": "/LiveCue/static/js/main.b4fb402a.js",
+    "main.js": "/LiveCue/static/js/main.c1f1533b.js",
     "static/js/453.bad6c33a.chunk.js": "/LiveCue/static/js/453.bad6c33a.chunk.js",
     "static/media/Inter-ExtraBold.ttf": "/LiveCue/static/media/Inter-ExtraBold.4164cfba15dbca5f37aa.ttf",
     "static/media/Inter-Bold.ttf": "/LiveCue/static/media/Inter-Bold.0eaf807b1cf0eceabe0f.ttf",
@@ -13,11 +13,11 @@
     "static/media/Jitter.otf": "/LiveCue/static/media/Jitter.2314105ee75ccae4b5fc.otf",
     "index.html": "/LiveCue/index.html",
     "main.13a32b54.css.map": "/LiveCue/static/css/main.13a32b54.css.map",
-    "main.b4fb402a.js.map": "/LiveCue/static/js/main.b4fb402a.js.map",
+    "main.c1f1533b.js.map": "/LiveCue/static/js/main.c1f1533b.js.map",
     "453.bad6c33a.chunk.js.map": "/LiveCue/static/js/453.bad6c33a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.13a32b54.css",
-    "static/js/main.b4fb402a.js"
+    "static/js/main.c1f1533b.js"
   ]
 }
