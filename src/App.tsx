@@ -8,25 +8,37 @@ import { User } from "./Interfaces/User/User";
 import SignUp from "./Pages/SignUp/SignUp";
 import { Project } from "./Interfaces/Project/Project";
 import AdminPage from "./Pages/Admin Page/AdminPage";
-import './App.css'
+import LandingPage from "./Pages/Landing Page/LandingPage";
+import PricingPage from "./Pages/Pricing Page/PricingPage";
+import ContactPage from "./Pages/Contact Page/ContactPage";
+import DemoPage from "./Pages/Demo Page/DemoPage";
+import SettingsPage from "./Pages/Settings Page/SettingsPage";
+import { ThemeProvider } from "./ThemeContext";
+import './App.css';
+import './theme.css';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
 
   return (
-    <>
-    <HashRouter>
-      <Routes>
-        <Route path="/CueInput/:projectId" element={<CueInput projects={projects}/>}/>
-        <Route path="/HomePage" element={<HomePage user={user} setUser={setUser} projects={projects} setProjects={setProjects}/>}/>
-        <Route path="/LiveCueSheet/:projectId" element={<LiveCueSheet projects={projects}/>} />
-        <Route path="/AdminPage/:projectId" element={<AdminPage projects={projects}/>} />
-        <Route path="/SignUp" element={<SignUp setUser={setUser} />} />
-        <Route path="/" element={<Login setUser={setUser} />} />
-      </Routes>
-    </HashRouter>
-    </>
+    <ThemeProvider>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/signup" element={<SignUp setUser={setUser} />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/demo" element={<DemoPage />} />
+          <Route path="/settings" element={<SettingsPage projects={projects} setProjects={setProjects} />} />
+          <Route path="/CueInput/:projectId" element={<CueInput projects={projects} />} />
+          <Route path="/HomePage" element={<HomePage user={user} setUser={setUser} projects={projects} setProjects={setProjects} />} />
+          <Route path="/LiveCueSheet/:projectId" element={<LiveCueSheet projects={projects} />} />
+          <Route path="/AdminPage/:projectId" element={<AdminPage projects={projects} />} />
+        </Routes>
+      </HashRouter>
+    </ThemeProvider>
   );
 }
 

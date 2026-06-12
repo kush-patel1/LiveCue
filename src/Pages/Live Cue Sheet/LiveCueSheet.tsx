@@ -1,357 +1,313 @@
 import { useEffect, useRef, useState } from "react";
+import { LoadingScreen } from "../../Components/LoadingScreen/LoadingScreen";
 import { useNavigate, useParams } from "react-router-dom";
 import "./LiveCueSheet.css";
-import logo from '../../Assets/Logo/LIVECUE-Logo.png'
-import { Row, Col, Card, Container } from "react-bootstrap";
+import logo from '../../Assets/Logo/LIVECUE-Logo.png';
 import { Project } from "../../Interfaces/Project/Project";
 import { Cue } from "../../Interfaces/Cue/Cue";
-import { db, collection, getDocs, query, where, onSnapshot } from "../../Backend/firebase";
+import { CustomField, DEFAULT_FIELDS } from "../../Interfaces/CustomField/CustomField";
+import { db, collection, query, where, onSnapshot, doc } from "../../Backend/firebase";
 
 interface LiveCueSheetProps {
   projects: Project[];
 }
 
-function LiveCueSheet({projects}: LiveCueSheetProps) {
+function fmtTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
+function fmtDuration(startIso: string, endIso: string) {
+  const mins = Math.round((new Date(endIso).getTime() - new Date(startIso).getTime()) / 60000);
+  if (mins <= 0) return '—';
+  if (mins < 60) return `${mins}m`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+function fmtCountdown(ms: number): string {
+  const abs = Math.abs(ms);
+  const totalSecs = Math.floor(abs / 1000);
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  const s = totalSecs % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+const BROADCAST_EXPIRY_MS = 2 * 60 * 1000; // 2 minutes
+
+function LiveCueSheet({ projects }: LiveCueSheetProps) {
   const navigate = useNavigate();
-  const {projectId} = useParams();
+  const { projectId } = useParams<{ projectId: string }>();
   const [cues, setCues] = useState<Cue[]>([]);
-  const [project, setProject] = useState<Project | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [project, setProject] = useState<{ title: string; date: Date; fields: CustomField[] } | null>(null);
+  const [broadcast, setBroadcast] = useState<{ message: string; at: number } | null>(null);
+  const [now, setNow] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+  const [showFieldPanel, setShowFieldPanel] = useState(false);
+  const liveCardRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (projectId) {
-      fetchCues(projectId);
-      const foundProject = projects.find(proj => proj.firebaseID === projectId);
-      setProject(foundProject || null);
-    }
-  }, [projectId, projects]);
-
-  const fetchCues = async (projectId: string) => {
+  const storageKey = `livecue_hidden_fields_${projectId}`;
+  const [hiddenFields, setHiddenFields] = useState<Set<string>>(() => {
     try {
-      const q = query(collection(db, "cues"), where("projectRef", "==", projectId));
-      const querySnapshot = await getDocs(q);
-      const fetchedCues = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Cue));
-      setCues(fetchedCues);
-    } catch (error) {
-      console.error("Error fetching cues:", error);
-    }
-  };
-
-useEffect(() => {
-  if (!projectId) return;
-
-  const q = query(collection(db, "cues"), where("projectRef", "==", projectId));
-
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const updatedCues = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Cue[];
-    setCues(updatedCues);
+      const saved = localStorage.getItem(storageKey);
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch { return new Set(); }
   });
 
-  return () => unsubscribe(); // Cleanup listener on unmount
-}, [projectId]);
+  const toggleField = (id: string) => {
+    setHiddenFields(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      localStorage.setItem(storageKey, JSON.stringify([...next]));
+      return next;
+    });
+  };
 
-useEffect(() => {
-  const liveCueElement = document.querySelector(".highlighted-cue");
-  if (liveCueElement && scrollContainerRef.current) {
-    liveCueElement.scrollIntoView({ behavior: "smooth", inline: "center" });
+  // Real-time project listener — picks up broadcast messages instantly
+  useEffect(() => {
+    if (!projectId) return;
+    return onSnapshot(doc(db, 'projects', projectId), snap => {
+      if (!snap.exists()) return;
+      const data = snap.data();
+      // Project metadata
+      const fromProps = projects.find(p => p.firebaseID === projectId);
+      setProject({
+        title: data.title,
+        date: data.date?.toDate ? data.date.toDate() : (fromProps?.date ?? new Date()),
+        fields: data.fields?.length ? data.fields : DEFAULT_FIELDS,
+      });
+      // Broadcast
+      if (data.broadcastMessage && data.broadcastAt) {
+        setBroadcast({ message: data.broadcastMessage, at: new Date(data.broadcastAt).getTime() });
+      } else {
+        setBroadcast(null);
+      }
+    });
+  }, [projectId, projects]);
+
+  // Real-time cues
+  useEffect(() => {
+    if (!projectId) return;
+    const q = query(collection(db, 'cues'), where('projectRef', '==', projectId));
+    return onSnapshot(q, snap => {
+      setLoading(false);
+      const updated: Cue[] = snap.docs.map(d => {
+        const data = d.data();
+        return {
+          id: d.id,
+          cueNumber: data.cueNumber,
+          title: data.title || '',
+          startTime: data.startTime?.toDate ? data.startTime.toDate().toISOString() : (data.startTime || new Date().toISOString()),
+          endTime: data.endTime?.toDate ? data.endTime.toDate().toISOString() : (data.endTime || new Date().toISOString()),
+          projectRef: data.projectRef,
+          isLive: data.isLive ?? false,
+          fieldValues: (() => {
+            const fv: Record<string, string> = data.fieldValues || {};
+            // legacy: some cues stored fields as top-level Firestore keys
+            if (!data.fieldValues) {
+              ['presenter','location','avMedia','audioSource','sideScreens','centerScreen','lighting','ambientLights','notes']
+                .forEach(k => { if (data[k]) fv[k] = data[k]; });
+            }
+            return fv;
+          })(),
+          actualStartTime: data.actualStartTime,
+        };
+      });
+      setCues(updated);
+    });
+  }, [projectId]);
+
+  // Live clock
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Auto-scroll live card into center view
+  useEffect(() => {
+    if (liveCardRef.current && scrollRef.current) {
+      const card = liveCardRef.current;
+      const container = scrollRef.current;
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const containerCenter = container.offsetWidth / 2;
+      container.scrollTo({ left: cardCenter - containerCenter, behavior: 'smooth' });
+    }
+  }, [cues]);
+
+  const sorted = [...cues].sort((a, b) => a.cueNumber - b.cueNumber);
+  const liveIndex = sorted.findIndex(c => c.isLive);
+  const liveCue = liveIndex >= 0 ? sorted[liveIndex] : null;
+  const nextCue = liveIndex >= 0
+    ? sorted[liveIndex + 1]
+    : sorted.find(c => new Date(c.startTime) > now);
+
+  if (loading) return <LoadingScreen />;
+
+  const fields = project?.fields || DEFAULT_FIELDS;
+  const visibleFields = fields.filter(f => !hiddenFields.has(f.id));
+
+  function cardVariant(index: number): 'past' | 'live' | 'next' | 'future' {
+    if (liveIndex < 0) return index === 0 ? 'next' : 'future';
+    const diff = index - liveIndex;
+    if (diff < 0) return 'past';
+    if (diff === 0) return 'live';
+    if (diff === 1) return 'next';
+    return 'future';
   }
-}, [cues]);
-
-
 
   return (
-    <>
-    <header className="app-header-CueInput">
-      <h2 className="project-title inter-bold">{project?.title}</h2>
-      <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => { navigate("/HomePage"); } } />
-      <h2 className="project-date inter-bold">
-        {project?.date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
-      </h2>
-    </header>
-    
-    <Container fluid className="LiveCueSheet-body d-flex align-items-center justify-content-center">
-    <div className="scroll-container-LiveCueSheet" ref={scrollContainerRef}>
-        <div className="scroll-content-LiveCueSheet">
-          {cues
-            .sort((a, b) => a.cueNumber - b.cueNumber)
-            .map((cue) => (
-              <Card key={cue.cueNumber} className={`LiveCueSheet-Cue ${cue.isLive ? "highlighted-cue" : ""}`}>
-                <Card.Body>
-                  <Row style={{ marginLeft: 5 }}>
-                    <Col xs={3} className={`cueNumber ${cue.isLive ? "highlightedCueNumber" : ""}`}>
-                      <h5 className="inter-bold" style={{ margin: 0 }}>
-                        {cue.cueNumber}
-                      </h5>
-                    </Col>
-                    <Col className="title-LiveCueSheet">
-                      <h5
-                        className="inter-bold title-LiveCueSheet"
-                        style={{ margin: 4, fontSizeAdjust: "0.475" }}
-                      >
-                        {" "}
-                        {cue.title}
-                      </h5>
-                    </Col>
-                  </Row>
-                  <hr className={`hrLiveCueSheet ${cue.isLive ? "highlightedHrLiveCueSheet" : ""}`} />
+    <div className="lcs-shell">
 
-                  <Row>
-                    <Col xs={5}>
-                      <p className="inter-medium" style={{ margin: 10, marginLeft: 0 }}>
-                        Start:{" "}
-                        {new Date(cue.startTime).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}
-                      </p>
-                    </Col>
-                    <Col
-                      xs={2}
-                      className="d-flex justify-content-center"
-                      style={{ marginLeft: 0 }}
-                    >
-                      <div className={`vertical-line ${cue.isLive ? "highlightedVertical-line" : ""}`}></div>
-                    </Col>
-                    <Col xs={1} style={{ paddingLeft: 0 }}>
-                      <p className="inter-medium" style={{ margin: 10, marginLeft: -10 }}>
-                        End:{" "}
-                        {new Date(cue.endTime).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}
-                      </p>
-                    </Col>
-                  </Row>
-
-                  <hr style={{ marginTop: 0, marginBottom: 10, }} className={`hrLiveCueSheet ${cue.isLive ? "highlightedHrLiveCueSheet" : ""}`} />
-
-                  <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
-                    <Col xs="auto" className="p-1">
-                      <p
-                        className="inter-medium"
-                        style={{
-                          marginLeft: 13,
-                          fontSize: "14px",
-                          marginBottom: 0,
-                        }}
-                      >
-                        Presenter:{" "}
-                      </p>
-                    </Col>
-                    <Col className="p-1">
-                      <p
-                        className="inter-bold text-wrap"
-                        style={{ margin: 0, fontSize: "14px" }}
-                      >
-                        {cue.presenter}
-                      </p>
-                    </Col>
-                  </Row>
-
-                  <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
-                    <Col xs="auto" className="p-1">
-                      <p
-                        className="inter-medium"
-                        style={{
-                          marginLeft: 13,
-                          fontSize: "14px",
-                          marginBottom: 0,
-                        }}
-                      >
-                        Location:{" "}
-                      </p>
-                    </Col>
-                    <Col className="p-1">
-                      <p
-                        className="inter-bold text-wrap"
-                        style={{ margin: 0, fontSize: "14px" }}
-                      >
-                        {cue.location}
-                      </p>
-                    </Col>
-                  </Row>
-
-                  <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
-                    <Col xs="auto" className="p-1">
-                      <p
-                        className="inter-medium"
-                        style={{
-                          marginLeft: 13,
-                          fontSize: "14px",
-                          marginBottom: 0,
-                        }}
-                      >
-                        AV Media/Audio:{" "}
-                      </p>
-                    </Col>
-                    <Col className="p-1">
-                      <p
-                        className="inter-bold text-wrap"
-                        style={{ margin: 0, fontSize: "14px" }}
-                      >
-                        {cue.avMedia}
-                      </p>
-                    </Col>
-                  </Row>
-
-                  <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
-                    <Col xs="auto" className="p-1">
-                      <p
-                        className="inter-medium"
-                        style={{
-                          marginLeft: 13,
-                          fontSize: "14px",
-                          marginBottom: 0,
-                        }}
-                      >
-                        Audio Source:{" "}
-                      </p>
-                    </Col>
-                    <Col className="p-1">
-                      <p
-                        className="inter-bold text-wrap"
-                        style={{ margin: 0, fontSize: "14px" }}
-                      >
-                        {cue.audioSource}
-                      </p>
-                    </Col>
-                  </Row>
-
-                  <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
-                    <Col xs="auto" className="p-1">
-                      <p
-                        className="inter-medium"
-                        style={{
-                          marginLeft: 13,
-                          fontSize: "14px",
-                          marginBottom: 0,
-                        }}
-                      >
-                        Side Screens:{" "}
-                      </p>
-                    </Col>
-                    <Col className="p-1">
-                      <p
-                        className="inter-bold text-wrap"
-                        style={{ margin: 0, fontSize: "14px" }}
-                      >
-                        {cue.sideScreens}
-                      </p>
-                    </Col>
-                  </Row>
-
-                  <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
-                    <Col xs="auto" className="p-1">
-                      <p
-                        className="inter-medium"
-                        style={{
-                          marginLeft: 13,
-                          fontSize: "14px",
-                          marginBottom: 0,
-                        }}
-                      >
-                        Center Screen:{" "}
-                      </p>
-                    </Col>
-                    <Col className="p-1">
-                      <p
-                        className="inter-bold text-wrap"
-                        style={{ margin: 0, fontSize: "14px" }}
-                      >
-                        {cue.centerScreen}
-                      </p>
-                    </Col>
-                  </Row>
-
-                  <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
-                    <Col xs="auto" className="p-1">
-                      <p
-                        className="inter-medium"
-                        style={{
-                          marginLeft: 13,
-                          fontSize: "14px",
-                          marginBottom: 0,
-                        }}
-                      >
-                        Lighting:{" "}
-                      </p>
-                    </Col>
-                    <Col className="p-1">
-                      <p
-                        className="inter-bold text-wrap"
-                        style={{ margin: 0, fontSize: "14px" }}
-                      >
-                        {cue.lighting}
-                      </p>
-                    </Col>
-                  </Row>
-
-                  <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
-                    <Col xs="auto" className="p-1">
-                      <p
-                        className="inter-medium"
-                        style={{
-                          marginLeft: 13,
-                          fontSize: "14px",
-                          marginBottom: 0,
-                        }}
-                      >
-                        Ambient Lights:
-                      </p>
-                    </Col>
-                    <Col className="p-1">
-                      <p
-                        className="inter-bold text-wrap"
-                        style={{ margin: 0, fontSize: "14px" }}
-                      >
-                        {cue.ambientLights}
-                      </p>
-                    </Col>
-                  </Row>
-
-                  <Row className={`section ${cue.isLive ? "highlightedSection" : ""}`}>
-                    <Col xs="auto" className="p-1">
-                      <p
-                        className="inter-medium"
-                        style={{
-                          marginLeft: 13,
-                          fontSize: "14px",
-                          marginBottom: 0,
-                        }}
-                      >
-                        Notes:
-                      </p>
-                    </Col>
-                    <Col className="p-1">
-                      <p
-                        className="inter-bold text-wrap"
-                        style={{ margin: 0, fontSize: "14px" }}
-                      >
-                        {cue.notes}
-                      </p>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-            ))}
-          <Row
-            className="justify-content-center mt-3 mb-4"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-          </Row>
+      {/* ── Header ── */}
+      <header className="lcs-header">
+        <img
+          className="lcs-logo"
+          src={logo}
+          alt="LiveCue"
+          onClick={() => navigate('/HomePage')}
+        />
+        <div className="lcs-header-center">
+          <h1 className="lcs-project-title">{project?.title || '—'}</h1>
+          {project?.date && (
+            <span className="lcs-project-date">
+              {project.date.toLocaleDateString([], {
+                weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+              })}
+            </span>
+          )}
         </div>
+        <div className="lcs-clock">
+          {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+        </div>
+      </header>
+
+      {/* ── Status bar ── */}
+      {liveCue ? (
+        <div className="lcs-status-bar lcs-status--live">
+          <span className="lcs-live-dot" />
+          <span className="lcs-status-tag">Live</span>
+          <span className="lcs-status-title">{liveCue.cueNumber} — {liveCue.title}</span>
+          <span className="lcs-status-sep">·</span>
+          <span className="lcs-status-meta">
+            +{fmtCountdown(Math.max(0, now.getTime() - new Date(liveCue.startTime).getTime()))} elapsed
+          </span>
+          {nextCue && (
+            <>
+              <span className="lcs-status-sep">·</span>
+              <span className="lcs-status-meta">
+                Up next: <strong>{nextCue.title}</strong>
+                {' '}in {fmtCountdown(Math.abs(new Date(nextCue.startTime).getTime() - now.getTime()))}
+              </span>
+            </>
+          )}
+        </div>
+      ) : nextCue ? (
+        <div className="lcs-status-bar lcs-status--waiting">
+          <span className="lcs-status-tag">Up next</span>
+          <span className="lcs-status-title">{nextCue.title}</span>
+          <span className="lcs-status-sep">·</span>
+          <span className="lcs-status-meta">
+            starts in {fmtCountdown(Math.max(0, new Date(nextCue.startTime).getTime() - now.getTime()))}
+          </span>
+        </div>
+      ) : null}
+
+      {/* ── Broadcast banner ── */}
+      {(() => {
+        if (!broadcast) return null;
+        const elapsed = now.getTime() - broadcast.at;
+        if (elapsed >= BROADCAST_EXPIRY_MS) return null;
+        const remaining = BROADCAST_EXPIRY_MS - elapsed;
+        const pct = (remaining / BROADCAST_EXPIRY_MS) * 100;
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        const countdown = `${mins}:${String(secs).padStart(2, '0')}`;
+        return (
+          <div className="lcs-broadcast">
+            <div className="lcs-broadcast-progress" style={{ width: `${pct}%` }} />
+            <span className="lcs-broadcast-icon">📢</span>
+            <span className="lcs-broadcast-msg">{broadcast.message}</span>
+            <span className="lcs-broadcast-timer">{countdown}</span>
+          </div>
+        );
+      })()}
+
+      {/* ── Horizontal scroll track ── */}
+      <div className="lcs-scroll-track" ref={scrollRef}>
+        {sorted.map((cue, index) => {
+          const variant = cardVariant(index);
+          return (
+            <div
+              key={cue.id}
+              ref={cue.isLive ? liveCardRef : undefined}
+              className={`lcs-card lcs-card--${variant}`}
+            >
+              {/* Card header */}
+              <div className="lcs-card-head">
+                <span className={`lcs-num ${variant === 'live' ? 'lcs-num--live' : 'lcs-num--dim'}`}>
+                  {cue.cueNumber}
+                </span>
+                <span className="lcs-card-title">{cue.title}</span>
+              </div>
+
+              {/* Times row */}
+              <div className="lcs-card-times">
+                <span className="lcs-time-val">{fmtTime(cue.startTime)}</span>
+                <span className="lcs-time-arrow">→</span>
+                <span className="lcs-time-val">{fmtTime(cue.endTime)}</span>
+                <span className="lcs-dur-badge">{fmtDuration(cue.startTime, cue.endTime)}</span>
+              </div>
+
+              {/* Fields */}
+              <div className="lcs-card-fields">
+                {visibleFields.map(f => (
+                  <div key={f.id} className="lcs-field-row">
+                    <span className="lcs-f-label">{f.label}</span>
+                    <span className="lcs-f-val">{cue.fieldValues[f.id] || '—'}</span>
+                  </div>
+                ))}
+                {visibleFields.length === 0 && (
+                  <div className="lcs-field-row">
+                    <span className="lcs-f-val" style={{ color: 'var(--text-faint)', fontStyle: 'italic' }}>All fields hidden</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {sorted.length === 0 && (
+          <div className="lcs-empty">No cues yet</div>
+        )}
       </div>
-    </Container>
-    </>
+
+      {/* ── Field visibility FAB ── */}
+      <button className="lcs-fab" onClick={() => setShowFieldPanel(p => !p)}>
+        {showFieldPanel ? '✕ Close' : '⚙ Fields'}
+      </button>
+
+      {/* ── Field panel ── */}
+      {showFieldPanel && (
+        <div className="lcs-field-panel">
+          <p className="lcs-panel-title">Visible Fields</p>
+          {fields.map(f => (
+            <label key={f.id} className="lcs-toggle-row">
+              <span className="lcs-toggle-label">{f.label}</span>
+              <div
+                className={`lcs-toggle${hiddenFields.has(f.id) ? '' : ' lcs-toggle--on'}`}
+                onClick={() => toggleField(f.id)}
+              >
+                <div className="lcs-toggle-knob" />
+              </div>
+            </label>
+          ))}
+          <p className="lcs-panel-hint">Saved to this device</p>
+        </div>
+      )}
+    </div>
   );
 }
 

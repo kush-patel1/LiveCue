@@ -1,0 +1,325 @@
+@font-face {
+  font-family: "Inter-Regular";
+  src: url("../../Inter/Inter-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter-Medium";
+  src: url("../../Inter/Inter-Medium.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter-SemiBold";
+  src: url("../../Inter/Inter-SemiBold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter-Bold";
+  src: url("../../Inter/Inter-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter-ExtraBold";
+  src: url("../../Inter/Inter-ExtraBold.ttf") format("truetype");
+}
+
+.pricing-page {
+  background: #fff6ee;
+  min-height: 100vh;
+}
+
+.pricing-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6%;
+  height: 68px;
+  background: rgba(255, 246, 238, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(87, 132, 147, 0.15);
+}
+
+.pricing-nav-logo {
+  height: 32px;
+  cursor: pointer;
+}
+
+.pricing-nav-links {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.pricing-nav-links button {
+  background: none;
+  border: none;
+  font-family: "Inter-Medium";
+  font-size: 14px;
+  color: #1b1c1d;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  padding: 0;
+}
+.pricing-nav-links button:hover { opacity: 1; }
+
+.btn-pricing-nav {
+  font-family: "Inter-SemiBold" !important;
+  font-size: 14px !important;
+  background: #578493 !important;
+  color: white !important;
+  opacity: 1 !important;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 20px !important;
+  cursor: pointer;
+  transition: background 0.2s !important;
+}
+.btn-pricing-nav:hover { background: #3d6470 !important; }
+
+.pricing-hero {
+  padding: 140px 6% 60px;
+  text-align: center;
+}
+
+.pricing-hero h1 {
+  font-family: "Inter-ExtraBold";
+  font-size: clamp(36px, 4vw, 60px);
+  color: #1b1c1d;
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.pricing-hero p {
+  font-family: "Inter-Regular";
+  font-size: 18px;
+  color: #6b7280;
+  max-width: 480px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+.pricing-toggle {
+  display: inline-flex;
+  background: rgba(87,132,147,0.1);
+  border-radius: 30px;
+  padding: 4px;
+  margin-bottom: 60px;
+}
+
+.pricing-toggle button {
+  font-family: "Inter-Medium";
+  font-size: 14px;
+  border: none;
+  background: none;
+  padding: 8px 22px;
+  border-radius: 26px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: background 0.2s, color 0.2s;
+}
+.pricing-toggle button.active {
+  background: #578493;
+  color: white;
+}
+
+.pricing-cards-grid {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 6% 80px;
+}
+
+.pricing-card {
+  background: white;
+  border: 1px solid rgba(87,132,147,0.15);
+  border-radius: 20px;
+  padding: 40px 36px;
+  min-width: 260px;
+  max-width: 320px;
+  flex: 1;
+  position: relative;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.pricing-card:hover { box-shadow: 0 16px 48px rgba(87,132,147,0.13); transform: translateY(-4px); }
+
+.pricing-card.featured {
+  border-color: #578493;
+  box-shadow: 0 0 0 1px #578493, 0 16px 48px rgba(87,132,147,0.18);
+}
+
+.pricing-card-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #578493;
+  color: white;
+  font-family: "Inter-SemiBold";
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 5px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.pricing-card-plan {
+  font-family: "Inter-SemiBold";
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #578493;
+  margin-bottom: 10px;
+}
+
+.pricing-card-amount {
+  font-family: "Inter-ExtraBold";
+  font-size: 52px;
+  color: #1b1c1d;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.pricing-card-amount sup {
+  font-size: 24px;
+  vertical-align: super;
+  font-family: "Inter-Bold";
+}
+
+.pricing-card-period {
+  font-family: "Inter-Regular";
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.pricing-card-annual {
+  font-family: "Inter-Medium";
+  font-size: 13px;
+  color: #578493;
+  background: rgba(87,132,147,0.1);
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-bottom: 24px;
+}
+
+.pricing-card-divider {
+  height: 1px;
+  background: rgba(87,132,147,0.12);
+  margin: 24px 0;
+}
+
+.pricing-card-desc {
+  font-family: "Inter-Regular";
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.pricing-card-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.pricing-card-features li {
+  font-family: "Inter-Regular";
+  font-size: 14px;
+  color: #1b1c1d;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.feat-check { color: #578493; font-weight: 700; flex-shrink: 0; }
+.feat-x { color: #d1d5db; font-weight: 700; flex-shrink: 0; }
+
+.pricing-card-features li.dimmed { color: #9ca3af; }
+
+.btn-pricing-primary {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  font-family: "Inter-SemiBold";
+  font-size: 15px;
+  cursor: pointer;
+  border: none;
+  background: #578493;
+  color: white;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-pricing-primary:hover { background: #3d6470; transform: translateY(-1px); }
+
+.btn-pricing-outline {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  font-family: "Inter-SemiBold";
+  font-size: 15px;
+  cursor: pointer;
+  background: transparent;
+  color: #578493;
+  border: 1.5px solid #578493;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+.btn-pricing-outline:hover { background: #578493; color: white; transform: translateY(-1px); }
+
+.btn-pricing-terra {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  font-family: "Inter-SemiBold";
+  font-size: 15px;
+  cursor: pointer;
+  border: none;
+  background: #935757;
+  color: white;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-pricing-terra:hover { background: #7a4040; transform: translateY(-1px); }
+
+/* FAQ */
+.pricing-faq {
+  background: white;
+  padding: 80px 6%;
+}
+
+.pricing-faq h2 {
+  font-family: "Inter-ExtraBold";
+  font-size: clamp(28px, 3vw, 40px);
+  color: #1b1c1d;
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.faq-item h4 {
+  font-family: "Inter-Bold";
+  font-size: 16px;
+  color: #1b1c1d;
+  margin-bottom: 10px;
+}
+
+.faq-item p {
+  font-family: "Inter-Regular";
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.65;
+}
+
+@media (max-width: 768px) {
+  .pricing-cards-grid { flex-direction: column; align-items: center; }
+  .pricing-card { max-width: 100%; width: 100%; }
+  .pricing-nav-links { display: none; }
+}

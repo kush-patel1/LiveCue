@@ -1,22 +1,70 @@
+@font-face {
+  font-family: "Jitter";
+  src: url("../../Jitter.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 .loading-screen-body {
-  background-color: #141414;
+  background: var(--bg-main, #141414);
   height: 100vh;
   width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: white;
+  gap: 28px;
 }
 
-.loading-screen--image img {
-  max-width: 300px;
+/* ── Bicolor logo ── */
+.loading-logo {
+  font-family: "Jitter", sans-serif;
+  font-size: 42px;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  animation: loading-breathe 2s ease-in-out infinite;
 }
 
+.loading-logo-live { color: #578493; }
+.loading-logo-cue  { color: #fff6ee; }
+
+@keyframes loading-breathe {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+/* ── Three-dot bar ── */
+.loading-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.loading-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #578493;
+  animation: loading-dot 1.2s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: 0s; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes loading-dot {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40%           { opacity: 1;   transform: scale(1); }
+}
+
+/* ── Optional message ── */
 .loading-screen--message-container {
-  padding: 50px;
+  margin-top: 4px;
 }
 
-.loading-screen--message-container h1 {
-  color: white;
-  font-size: xx-large;
+.loading-screen--message-container p {
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  color: rgba(255, 246, 238, 0.35);
+  text-align: center;
 }

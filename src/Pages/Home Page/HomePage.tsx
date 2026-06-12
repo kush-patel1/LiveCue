@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LoadingScreen } from '../../Components/LoadingScreen/LoadingScreen';
 import './HomePage.css';
-import logo from '../../Assets/Logo/LIVECUE-Logo.png'
-import { Container, Row, Col, Card, Modal, Form, Button } from 'react-bootstrap';
-import addMoreButton from '../../Assets/Home-Page/Add-More-Button.png';
-import editButton from '../../Assets/Home-Page/Edit-Button.png';
-import liveButton from '../../Assets/Home-Page/Live-Button.png';
+import logo from '../../Assets/Logo/LIVECUE-Logo.png';
 import { Project } from '../../Interfaces/Project/Project';
-import { db, collection, addDoc, getDocs, query, where, auth } from '../../Backend/firebase'; // Firebase imports
+import { db, collection, addDoc, getDocs, query, where, auth, doc, deleteDoc, onSnapshot } from '../../Backend/firebase';
 import { User } from '../../Interfaces/User/User';
-import { User as FirebaseUser, signOut } from "firebase/auth";
+import { User as FirebaseUser, signOut } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Cue } from '../../Interfaces/Cue/Cue';
-
+import { DEFAULT_FIELDS } from '../../Interfaces/CustomField/CustomField';
 
 interface HomePageProps {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
@@ -21,285 +18,412 @@ interface HomePageProps {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
 
-const HomePage: React.FC<HomePageProps> = ({user, projects, setProjects, setUser }) => {
+function daysUntil(date: Date): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return Math.round((d.getTime() - today.getTime()) / 86400000);
+}
+
+function getStatusLabel(date: Date): 'upcoming' | 'today' | 'past' {
+  const days = daysUntil(date);
+  if (days > 0) return 'upcoming';
+  if (days === 0) return 'today';
+  return 'past';
+}
+
+function upcomingThisMonth(projects: Project[]): number {
+  const now = new Date();
+  return projects.filter(p => {
+    const d = daysUntil(p.date);
+    return d >= 0 && p.date.getMonth() === now.getMonth() && p.date.getFullYear() === now.getFullYear();
+  }).length;
+}
+
+function nextUpcomingProject(projects: Project[]): Project | null {
+  const future = projects.filter(p => daysUntil(p.date) >= 0);
+  if (!future.length) return null;
+  return future.sort((a, b) => a.date.getTime() - b.date.getTime())[0];
+}
+
+const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUser }) => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
+  const projectToDelete = projects.find(p => p.firebaseID === deleteProjectId);
+
   const [newProjectTitle, setNewProjectTitle] = useState('');
   const [newProjectDate, setNewProjectDate] = useState('');
-  const [newProjectStartTime, setNewProjectStartTime] = useState('');
-  const [newProjectEndTime, setNewProjectEndTime] = useState('');
+  const [newProjectStartTime, setNewProjectStartTime] = useState(() => localStorage.getItem('lc_default_start') || '');
+  const [newProjectEndTime, setNewProjectEndTime] = useState(() => localStorage.getItem('lc_default_end') || '');
 
-  const [newProjectCueAmount, setNewProjectCueAmount] = useState(1);
-
-  const getNextProjectID = () => {
-    return projects.length > 0 ? Math.max(...projects.map(p => p.projectID)) + 1 : 1;
-  };
+  const getNextProjectID = () =>
+    projects.length > 0 ? Math.max(...projects.map(p => p.projectID)) + 1 : 1;
 
   const handleAddProject = async () => {
     if (!newProjectTitle || !newProjectDate || !newProjectStartTime || !newProjectEndTime) {
-      alert("Please enter all fields!");
+      alert('Please fill in all fields.');
       return;
     }
-  
-    if (!user) {
-      alert("You must be logged in to add a project.");
-      return;
-    }
-  
+    if (!user) return;
+
     const startTime = new Date(`${newProjectDate}T${newProjectStartTime}:00`);
     const endTime = new Date(`${newProjectDate}T${newProjectEndTime}:00`);
-  
-    if (startTime >= endTime) {
-      alert("End time must be after start time!");
-      return;
-    }
-  
+    if (startTime >= endTime) { alert('End time must be after start time.'); return; }
+
     const durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / 60000);
-    const newID = getNextProjectID();
-  
+
     const newProject: Project = {
-      firebaseID: '', // Will be set by Firestore
-      projectID: newID,
+      firebaseID: '',
+      projectID: getNextProjectID(),
       title: newProjectTitle,
       date: new Date(newProjectDate),
       startTime,
       endTime,
       duration: new Date(0, 0, 0, Math.floor(durationMinutes / 60), durationMinutes % 60),
       cues: [],
-      cueAmount: newProjectCueAmount,
-      owner: user.id, // Store the user ID in the project
+      cueAmount: 0,
+      owner: user.id,
+      fields: DEFAULT_FIELDS,
     };
-  
+
     try {
-      const docRef = await addDoc(collection(db, "projects"), newProject);
-      newProject.firebaseID = docRef.id; // Assign the Firestore ID to the project
-      setProjects([...projects, newProject]); // Update local state
-    } catch (error) {
-      console.error("Error adding project:", error);
-      alert("Failed to add project. Try again.");
+      const docRef = await addDoc(collection(db, 'projects'), newProject);
+      newProject.firebaseID = docRef.id;
+      setProjects(prev => [...prev, newProject]);
+    } catch (err) {
+      console.error('Error adding project:', err);
     }
-  
-    // Reset form and close modal
+
     setShowModal(false);
     setNewProjectTitle('');
     setNewProjectDate('');
     setNewProjectStartTime('');
     setNewProjectEndTime('');
-    setNewProjectCueAmount(1);
   };
 
   function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser | null): User | null {
-    if (!firebaseUser) return null; 
-  
-    return {
-      id: firebaseUser.uid,
-      email: firebaseUser.email || "",
-      firstName: "",  // Fetch from Firestore if needed
-      lastName: "",   // Fetch from Firestore if needed
-      password: "",   // Firebase does not return passwords
-    };
+    if (!firebaseUser) return null;
+    return { id: firebaseUser.uid, email: firebaseUser.email || '', firstName: '', lastName: '', password: '' };
   }
-  
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let projectUnsub: (() => void) | null = null;
+    const authUnsub = onAuthStateChanged(auth, (firebaseUser) => {
+      if (projectUnsub) { projectUnsub(); projectUnsub = null; }
       const appUser = mapFirebaseUserToAppUser(firebaseUser);
       setUser(appUser);
-  
       if (appUser) {
-        await fetchProjects(appUser.id);  // Ensure fetchProjects uses correct ID
+        projectUnsub = fetchProjects(appUser.id);
       } else {
         setProjects([]);
+        setLoading(false);
       }
     });
-  
-    return () => unsubscribe();
+    return () => { authUnsub(); if (projectUnsub) projectUnsub(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
-  const fetchProjects = async (userId: string) => {
-    try {
-      const q = query(collection(db, "projects"), where("owner", "==", userId));
-      const querySnapshot = await getDocs(q);
-      const userProjects: Project[] = [];
-  
-      for (const doc of querySnapshot.docs) {
-        const data = doc.data();
-        const projectId = doc.id;
-        
-        // Fetch cues for the project
-        const cues = await fetchCues(projectId);
-  
-        userProjects.push({
-          firebaseID: projectId,
-          projectID: data.projectID,
-          title: data.title,
-          date: data.date.toDate(),
-          startTime: data.startTime.toDate(),
-          endTime: data.endTime.toDate(),
-          duration: data.duration.toDate(),
-          cues: cues,  // Include fetched cues
-          cueAmount: data.cueAmount,
-          owner: data.owner,
-        });
-      }
-  
-      setProjects(userProjects);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-    }
-  };
-  
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate('/'); // Redirect to login page after logout
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
 
   const fetchCues = async (projectId: string): Promise<Cue[]> => {
     try {
-      const q = query(collection(db, "cues"), where("projectRef", "==", projectId));
-      const querySnapshot = await getDocs(q);
-      const fetchedCues = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Cue));
-  
-      // Sort cues by cueNumber before returning
-      return fetchedCues.sort((a, b) => a.cueNumber - b.cueNumber);
-    } catch (error) {
-      console.error("Error fetching cues:", error);
-      return [];
-    }
+      const snap = await getDocs(query(collection(db, 'cues'), where('projectRef', '==', projectId)));
+      return snap.docs
+        .map(d => ({ id: d.id, ...d.data() } as Cue))
+        .sort((a, b) => a.cueNumber - b.cueNumber);
+    } catch { return []; }
   };
 
-  return (
-    <>
-      <header className="app-header-CueInput">
-        <div className="header-spacer"></div> {/* Spacer for centering */}
-        <img className="heading-CueInput--logo" src={logo} alt="LiveCue" onClick={() => {navigate("/HomePage")}}/>
-        <Button onClick={handleLogout} className='logout-button inter-medium'>Log Out</Button>
-      </header>
+  const fetchProjects = (userId: string): (() => void) => {
+    const q = query(collection(db, 'projects'), where('owner', '==', userId));
+    const unsub = onSnapshot(q, async (snap) => {
+      try {
+        const list: Project[] = [];
+        for (const d of snap.docs) {
+          const data = d.data();
+          const cues = await fetchCues(d.id);
+          list.push({
+            firebaseID: d.id,
+            projectID: data.projectID,
+            title: data.title,
+            date: data.date.toDate(),
+            startTime: data.startTime.toDate(),
+            endTime: data.endTime.toDate(),
+            duration: data.duration.toDate(),
+            cues,
+            cueAmount: data.cueAmount ?? cues.length,
+            owner: data.owner,
+            fields: data.fields || DEFAULT_FIELDS,
+          });
+        }
+        setProjects(list);
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
+    });
+    return unsub;
+  };
 
-      <Container fluid className="HomePage-body d-flex align-items-center justify-content-center">
-        <Row className="justify-content-center text-center mt-3 mb-4" style={{ padding: '2%' }}>
-          <Col>
-            <img
-              src={addMoreButton}
-              height={"60%"}
-              alt="Add More"
-              style={{ cursor: 'pointer' }}
-              onClick={() => setShowModal(true)}
-            />
-          </Col>
-        </Row>
-        <div className="scroll-container">
-          <div className="scroll-content">
-            {projects.sort((a, b) => b.projectID - a.projectID).map((project) => (
-              <Card key={project.firebaseID} className="HomePage-Project1">
-                <Card.Body>
-                  <h1 className="inter-bold title-HomePage">{project.title}</h1>
-                  <h3 className="inter-semibold" style={{ paddingBottom: '5%' }}>
-                    {project.date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
-                  </h3>
-                  <h3 className="inter-semibold">Details</h3>
-                  <p className="inter-medium" style={{ marginBottom: '1%' }}>
-                    Start Time: {project.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
-                  </p>
-                  <p className="inter-medium" style={{ marginBottom: '1%' }}>
-                    End Time: {project.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
-                  </p>
-                  <p className="inter-medium" style={{ paddingBottom: '5%', marginBottom: '1%' }}>
-                      Duration: {`${project.duration.getHours()}hr ${project.duration.getMinutes()}min`}
-                  </p>
-                  <h3 className="inter-semibold">Cues: {project.cueAmount}</h3>
-                  {project.cues.length > 0 ? (
-                    project.cues.slice(0, 5).map((cue, index) => (
-                      <p key={index} className="inter-medium" style={{ marginBottom: '1%' }}>
-                        0{index + 1}: {cue.title}
-                      </p>
-                    ))
-                  ) : (
-                    <p className="inter-medium" style={{ marginBottom: '1%' }}>No cues added yet</p>
-                  )}
-                  <div className="d-flex justify-content-between mt-auto">
-                  <img 
-                    src={editButton} 
-                    height="40px" 
-                    alt="Edit" 
-                    onClick={() => navigate(`/CueInput/${project.firebaseID}`)}  // Pass project ID in URL
-                    style={{ paddingLeft: '15%', cursor: 'pointer'}} 
-                  />
-                    <img src={liveButton} height="40px" alt="Live" onClick={() => navigate(`/AdminPage/${project.firebaseID}`)} style={{ paddingRight: '20%' }} />
-                  </div>
-                </Card.Body>
-              </Card>
-            ))}
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate('/login');
+  };
+
+  const handleDeleteProject = async () => {
+    if (!deleteProjectId) return;
+    try {
+      const cueSnap = await getDocs(query(collection(db, 'cues'), where('projectRef', '==', deleteProjectId)));
+      await Promise.all(cueSnap.docs.map(d => deleteDoc(doc(db, 'cues', d.id))));
+      await deleteDoc(doc(db, 'projects', deleteProjectId));
+      setProjects(prev => prev.filter(p => p.firebaseID !== deleteProjectId));
+    } catch (err) { console.error(err); }
+    finally { setDeleteProjectId(null); }
+  };
+
+  if (loading) return <LoadingScreen />;
+
+  const isDemo = sessionStorage.getItem('IS_DEMO') === 'true';
+  const displayName = auth.currentUser?.displayName || '';
+  const firstName = displayName.split(' ')[0] || '';
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0].toUpperCase())
+    .join('') || (user?.email?.[0].toUpperCase() ?? '?');
+  const sorted = [...projects].sort((a, b) => b.date.getTime() - a.date.getTime());
+  const nextProject = nextUpcomingProject(projects);
+  const nextDays = nextProject ? daysUntil(nextProject.date) : null;
+  const thisMonth = upcomingThisMonth(projects);
+
+  return (
+    <div className="hp-shell">
+      {/* ── Sidebar ── */}
+      <aside className="hp-sidebar">
+        <div className="hp-sb-logo">
+          <img src={logo} alt="LiveCue" className="hp-sb-logo-img" onClick={() => navigate('/HomePage')} />
+        </div>
+        <nav className="hp-sb-nav">
+          <div className="hp-sb-item active">
+            <span className="hp-sb-icon">⊞</span>Projects
+          </div>
+          <div className="hp-sb-item" onClick={() => navigate('/settings')}>
+            <span className="hp-sb-icon">⚙</span>Settings
+          </div>
+        </nav>
+        <div className="hp-sb-footer">
+          <div className="hp-sb-user">
+            <div className="hp-sb-avatar">{initials}</div>
+            <div className="hp-sb-user-info">
+              {displayName && <div className="hp-sb-name">{displayName}</div>}
+              <div className="hp-sb-email">{user?.email}</div>
+            </div>
+          </div>
+          <button className="hp-sb-logout" onClick={handleLogout}>Log out</button>
+        </div>
+      </aside>
+
+      {/* ── Main ── */}
+      <main className="hp-main">
+        {isDemo && (
+          <div className="hp-demo-banner">
+            You're viewing a demo account. Data is read-only and resets periodically.
+            <button onClick={() => navigate('/signup')}>Create Free Account</button>
+          </div>
+        )}
+
+        {/* Top bar */}
+        <div className="hp-topbar">
+          <div>
+            <div className="hp-topbar-greeting">{getGreeting()}{firstName ? `, ${firstName}` : ''}</div>
+            <div className="hp-topbar-sub">
+              {projects.length} project{projects.length !== 1 ? 's' : ''}
+              {nextProject && nextDays !== null && ` · next event in ${nextDays === 0 ? 'today' : `${nextDays} day${nextDays !== 1 ? 's' : ''}`}`}
+            </div>
+          </div>
+          <button className="hp-btn-new" onClick={() => setShowModal(true)}>
+            + New Project
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="hp-stats-row">
+          <div className="hp-stat">
+            <div className="hp-stat-label">Projects</div>
+            <div className="hp-stat-value">{projects.length}</div>
+            <div className="hp-stat-sub">total</div>
+          </div>
+          <div className="hp-stat">
+            <div className="hp-stat-label">Upcoming</div>
+            <div className="hp-stat-value">{thisMonth}</div>
+            <div className="hp-stat-sub">this month</div>
+          </div>
+          <div className="hp-stat">
+            <div className="hp-stat-label">Next event</div>
+            <div className="hp-stat-value hp-stat-value--md">
+              {nextProject ? nextProject.date.toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—'}
+            </div>
+            <div className="hp-stat-sub">
+              {nextProject && nextDays !== null
+                ? nextDays === 0 ? 'today!' : `${nextDays} day${nextDays !== 1 ? 's' : ''} away`
+                : 'no upcoming events'}
+            </div>
           </div>
         </div>
-      </Container>
-      <Modal show={showModal} onHide={() => setShowModal(false)} className="modal-dark">
 
-        <Modal.Header closeButton>
-          <Modal.Title>Add New Project</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Project Title</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter project title"
-                value={newProjectTitle}
-                onChange={(e) => setNewProjectTitle(e.target.value)}
-                style={{backgroundColor: '#141414', borderColor: '$141414', color: '#fff6ee'}}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Project Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={newProjectDate}
-                onChange={(e) => setNewProjectDate(e.target.value)}
-                style={{backgroundColor: '#141414', borderColor: '$141414', color: '#fff6ee'}}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Project Start Time</Form.Label>
-              <Form.Control
-                type="time"
-                value={newProjectStartTime}
-                onChange={(e) => setNewProjectStartTime(e.target.value)}
-                style={{backgroundColor: '#141414', borderColor: '$141414', color: '#fff6ee'}}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Project End Time</Form.Label>
-              <Form.Control
-                type="time"
-                value={newProjectEndTime}
-                onChange={(e) => setNewProjectEndTime(e.target.value)}
-                style={{backgroundColor: '#141414', borderColor: '$141414', color: '#fff6ee'}}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Project Cue Amount</Form.Label>
-              <Form.Control
-                type="number"
-                value={newProjectCueAmount}
-                onChange={(e) => setNewProjectCueAmount(parseInt(e.target.value, 10))}
-                style={{backgroundColor: '#141414', borderColor: '$141414', color: '#fff6ee'}}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
-          <Button variant="primary" onClick={handleAddProject}>Add Project</Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+        {/* Project list */}
+        <div className="hp-section-header">
+          <span className="hp-section-title">Your projects</span>
+          <span className="hp-section-count">{projects.length} total</span>
+        </div>
+
+        <div className="hp-list">
+          {sorted.length === 0 && (
+            <div className="hp-empty">
+              No projects yet. Click <strong>+ New Project</strong> to get started.
+            </div>
+          )}
+          {sorted.map(project => {
+            const status = getStatusLabel(project.date);
+            const days = daysUntil(project.date);
+            const durationH = project.duration.getHours();
+            const durationM = project.duration.getMinutes();
+            const durationStr = durationM > 0 ? `${durationH}hr ${durationM}min` : `${durationH}hr`;
+
+            return (
+              <div key={project.firebaseID} className="hp-card">
+                {/* Card header */}
+                <div className="hp-card-header">
+                  <div className="hp-card-header-left">
+                    <div className="hp-card-title">{project.title}</div>
+                    <div className="hp-card-chips">
+                      <span className="hp-chip hp-chip-date">
+                        {project.date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                      <span className={`hp-chip hp-chip-status hp-chip-${status}`}>
+                        {status === 'today' ? 'Today' : status === 'upcoming' ? 'Upcoming' : 'Past'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="hp-card-actions">
+                    <button className="hp-act hp-act-edit" title="Edit" onClick={() => navigate(`/CueInput/${project.firebaseID}`)}>✎</button>
+                    <button className="hp-act hp-act-live" title="Go Live" onClick={() => navigate(`/AdminPage/${project.firebaseID}`)}>⊙</button>
+                    <div className="hp-act-divider" />
+                    <button className="hp-act hp-act-del" title="Delete" onClick={() => setDeleteProjectId(project.firebaseID)}>⌫</button>
+                  </div>
+                </div>
+
+                {/* Meta row */}
+                <div className="hp-card-meta">
+                  <span className="hp-meta-item">
+                    🕐 {project.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })} – {project.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                  </span>
+                  <span className="hp-meta-item">⏱ {durationStr}</span>
+                  <span className="hp-meta-item">☰ {project.cueAmount ?? project.cues.length} cue{(project.cueAmount ?? project.cues.length) !== 1 ? 's' : ''}</span>
+                  <span className="hp-meta-item">⊟ {(project.fields || DEFAULT_FIELDS).length} fields</span>
+                </div>
+
+                <div className="hp-card-divider" />
+
+                {/* Cue grid */}
+                {project.cues.length > 0 ? (
+                  <>
+                    <div className="hp-cues-grid">
+                      {project.cues.slice(0, 6).map((cue, i) => (
+                        <div key={cue.id} className="hp-cue-row">
+                          <span className="hp-cue-n">{String(i + 1).padStart(2, '0')}</span>
+                          <span className="hp-cue-title">{cue.title || '—'}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {project.cues.length > 6 && (
+                      <div className="hp-cue-more">+{project.cues.length - 6} more cues</div>
+                    )}
+                  </>
+                ) : (
+                  <div className="hp-cue-empty">No cues yet — click Edit to add some.</div>
+                )}
+
+                {/* Countdown bar */}
+                {status !== 'past' && (
+                  <div className="hp-progress-wrap">
+                    <span className="hp-progress-label">
+                      {days === 0 ? 'Today' : `${days} day${days !== 1 ? 's' : ''} away`}
+                    </span>
+                    <div className="hp-progress-track">
+                      <div className="hp-progress-fill" style={{ width: `${Math.max(5, 100 - Math.min(days, 60) / 60 * 100)}%` }} />
+                    </div>
+                    <span className="hp-progress-label">
+                      {project.date.toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </main>
+
+      {/* ── Delete confirmation ── */}
+      {deleteProjectId && (
+        <div className="confirm-overlay" onClick={() => setDeleteProjectId(null)}>
+          <div className="confirm-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="inter-bold" style={{ color: '#fff6ee', marginBottom: 10 }}>Delete Project?</h3>
+            <p className="inter-regular" style={{ color: 'rgba(255,246,238,0.6)', fontSize: 14, marginBottom: 24 }}>
+              Are you sure you want to delete <strong style={{ color: '#fff6ee' }}>"{projectToDelete?.title}"</strong>?
+              This will permanently remove the project and all its cues.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button className="confirm-btn-cancel" onClick={() => setDeleteProjectId(null)}>Cancel</button>
+              <button className="confirm-btn-delete" onClick={handleDeleteProject}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── New project modal ── */}
+      {showModal && (
+        <div className="confirm-overlay" onClick={() => setShowModal(false)}>
+          <div className="confirm-modal hp-form-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="inter-bold" style={{ color: '#fff6ee', marginBottom: 20 }}>New Project</h3>
+
+            <label className="hp-form-label">Project Title</label>
+            <input className="hp-form-input" placeholder="e.g. Sunday Service" value={newProjectTitle}
+              onChange={e => setNewProjectTitle(e.target.value)} autoFocus />
+
+            <label className="hp-form-label">Date</label>
+            <input className="hp-form-input" type="date" value={newProjectDate}
+              onChange={e => setNewProjectDate(e.target.value)} />
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <label className="hp-form-label">Start Time</label>
+                <input className="hp-form-input" type="time" value={newProjectStartTime}
+                  onChange={e => setNewProjectStartTime(e.target.value)} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label className="hp-form-label">End Time</label>
+                <input className="hp-form-input" type="time" value={newProjectEndTime}
+                  onChange={e => setNewProjectEndTime(e.target.value)} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 24 }}>
+              <button className="confirm-btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="hp-btn-create" onClick={handleAddProject}>Create Project</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
-}
+};
 
 export default HomePage;
