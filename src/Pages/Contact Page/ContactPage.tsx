@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import "./ContactPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 
-const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-
 function ContactPage() {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
