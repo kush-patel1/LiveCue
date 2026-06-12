@@ -25,64 +25,66 @@ ever be fixed. Add "@babel/plugin-proposal-private-property-in-object" to
 your devDependencies to work around this error. This will make this message
 go away.[0m
   
-------------------------------|---------|----------|---------|---------|-------------------
-File                          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
-------------------------------|---------|----------|---------|---------|-------------------
-All files                     |       0 |        0 |       0 |       0 |                   
- src                          |       0 |        0 |       0 |       0 |                   
-  App.tsx                     |       0 |      100 |       0 |       0 | 21-24             
-  ThemeContext.tsx            |       0 |        0 |       0 |       0 | 10-35             
-  index.tsx                   |       0 |      100 |     100 |       0 | 7-20              
-  reportWebVitals.ts          |       0 |        0 |       0 |       0 | 3-10              
- src/Backend                  |       0 |      100 |     100 |       0 |                   
-  firebase.js                 |       0 |      100 |     100 |       0 | 10-23             
- src/Components/Header        |       0 |      100 |       0 |       0 |                   
-  Header.tsx                  |       0 |      100 |       0 |       0 | 7-12              
- src/Components/LoadingScreen |       0 |      100 |       0 |       0 |                   
-  CredentialLoadingScreen.tsx |       0 |      100 |       0 |       0 | 4                 
-  LoadingScreen.tsx           |       0 |      100 |       0 |       0 | 4                 
- src/Interfaces/Cue           |       0 |        0 |       0 |       0 |                   
-  Cue.ts                      |       0 |        0 |       0 |       0 |                   
- src/Interfaces/CustomField   |       0 |      100 |     100 |       0 |                   
-  CustomField.ts              |       0 |      100 |     100 |       0 | 7                 
- src/Interfaces/Project       |       0 |        0 |       0 |       0 |                   
-  Project.ts                  |       0 |        0 |       0 |       0 |                   
- src/Interfaces/Responses     |       0 |        0 |       0 |       0 |                   
-  ApiCallResponse.ts          |       0 |        0 |       0 |       0 |                   
-  ApiCallResponseError.ts     |       0 |        0 |       0 |       0 |                   
- src/Interfaces/User          |       0 |        0 |       0 |       0 |                   
-  User.ts                     |       0 |        0 |       0 |       0 |                   
-  UserProjectData.ts          |       0 |        0 |       0 |       0 |                   
- src/Pages/Admin Page         |       0 |        0 |       0 |       0 |                   
-  AdminPage.tsx               |       0 |        0 |       0 |       0 | 15-575            
- src/Pages/Contact Page       |       0 |        0 |       0 |       0 |                   
-  ContactPage.tsx             |       0 |        0 |       0 |       0 | 7-198             
- src/Pages/Cue Input          |       0 |        0 |       0 |       0 |                   
-  AIImportModal.tsx           |       0 |        0 |       0 |       0 | 24-334            
-  CueInput.tsx                |       0 |        0 |       0 |       0 | 23-570            
- src/Pages/Demo Page          |       0 |        0 |       0 |       0 |                   
-  DemoPage.tsx                |       0 |        0 |       0 |       0 | 9-56              
- src/Pages/Home Page          |       0 |        0 |       0 |       0 |                   
-  HomePage.tsx                |       0 |        0 |       0 |       0 | 22-419            
- src/Pages/Landing Page       |       0 |      100 |       0 |       0 |                   
-  LandingPage.tsx             |       0 |      100 |       0 |       0 | 5-260             
- src/Pages/Live Cue Sheet     |       0 |        0 |       0 |       0 |                   
-  LiveCueSheet.tsx            |       0 |        0 |       0 |       0 | 16-301            
- src/Pages/Login Page         |       0 |        0 |       0 |       0 |                   
-  Login.tsx                   |       0 |        0 |       0 |       0 | 12-87             
-  LoginProps.ts               |       0 |        0 |       0 |       0 |                   
- src/Pages/Pricing Page       |       0 |        0 |       0 |       0 |                   
-  PricingPage.tsx             |       0 |        0 |       0 |       0 | 6-199             
- src/Pages/Settings Page      |       0 |        0 |       0 |       0 |                   
-  SettingsPage.tsx            |       0 |        0 |       0 |       0 | 22-373            
- src/Pages/SignUp             |       0 |        0 |       0 |       0 |                   
-  SignUp.tsx                  |       0 |        0 |       0 |       0 | 11-108            
-  SignUpProps.ts              |       0 |        0 |       0 |       0 |                   
- src/Services/UserServices    |       0 |      100 |       0 |       0 |                   
-  UserCredentialService.ts    |       0 |      100 |       0 |       0 | 6-25              
-------------------------------|---------|----------|---------|---------|-------------------
+-------------------------------|---------|----------|---------|---------|-------------------
+File                           | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------------------|---------|----------|---------|---------|-------------------
+All files                      |       0 |        0 |       0 |       0 |                   
+ src                           |       0 |        0 |       0 |       0 |                   
+  App.tsx                      |       0 |      100 |       0 |       0 | 22-25             
+  ThemeContext.tsx             |       0 |        0 |       0 |       0 | 10-35             
+  index.tsx                    |       0 |      100 |     100 |       0 | 7-20              
+  reportWebVitals.ts           |       0 |        0 |       0 |       0 | 3-10              
+ src/Backend                   |       0 |      100 |     100 |       0 |                   
+  firebase.js                  |       0 |      100 |     100 |       0 | 10-23             
+ src/Components/Header         |       0 |      100 |       0 |       0 |                   
+  Header.tsx                   |       0 |      100 |       0 |       0 | 7-12              
+ src/Components/LoadingScreen  |       0 |      100 |       0 |       0 |                   
+  CredentialLoadingScreen.tsx  |       0 |      100 |       0 |       0 | 4                 
+  LoadingScreen.tsx            |       0 |      100 |       0 |       0 | 4                 
+ src/Components/ProtectedRoute |       0 |        0 |       0 |       0 |                   
+  ProtectedRoute.tsx           |       0 |        0 |       0 |       0 | 12-23             
+ src/Interfaces/Cue            |       0 |        0 |       0 |       0 |                   
+  Cue.ts                       |       0 |        0 |       0 |       0 |                   
+ src/Interfaces/CustomField    |       0 |      100 |     100 |       0 |                   
+  CustomField.ts               |       0 |      100 |     100 |       0 | 7                 
+ src/Interfaces/Project        |       0 |        0 |       0 |       0 |                   
+  Project.ts                   |       0 |        0 |       0 |       0 |                   
+ src/Interfaces/Responses      |       0 |        0 |       0 |       0 |                   
+  ApiCallResponse.ts           |       0 |        0 |       0 |       0 |                   
+  ApiCallResponseError.ts      |       0 |        0 |       0 |       0 |                   
+ src/Interfaces/User           |       0 |        0 |       0 |       0 |                   
+  User.ts                      |       0 |        0 |       0 |       0 |                   
+  UserProjectData.ts           |       0 |        0 |       0 |       0 |                   
+ src/Pages/Admin Page          |       0 |        0 |       0 |       0 |                   
+  AdminPage.tsx                |       0 |        0 |       0 |       0 | 15-575            
+ src/Pages/Contact Page        |       0 |        0 |       0 |       0 |                   
+  ContactPage.tsx              |       0 |        0 |       0 |       0 | 7-195             
+ src/Pages/Cue Input           |       0 |        0 |       0 |       0 |                   
+  AIImportModal.tsx            |       0 |        0 |       0 |       0 | 24-334            
+  CueInput.tsx                 |       0 |        0 |       0 |       0 | 23-570            
+ src/Pages/Demo Page           |       0 |        0 |       0 |       0 |                   
+  DemoPage.tsx                 |       0 |        0 |       0 |       0 | 9-56              
+ src/Pages/Home Page           |       0 |        0 |       0 |       0 |                   
+  HomePage.tsx                 |       0 |        0 |       0 |       0 | 22-419            
+ src/Pages/Landing Page        |       0 |      100 |       0 |       0 |                   
+  LandingPage.tsx              |       0 |      100 |       0 |       0 | 5-357             
+ src/Pages/Live Cue Sheet      |       0 |        0 |       0 |       0 |                   
+  LiveCueSheet.tsx             |       0 |        0 |       0 |       0 | 16-301            
+ src/Pages/Login Page          |       0 |        0 |       0 |       0 |                   
+  Login.tsx                    |       0 |        0 |       0 |       0 | 12-87             
+  LoginProps.ts                |       0 |        0 |       0 |       0 |                   
+ src/Pages/Pricing Page        |       0 |        0 |       0 |       0 |                   
+  PricingPage.tsx              |       0 |        0 |       0 |       0 | 6-237             
+ src/Pages/Settings Page       |       0 |        0 |       0 |       0 |                   
+  SettingsPage.tsx             |       0 |        0 |       0 |       0 | 22-373            
+ src/Pages/SignUp              |       0 |        0 |       0 |       0 |                   
+  SignUp.tsx                   |       0 |        0 |       0 |       0 | 11-108            
+  SignUpProps.ts               |       0 |        0 |       0 |       0 |                   
+ src/Services/UserServices     |       0 |      100 |       0 |       0 |                   
+  UserCredentialService.ts     |       0 |      100 |       0 |       0 | 6-25              
+-------------------------------|---------|----------|---------|---------|-------------------
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        4.325 s
+Time:        4.445 s
 Ran all test suites.
