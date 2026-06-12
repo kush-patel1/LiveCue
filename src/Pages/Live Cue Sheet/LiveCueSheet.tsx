@@ -6,7 +6,7 @@ import logo from '../../Assets/Logo/LIVECUE-Logo.png';
 import { Project } from "../../Interfaces/Project/Project";
 import { Cue } from "../../Interfaces/Cue/Cue";
 import { CustomField, DEFAULT_FIELDS } from "../../Interfaces/CustomField/CustomField";
-import { db, collection, query, where, onSnapshot, doc } from "../../Backend/firebase";
+import { db, collection, query, where, onSnapshot, doc, auth } from "../../Backend/firebase";
 
 interface LiveCueSheetProps {
   projects: Project[];
@@ -167,7 +167,7 @@ function LiveCueSheet({ projects }: LiveCueSheetProps) {
           className="lcs-logo"
           src={logo}
           alt="LiveCue"
-          onClick={() => navigate('/HomePage')}
+          onClick={() => navigate(auth.currentUser ? '/HomePage' : '/login')}
         />
         <div className="lcs-header-center">
           <h1 className="lcs-project-title">{project?.title || '—'}</h1>

@@ -8,6 +8,7 @@ import { User } from "./Interfaces/User/User";
 import SignUp from "./Pages/SignUp/SignUp";
 import { Project } from "./Interfaces/Project/Project";
 import AdminPage from "./Pages/Admin Page/AdminPage";
+import { ProtectedRoute } from "./Components/ProtectedRoute/ProtectedRoute";
 import LandingPage from "./Pages/Landing Page/LandingPage";
 import PricingPage from "./Pages/Pricing Page/PricingPage";
 import ContactPage from "./Pages/Contact Page/ContactPage";
@@ -32,10 +33,10 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/demo" element={<DemoPage />} />
           <Route path="/settings" element={<SettingsPage projects={projects} setProjects={setProjects} />} />
-          <Route path="/CueInput/:projectId" element={<CueInput projects={projects} />} />
-          <Route path="/HomePage" element={<HomePage user={user} setUser={setUser} projects={projects} setProjects={setProjects} />} />
+          <Route path="/CueInput/:projectId" element={<ProtectedRoute><CueInput projects={projects} /></ProtectedRoute>} />
+          <Route path="/HomePage" element={<ProtectedRoute><HomePage user={user} setUser={setUser} projects={projects} setProjects={setProjects} /></ProtectedRoute>} />
           <Route path="/LiveCueSheet/:projectId" element={<LiveCueSheet projects={projects} />} />
-          <Route path="/AdminPage/:projectId" element={<AdminPage projects={projects} />} />
+          <Route path="/AdminPage/:projectId" element={<ProtectedRoute><AdminPage projects={projects} /></ProtectedRoute>} />
         </Routes>
       </HashRouter>
     </ThemeProvider>
