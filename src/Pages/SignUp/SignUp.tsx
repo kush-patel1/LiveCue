@@ -1,173 +1,126 @@
-import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { User } from "../../Interfaces/User/User";
 import { Link, useNavigate } from "react-router-dom";
 import { SignUpPageProps } from "./SignUpProps";
-import { auth, db, createUserWithEmailAndPassword, setDoc, doc } from "../../Backend/firebase";  // Import Firebase functions
+import { auth, db, createUserWithEmailAndPassword, setDoc, doc } from "../../Backend/firebase";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
-import { AppHeader } from "../../Components/Header/Header";
+import "../Login Page/Login.css";
 import "./SignUp.css";
 
 export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [validated, setValidated] = useState(false);
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-
-  const [emailMessage, setEmailMessage] = useState<string>("");
-
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
-  const [onLanding, setOnLanding] = useState(true);
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setEmailError("");
+    setPasswordError("");
 
-  useEffect(() => {
-    if (onLanding) {
-      window.scrollTo(0, 0);
-      setOnLanding(false);
-    }
-  }, [onLanding]);
-
-  // Create the user object for Firestore
-  function createUserObject(): User {
-    const newAccount: User = {
-      id: '',
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      password: password,
-    };
-    return newAccount;
-  }
-
-  // Handle Firebase sign-up and store user in Firestore
-  async function createAccount(event: FormEvent<HTMLFormElement>) {
-    const form = event.currentTarget;
-
-    if (!form.checkValidity()) {
-      setEmailMessage("Invalid email");
-      event.preventDefault();
-      event.stopPropagation();
-      setValidated(true);
+    if (password.length < 7) {
+      setPasswordError("Password must be at least 7 characters");
       return;
-    } else {
-      const newAccount = createUserObject();
-      setLoading(true);
+    }
 
-      try {
-        // Firebase Authentication - Create User
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    setLoading(true);
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      const userRef = doc(db, "users", credential.user.uid);
+      await setDoc(userRef, { firstName, lastName, email, password });
 
-        // Create the user object in Firestore
-        const userRef = doc(db, "users", userCredential.user.uid);
-        await setDoc(userRef, {
-          firstName: newAccount.firstName,
-          lastName: newAccount.lastName,
-          email: newAccount.email,
-          password: newAccount.password,
-        });
-
-        // If successful, save user data and navigate
-        const userData = { ...newAccount, id: userCredential.user.uid };
-        setUser(userData);
-        sessionStorage.setItem("CURRENT_USER", JSON.stringify(userData, null, 4));
-        navigate("/HomePage");
-
-      } catch (error) {
-        setLoading(false);
-        if (error instanceof Error) {
-          setEmailMessage(error.message);
-        }
+      const userData: User = { id: credential.user.uid, firstName, lastName, email, password };
+      setUser(userData);
+      sessionStorage.setItem("CURRENT_USER", JSON.stringify(userData));
+      navigate("/HomePage");
+    } catch (error: any) {
+      setLoading(false);
+      if (error.code === "auth/email-already-in-use") {
+        setEmailError("An account with this email already exists");
+      } else {
+        setEmailError(error.message);
       }
     }
   }
 
-  if (loading) {
-    return <CredentialLoadingScreen />;
-  }
+  if (loading) return <CredentialLoadingScreen />;
 
   return (
-    <>
-      <AppHeader />
-      <Container fluid className="SignUp-body d-flex align-items-center justify-content-center">
-        <Row className="w-100 justify-content-center">
-          <Col xxs={12} xs={11} sm={9} md={7} lg={4}>
-            <Card className="SignUp-popup">
-              <Card.Body>
-                <h2 className="text-center mb-4">Sign Up</h2>
-                <Form noValidate validated={validated} onSubmit={createAccount}>
-                  {/* Form fields remain the same */}
-                  <Form.Label>First Name:</Form.Label>
-                  <Form.Group>
-                    <Form.Control
-                      required
-                      className="form--font"
-                      placeholder="First Name"
-                      size="lg"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
-                    <Form.Control.Feedback type="invalid">First Name Required</Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Label className="Form-Labels">Last Name:</Form.Label>
-                  <Form.Group>
-                    <Form.Control
-                      required
-                      className="form--font"
-                      placeholder="Last Name"
-                      size="lg"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
-                    <Form.Control.Feedback type="invalid">Last Name Required</Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Label className="Form-Labels">Email:</Form.Label>
-                  <Form.Group>
-                    <Form.Control
-                      required
-                      className="form--font"
-                      placeholder="email"
-                      value={email}
-                      size="lg"
-                      onChange={(e) => setEmail(e.target.value)}
-                      isInvalid={emailMessage !== ""}
-                    />
-                    <Form.Control.Feedback type="invalid">{emailMessage}</Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Label className="Form-Labels">Password:</Form.Label>
-                  <Form.Group>
-                    <Form.Control
-                      required
-                      className="form--font"
-                      placeholder="password123"
-                      value={password}
-                      size="lg"
-                      onChange={(e) => setPassword(e.target.value)}
-                      pattern=".{7,}"
-                    />
-                    <Form.Control.Feedback type="invalid">Invalid Password</Form.Control.Feedback>
-                  </Form.Group>
+    <div className="auth-shell">
+      <div className="auth-card">
+        <div className="auth-logo"><span className="auth-logo-live">LIVE</span><span className="auth-logo-cue">CUE</span></div>
+        <h1 className="auth-heading">Create account</h1>
+        <p className="auth-sub">Get started for free</p>
 
-                  <div style={{ paddingTop: "5%", paddingBottom: "2%" }}>
-                    <Button className="Submit-Button" type="submit">
-                      Create Account
-                    </Button>
-                  </div>
-                  <span>
-                    Already have an account? Login&nbsp;
-                    <Link to="/" relative="path">
-                      here
-                    </Link>
-                  </span>
-                </Form>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </>
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          <div className="auth-field-row">
+            <div className="auth-field">
+              <label className="auth-label">First name</label>
+              <input
+                className="auth-input"
+                type="text"
+                placeholder="First"
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
+                required
+                autoComplete="given-name"
+              />
+            </div>
+            <div className="auth-field">
+              <label className="auth-label">Last name</label>
+              <input
+                className="auth-input"
+                type="text"
+                placeholder="Last"
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+                required
+                autoComplete="family-name"
+              />
+            </div>
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-label">Email</label>
+            <input
+              className={`auth-input${emailError ? ' auth-input--error' : ''}`}
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={e => { setEmail(e.target.value); setEmailError(""); }}
+              required
+              autoComplete="email"
+            />
+            {emailError && <span className="auth-error">{emailError}</span>}
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-label">Password</label>
+            <input
+              className={`auth-input${passwordError ? ' auth-input--error' : ''}`}
+              type="password"
+              placeholder="Min. 7 characters"
+              value={password}
+              onChange={e => { setPassword(e.target.value); setPasswordError(""); }}
+              required
+              autoComplete="new-password"
+            />
+            {passwordError && <span className="auth-error">{passwordError}</span>}
+          </div>
+
+          <button className="auth-submit" type="submit">Create account</button>
+        </form>
+
+        <p className="auth-footer">
+          Already have an account?{' '}
+          <Link to="/login" className="auth-link">Sign in</Link>
+        </p>
+      </div>
+    </div>
   );
 }
 

@@ -1,13 +1,86 @@
+html {
+  background-color: #141414; /* overscroll / rubber-band gutter — dark theme default */
+}
+[data-theme="light"] html,
+html[data-theme="light"] {
+  background-color: #f0ebe4;
+}
+
 body {
   margin: 0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
-    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-main, #141414);
 }
 
 code {
-  font-family:
-    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+
+/* ── Theme variables ────────────────────────────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  --bg-main:        #141414;
+  --bg-sidebar:     #0f0f0f;
+  --bg-card:        #1a1a1a;
+  --bg-card-alt:    #1e1f20;
+  --bg-input:       rgba(255,246,238,0.05);
+  --bg-hover:       rgba(255,246,238,0.07);
+
+  --text-primary:   #fff6ee;
+  --text-secondary: rgba(255,246,238,0.55);
+  --text-muted:     rgba(255,246,238,0.35);
+  --text-faint:     rgba(255,246,238,0.2);
+
+  --border-main:    rgba(255,255,255,0.06);
+  --border-subtle:  rgba(255,255,255,0.04);
+  --border-input:   rgba(255,246,238,0.1);
+
+  --teal:           #578493;
+  --teal-hover:     #4a7282;
+  --teal-dim:       rgba(87,132,147,0.15);
+  --terra:          #935757;
+}
+
+[data-theme="light"] {
+  --bg-main:        #f0ebe4;
+  --bg-sidebar:     #e6e0d8;
+  --bg-card:        #ffffff;
+  --bg-card-alt:    #f8f4f0;
+  --bg-input:       rgba(27,28,29,0.04);
+  --bg-hover:       rgba(27,28,29,0.06);
+
+  --text-primary:   #1b1c1d;
+  --text-secondary: rgba(27,28,29,0.6);
+  --text-muted:     rgba(27,28,29,0.45);
+  --text-faint:     rgba(27,28,29,0.25);
+
+  --border-main:    rgba(27,28,29,0.1);
+  --border-subtle:  rgba(27,28,29,0.06);
+  --border-input:   rgba(27,28,29,0.15);
+
+  --teal:           #3d6572;
+  --teal-hover:     #2f4f5a;
+  --teal-dim:       rgba(61,101,114,0.12);
+  --terra:          #935757;
+}
+
+/* ── Global scrollbars ──────────────────────────────────────────────────────── */
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+[data-theme="light"] * { scrollbar-color: rgba(0,0,0,0.18) transparent; }
+
+/* Chrome / Safari / Edge */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); }

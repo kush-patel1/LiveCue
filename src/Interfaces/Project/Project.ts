@@ -1,4 +1,5 @@
 import { Cue } from "../Cue/Cue";
+import { CustomField } from "../CustomField/CustomField";
 
 export interface Project {
   firebaseID: string;
@@ -11,4 +12,5 @@ export interface Project {
   cues: Cue[];
   cueAmount: number;
   owner: string;
+  fields: CustomField[];
 }

@@ -1,0 +1,176 @@
+/* ── Light mode overrides for all pages ────────────────────────────────────── */
+/* Applied when [data-theme="light"] is set on <html>                           */
+
+/* ── Shared headers (CueInput, AdminPage, LiveCueSheet) ── */
+[data-theme="light"] .app-header-CueInput {
+  background-color: var(--bg-sidebar);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-main);
+}
+[data-theme="light"] .project-title,
+[data-theme="light"] .project-date {
+  color: var(--text-primary);
+}
+
+/* ── CueInput page ── */
+[data-theme="light"] .CueInput-body {
+  background-color: var(--bg-main);
+}
+[data-theme="light"] .CueInput-Cue {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-main) !important;
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] .notion-input {
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] .cueNumber-CueInput {
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+[data-theme="light"] .field-manager-bar {
+  background: var(--bg-sidebar);
+  border-bottom-color: var(--border-main);
+}
+[data-theme="light"] .field-chip {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-input);
+}
+[data-theme="light"] .btn-add-field,
+[data-theme="light"] .btn-ai-import {
+  background: var(--teal);
+}
+[data-theme="light"] .field-modal,
+[data-theme="light"] .field-modal-overlay ~ .field-modal {
+  background: var(--bg-card) !important;
+}
+[data-theme="light"] .field-modal-input {
+  background: var(--bg-input);
+  border-color: var(--border-input);
+  color: var(--text-primary);
+}
+[data-theme="light"] .cue-field-label {
+  color: var(--text-secondary);
+}
+[data-theme="light"] .drag-handle {
+  color: var(--text-muted);
+}
+[data-theme="light"] .cue-delete-btn {
+  color: var(--text-muted);
+}
+
+/* ── AdminPage ── */
+[data-theme="light"] .AdminPage-body {
+  background-color: var(--bg-main);
+}
+[data-theme="light"] .controlPanel-AdminPage {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-main) !important;
+}
+[data-theme="light"] .AdminPage-Cue {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-main) !important;
+}
+[data-theme="light"] .hrAdminPage {
+  border-color: var(--border-main) !important;
+}
+[data-theme="light"] .PrevNext-Buttons {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-input);
+}
+[data-theme="light"] .drift-banner {
+  border-bottom: 1px solid var(--border-main);
+}
+
+/* ── LiveCueSheet ── */
+[data-theme="light"] .LiveCueSheet-body {
+  background-color: var(--bg-main);
+}
+[data-theme="light"] .LiveCueSheet-Cue {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-main) !important;
+}
+[data-theme="light"] .hrLiveCueSheet {
+  border-color: var(--border-main) !important;
+}
+[data-theme="light"] .lcs-field-panel {
+  background: var(--bg-card-alt);
+  border-color: var(--border-main);
+}
+[data-theme="light"] .lcs-field-toggle-btn {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-main);
+}
+
+/* ── Login / SignUp ── */
+[data-theme="light"] .login-body,
+[data-theme="light"] .signup-body {
+  background-color: var(--bg-main);
+}
+[data-theme="light"] .login-card,
+[data-theme="light"] .signup-card {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-main) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── AI Import modal ── */
+[data-theme="light"] .ai-import-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
+}
+[data-theme="light"] .ai-import-header {
+  border-bottom-color: var(--border-main);
+}
+[data-theme="light"] .ai-import-header h3 {
+  color: var(--text-primary);
+}
+[data-theme="light"] .ai-drop-zone {
+  border-color: var(--border-input);
+}
+[data-theme="light"] .ai-drop-zone:hover {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+}
+[data-theme="light"] .ai-preview-table th {
+  color: var(--text-muted);
+  border-bottom-color: var(--border-main);
+}
+[data-theme="light"] .ai-preview-table td {
+  border-bottom-color: var(--border-subtle);
+}
+[data-theme="light"] .ai-cell-input {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border-color: transparent;
+}
+[data-theme="light"] .ai-cell-input:focus {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+}
+[data-theme="light"] .ai-preview-bar {
+  border-bottom-color: var(--border-main);
+}
+
+/* ── Confirm modals ── */
+[data-theme="light"] .confirm-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
+}
+
+/* ── MUI TimePicker (CueInput) ── */
+[data-theme="light"] .MuiInputBase-input {
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] .MuiInputLabel-root {
+  color: var(--text-secondary) !important;
+}
+[data-theme="light"] .MuiSvgIcon-root {
+  color: var(--text-secondary) !important;
+}
