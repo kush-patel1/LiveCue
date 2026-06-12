@@ -461,7 +461,7 @@ function CueInput({ projects }: CueInputProps) {
           <span className="ci-count-badge">{cues.length} cue{cues.length !== 1 ? 's' : ''}</span>
           <button className="ci-btn-ghost" onClick={() => setShowFieldModal(true)}>⚙ Fields</button>
           <button className="ci-btn-ghost" disabled title="Coming soon">📥 Import</button>
-          <button className="ci-btn-live" onClick={() => navigate(`/LiveCueSheet/${projectId}`)}>⊙ Go Live</button>
+          <button className="ci-btn-live" onClick={() => navigate(`/AdminPage/${projectId}`)}>⊙ Go Live</button>
         </div>
       </header>
 
