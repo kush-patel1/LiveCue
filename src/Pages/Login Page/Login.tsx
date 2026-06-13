@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import { auth } from "../../Backend/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { User as FirebaseUser } from "firebase/auth";
 import { User } from "../../Interfaces/User/User";
 
@@ -37,6 +38,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
     setLoading(true);
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
+      await applyGrantIfExists(credential.user.uid, credential.user.email ?? email);
       const appUser = mapFirebaseUserToAppUser(credential.user);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(appUser));
       setUser(appUser);

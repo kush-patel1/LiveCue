@@ -3,6 +3,7 @@ import { User } from "../../Interfaces/User/User";
 import { Link, useNavigate } from "react-router-dom";
 import { SignUpPageProps } from "./SignUpProps";
 import { auth, db, createUserWithEmailAndPassword, setDoc, doc } from "../../Backend/firebase";
+import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import "../Login Page/Login.css";
 import "./SignUp.css";
@@ -31,7 +32,8 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
     try {
       const credential = await createUserWithEmailAndPassword(auth, email, password);
       const userRef = doc(db, "users", credential.user.uid);
-      await setDoc(userRef, { firstName, lastName, email, password });
+      await setDoc(userRef, { firstName, lastName, email, password, plan: "free" });
+      await applyGrantIfExists(credential.user.uid, email);
 
       const userData: User = { id: credential.user.uid, firstName, lastName, email, password };
       setUser(userData);
