@@ -2,7 +2,7 @@
   "name": "starter_helpi",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://kush-patel1.github.io/LiveCue",
+  "homepage": "https://live-cue.com",
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
