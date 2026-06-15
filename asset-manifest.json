@@ -1,24 +1,24 @@
 {
   "files": {
-    "main.css": "/LiveCue/static/css/main.750b46b7.css",
-    "main.js": "/LiveCue/static/js/main.5f743238.js",
-    "static/js/453.bad6c33a.chunk.js": "/LiveCue/static/js/453.bad6c33a.chunk.js",
-    "static/media/Inter-ExtraBold.ttf": "/LiveCue/static/media/Inter-ExtraBold.4164cfba15dbca5f37aa.ttf",
-    "static/media/Inter-Bold.ttf": "/LiveCue/static/media/Inter-Bold.0eaf807b1cf0eceabe0f.ttf",
-    "static/media/Inter-SemiBold.ttf": "/LiveCue/static/media/Inter-SemiBold.6058d3da655fb35169c2.ttf",
-    "static/media/Inter-Medium.ttf": "/LiveCue/static/media/Inter-Medium.3f7acfe50aad7ad68548.ttf",
-    "static/media/Inter-ExtraLight.ttf": "/LiveCue/static/media/Inter-ExtraLight.fbcf1d9ad9d7bac9f6de.ttf",
-    "static/media/Inter-Thin.ttf": "/LiveCue/static/media/Inter-Thin.97a5cc3ca8d3b35a4239.ttf",
-    "static/media/Inter-Light.ttf": "/LiveCue/static/media/Inter-Light.02850f28027788580733.ttf",
-    "static/media/Inter-Regular.ttf": "/LiveCue/static/media/Inter-Regular.9ca9ba81e9dcaa12b3a1.ttf",
-    "static/media/Jitter.otf": "/LiveCue/static/media/Jitter.2314105ee75ccae4b5fc.otf",
-    "index.html": "/LiveCue/index.html",
-    "main.750b46b7.css.map": "/LiveCue/static/css/main.750b46b7.css.map",
-    "main.5f743238.js.map": "/LiveCue/static/js/main.5f743238.js.map",
-    "453.bad6c33a.chunk.js.map": "/LiveCue/static/js/453.bad6c33a.chunk.js.map"
+    "main.css": "/static/css/main.cb16135c.css",
+    "main.js": "/static/js/main.1759a3de.js",
+    "static/js/453.bad6c33a.chunk.js": "/static/js/453.bad6c33a.chunk.js",
+    "static/media/Inter-ExtraBold.ttf": "/static/media/Inter-ExtraBold.4164cfba15dbca5f37aa.ttf",
+    "static/media/Inter-Bold.ttf": "/static/media/Inter-Bold.0eaf807b1cf0eceabe0f.ttf",
+    "static/media/Inter-SemiBold.ttf": "/static/media/Inter-SemiBold.6058d3da655fb35169c2.ttf",
+    "static/media/Inter-Medium.ttf": "/static/media/Inter-Medium.3f7acfe50aad7ad68548.ttf",
+    "static/media/Inter-ExtraLight.ttf": "/static/media/Inter-ExtraLight.fbcf1d9ad9d7bac9f6de.ttf",
+    "static/media/Inter-Thin.ttf": "/static/media/Inter-Thin.97a5cc3ca8d3b35a4239.ttf",
+    "static/media/Inter-Light.ttf": "/static/media/Inter-Light.02850f28027788580733.ttf",
+    "static/media/Inter-Regular.ttf": "/static/media/Inter-Regular.9ca9ba81e9dcaa12b3a1.ttf",
+    "static/media/Jitter.otf": "/static/media/Jitter.2314105ee75ccae4b5fc.otf",
+    "index.html": "/index.html",
+    "main.cb16135c.css.map": "/static/css/main.cb16135c.css.map",
+    "main.1759a3de.js.map": "/static/js/main.1759a3de.js.map",
+    "453.bad6c33a.chunk.js.map": "/static/js/453.bad6c33a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.750b46b7.css",
-    "static/js/main.5f743238.js"
+    "static/css/main.cb16135c.css",
+    "static/js/main.1759a3de.js"
   ]
 }
