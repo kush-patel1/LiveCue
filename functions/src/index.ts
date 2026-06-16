@@ -103,7 +103,7 @@ export const createPortalSession = functions
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: data.returnUrl ?? "https://livecue-93be0.web.app/#/settings",
+      return_url: data.returnUrl ?? "https://live-cue.com/#/settings",
     });
 
     return { url: session.url };
