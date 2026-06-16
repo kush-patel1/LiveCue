@@ -140,9 +140,17 @@ export const stripeWebhook = functions
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        const uid = session.client_reference_id;
         const subscriptionId = session.subscription as string;
-        // Stamp firebaseUID onto the subscription so recurring events can find the user
+        // Prefer client_reference_id (Firebase UID appended to payment link).
+        // Fall back to looking up the buyer by email in Firestore.
+        let uid: string | null = session.client_reference_id;
+        if (!uid) {
+          const email = session.customer_details?.email;
+          if (email) {
+            const snap = await db.collection("users").where("email", "==", email).limit(1).get();
+            if (!snap.empty) uid = snap.docs[0].id;
+          }
+        }
         if (uid && subscriptionId) {
           await stripe.subscriptions.update(subscriptionId, {
             metadata: { firebaseUID: uid },
