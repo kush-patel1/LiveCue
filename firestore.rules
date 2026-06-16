@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users can read/write their own document
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Users can read their own grant (matched by email) — write is admin-only
+    match /_grants/{email} {
+      allow read: if request.auth != null && request.auth.token.email == email;
+      allow write: if false;
+    }
+
+    // Cues and projects — authenticated users only
+    match /cues/{docId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /projects/{docId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
