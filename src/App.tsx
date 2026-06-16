@@ -14,6 +14,7 @@ import PricingPage from "./Pages/Pricing Page/PricingPage";
 import ContactPage from "./Pages/Contact Page/ContactPage";
 import DemoPage from "./Pages/Demo Page/DemoPage";
 import SettingsPage from "./Pages/Settings Page/SettingsPage";
+import CheckoutSuccess from "./Pages/Checkout/CheckoutSuccess";
 import { ThemeProvider } from "./ThemeContext";
 import './App.css';
 import './theme.css';
@@ -32,6 +33,7 @@ function App() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/demo" element={<DemoPage />} />
+          <Route path="/checkout-success" element={<CheckoutSuccess />} />
           <Route path="/settings" element={<SettingsPage projects={projects} setProjects={setProjects} />} />
           <Route path="/CueInput/:projectId" element={<ProtectedRoute><CueInput projects={projects} /></ProtectedRoute>} />
           <Route path="/HomePage" element={<ProtectedRoute><HomePage user={user} setUser={setUser} projects={projects} setProjects={setProjects} /></ProtectedRoute>} />

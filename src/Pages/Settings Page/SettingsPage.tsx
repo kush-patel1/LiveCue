@@ -10,6 +10,9 @@ import {
   reauthenticateWithCredential, EmailAuthProvider, updateProfile,
 } from '../../Backend/firebase';
 import { signOut } from 'firebase/auth';
+import { usePlan } from '../../Hooks/usePlan';
+import { redirectToCustomerPortal } from '../../Services/StripeService/stripeService';
+import { PLAN_LIMITS } from '../../Config/planLimits';
 
 interface SettingsPageProps {
   projects: Project[];
@@ -22,6 +25,22 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const currentUser = auth.currentUser;
+  const { plan, loading: planLoading } = usePlan(currentUser?.uid);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const planLimits = PLAN_LIMITS[plan];
+  const isPaid = plan === 'pro' || plan === 'team';
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      await redirectToCustomerPortal();
+    } catch {
+      navigate('/pricing');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   // ── Account state ─────────────────────────────────────────────────────────
   const [firstName, setFirstName] = useState('');
@@ -201,6 +220,99 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
         )}
 
         <div className="sp-content">
+
+          {/* ── Plan ── */}
+          <div className="sp-section">
+            <div className="sp-section-label">Plan</div>
+            <div className="sp-card sp-card-plan">
+
+              {/* Badge row */}
+              <div className="sp-plan-header">
+                <div className="sp-plan-badge-wrap">
+                  <span className={`sp-plan-badge sp-plan-badge--${plan}`}>
+                    {plan.charAt(0).toUpperCase() + plan.slice(1)}
+                  </span>
+                  {!planLoading && !isPaid && (
+                    <span className="sp-plan-tagline">Free forever · upgrade anytime</span>
+                  )}
+                </div>
+                {isPaid ? (
+                  <button
+                    className="sp-btn-save"
+                    onClick={handleManageSubscription}
+                    disabled={portalLoading}
+                  >
+                    {portalLoading ? 'Loading…' : 'Manage Subscription'}
+                  </button>
+                ) : (
+                  <button className="sp-btn-upgrade" onClick={() => navigate('/pricing')}>
+                    Upgrade to Pro
+                  </button>
+                )}
+              </div>
+
+              {/* Usage bars */}
+              <div className="sp-plan-usage">
+                {/* Projects */}
+                <div className="sp-usage-row">
+                  <div className="sp-usage-label">
+                    <span>Projects</span>
+                    <span className="sp-usage-count">
+                      {planLimits.maxProjects === -1
+                        ? `${projects.length} / Unlimited`
+                        : `${projects.length} / ${planLimits.maxProjects}`}
+                    </span>
+                  </div>
+                  <div className="sp-usage-bar">
+                    <div
+                      className="sp-usage-fill"
+                      style={{
+                        width: planLimits.maxProjects === -1
+                          ? '0%'
+                          : `${Math.min(100, (projects.length / planLimits.maxProjects) * 100)}%`,
+                        background: planLimits.maxProjects !== -1 && projects.length >= planLimits.maxProjects
+                          ? 'var(--sp-danger, #e05252)'
+                          : undefined,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* AI imports */}
+                <div className="sp-usage-row">
+                  <div className="sp-usage-label">
+                    <span>AI imports this month</span>
+                    <span className="sp-usage-count">
+                      {planLimits.aiImportsPerMonth === 0
+                        ? 'Not included'
+                        : `0 / ${planLimits.aiImportsPerMonth}`}
+                    </span>
+                  </div>
+                  {planLimits.aiImportsPerMonth > 0 && (
+                    <div className="sp-usage-bar">
+                      <div className="sp-usage-fill" style={{ width: '0%' }} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Feature flags */}
+                <div className="sp-plan-features">
+                  {[
+                    { label: 'Unlimited cues',       on: planLimits.maxCues === -1 },
+                    { label: 'Custom fields',         on: planLimits.customFields },
+                    { label: 'Drag-to-reorder',       on: planLimits.dragReorder },
+                    { label: `${planLimits.teamSeats > 1 ? planLimits.teamSeats + ' team seats' : '1 seat'}`, on: true },
+                  ].map(({ label, on }) => (
+                    <div key={label} className={`sp-plan-feat ${on ? '' : 'sp-plan-feat--off'}`}>
+                      <span className="sp-plan-feat-dot">{on ? '✓' : '✗'}</span>
+                      {label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
 
           {/* ── Account ── */}
           <div className="sp-section">

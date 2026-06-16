@@ -7,6 +7,8 @@ import { Project } from '../../Interfaces/Project/Project';
 import { Cue } from '../../Interfaces/Cue/Cue';
 import { CustomField, DEFAULT_FIELDS } from '../../Interfaces/CustomField/CustomField';
 import { AIImportModal, toDateTimeString, ParsedCue } from './AIImportModal';
+import { usePlan } from '../../Hooks/usePlan';
+import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/UpgradeModal';
 import dayjs from 'dayjs';
 import { db, collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from '../../Backend/firebase';
 import { debounce } from 'lodash';
@@ -85,9 +87,9 @@ function cascadeTimes(cues: Cue[]): Cue[] {
 }
 
 function SortableCueRow({
-  cue, index, fields, isLast, onInputChange, onTimeChange, onDelete,
+  cue, index, fields, isLast, dragEnabled, onInputChange, onTimeChange, onDelete,
 }: {
-  cue: Cue; index: number; fields: CustomField[]; isLast: boolean;
+  cue: Cue; index: number; fields: CustomField[]; isLast: boolean; dragEnabled: boolean;
   onInputChange: (index: number, fieldId: string, value: string) => void;
   onTimeChange: (index: number, field: 'startTime' | 'endTime', timeStr: string) => void;
   onDelete: (id: string) => void;
@@ -116,7 +118,11 @@ function SortableCueRow({
 
       {/* Title — sticky left:72px */}
       <div className={`ci-col-title${cue.isLive ? ' ci-col-title-live' : ''}`}>
-        <div className="ci-drag" {...attributes} {...listeners} title="Drag to reorder">⠿</div>
+        <div
+          className={`ci-drag${dragEnabled ? '' : ' ci-drag--locked'}`}
+          title={dragEnabled ? "Drag to reorder" : "Upgrade to Pro to reorder cues"}
+          {...(dragEnabled ? { ...attributes, ...listeners } : {})}
+        >⠿</div>
         <div className="ci-num">{cue.cueNumber}</div>
         <AutoTextarea
           className="ci-title-input"
@@ -203,6 +209,10 @@ function CueInput({ projects }: CueInputProps) {
   const [fields, setFields] = useState<CustomField[]>(DEFAULT_FIELDS);
   const [showFieldModal, setShowFieldModal] = useState(false);
   const [showAIImport, setShowAIImport] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
+
+  const uid = (JSON.parse(sessionStorage.getItem('CURRENT_USER') || 'null'))?.id ?? null;
+  const { canAddCue, canUseCustomFields, canDragReorder, canUseAIImport } = usePlan(uid);
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState<'text' | 'time'>('text');
   const [deleteCueId, setDeleteCueId] = useState<string | null>(null);
@@ -348,6 +358,7 @@ function CueInput({ projects }: CueInputProps) {
   };
 
   const addCue = async () => {
+    if (!canAddCue(cues.length)) { setUpgradeFeature('cues'); return; }
     if (!projectId) return;
     const isFirst = cues.length === 0;
     let startTime = new Date().toISOString();
@@ -370,6 +381,7 @@ function CueInput({ projects }: CueInputProps) {
   };
 
   const addField = async () => {
+    if (!canUseCustomFields()) { setUpgradeFeature('customFields'); return; }
     if (!newFieldLabel.trim() || !projectId) return;
     const newField: CustomField = {
       id: `field_${Date.now()}`, label: newFieldLabel.trim(), type: newFieldType,
@@ -459,8 +471,8 @@ function CueInput({ projects }: CueInputProps) {
             {saveStatus === 'error'  && '⚠ Error saving'}
           </span>
           <span className="ci-count-badge">{cues.length} cue{cues.length !== 1 ? 's' : ''}</span>
-          <button className="ci-btn-ghost" onClick={() => setShowFieldModal(true)}>⚙ Fields</button>
-          <button className="ci-btn-ghost" disabled title="Coming soon">📥 Import</button>
+          <button className="ci-btn-ghost" onClick={() => canUseCustomFields() ? setShowFieldModal(true) : setUpgradeFeature('customFields')}>⚙ Fields</button>
+          <button className="ci-btn-ghost" onClick={() => canUseAIImport(0) ? setShowAIImport(true) : setUpgradeFeature('aiImport')}>📥 Import</button>
           <button className="ci-btn-live" onClick={() => navigate(`/AdminPage/${projectId}`)}>⊙ Go Live</button>
         </div>
       </header>
@@ -496,6 +508,7 @@ function CueInput({ projects }: CueInputProps) {
                   index={index}
                   fields={fields}
                   isLast={index === cues.length - 1}
+                  dragEnabled={canDragReorder()}
                   onInputChange={handleInputChange}
                   onTimeChange={handleTimeChange}
                   onDelete={setDeleteCueId}
@@ -572,6 +585,10 @@ function CueInput({ projects }: CueInputProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {upgradeFeature && (
+        <UpgradeModal feature={upgradeFeature} onClose={() => setUpgradeFeature(null)} />
       )}
 
     </div>

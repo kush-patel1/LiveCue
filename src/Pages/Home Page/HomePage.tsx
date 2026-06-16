@@ -10,6 +10,8 @@ import { User as FirebaseUser, signOut } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Cue } from '../../Interfaces/Cue/Cue';
 import { DEFAULT_FIELDS } from '../../Interfaces/CustomField/CustomField';
+import { usePlan } from '../../Hooks/usePlan';
+import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/UpgradeModal';
 
 interface HomePageProps {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
@@ -56,8 +58,10 @@ function nextUpcomingProject(projects: Project[]): Project | null {
 
 const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUser }) => {
   const navigate = useNavigate();
+  const { canCreateProject } = usePlan(user?.id);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
   const projectToDelete = projects.find(p => p.firebaseID === deleteProjectId);
 
@@ -70,6 +74,10 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
     projects.length > 0 ? Math.max(...projects.map(p => p.projectID)) + 1 : 1;
 
   const handleAddProject = async () => {
+    if (!canCreateProject(projects.length)) {
+      setUpgradeFeature('projects');
+      return;
+    }
     if (!newProjectTitle || !newProjectDate || !newProjectStartTime || !newProjectEndTime) {
       alert('Please fill in all fields.');
       return;
@@ -248,7 +256,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
               {nextProject && nextDays !== null && ` · next event in ${nextDays === 0 ? 'today' : `${nextDays} day${nextDays !== 1 ? 's' : ''}`}`}
             </div>
           </div>
-          <button className="hp-btn-new" onClick={() => setShowModal(true)}>
+          <button className="hp-btn-new" onClick={() => canCreateProject(projects.length) ? setShowModal(true) : setUpgradeFeature('projects')}>
             + New Project
           </button>
         </div>
@@ -386,6 +394,11 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Upgrade modal ── */}
+      {upgradeFeature && (
+        <UpgradeModal feature={upgradeFeature} onClose={() => setUpgradeFeature(null)} />
       )}
 
       {/* ── New project modal ── */}

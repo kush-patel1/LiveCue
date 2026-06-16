@@ -3,19 +3,23 @@ import { useNavigate } from "react-router-dom";
 import "./PricingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 
-const STRIPE_PRO_MONTHLY  = "https://buy.stripe.com/test_placeholder_pro_monthly";
-const STRIPE_PRO_ANNUAL   = "https://buy.stripe.com/test_placeholder_pro_annual";
-const STRIPE_TEAM_MONTHLY = "https://buy.stripe.com/test_placeholder_team_monthly";
-const STRIPE_TEAM_ANNUAL  = "https://buy.stripe.com/test_placeholder_team_annual";
+const PAYMENT_LINKS = {
+  pro_monthly:  "https://buy.stripe.com/3cI9AVgIO6ng7qz2Ii18c02",
+  pro_annual:   "https://buy.stripe.com/cNi14p78edPI8uDciS18c03",
+  team_monthly: "https://buy.stripe.com/6oU9AVdwC3b4h191Ee18c00",
+  team_annual:  "https://buy.stripe.com/aFadRb0JQeTM7qzfv418c01",
+} as const;
+
+type PriceKey = keyof typeof PAYMENT_LINKS;
 
 const PLANS = {
   monthly: {
-    pro:  { price: "14", period: "per month",              savings: "Save $48 with annual",   link: STRIPE_PRO_MONTHLY  },
-    team: { price: "39", period: "per month",              savings: "Save $119 with annual",  link: STRIPE_TEAM_MONTHLY },
+    pro:  { price: "14", period: "per month",                 savings: "Save $48 with annual",   priceKey: "pro_monthly"  as PriceKey },
+    team: { price: "39", period: "per month",                 savings: "Save $119 with annual",  priceKey: "team_monthly" as PriceKey },
   },
   annual: {
-    pro:  { price: "10", period: "per month, billed $120/yr", savings: "You're saving $48",  link: STRIPE_PRO_ANNUAL  },
-    team: { price: "29", period: "per month, billed $349/yr", savings: "You're saving $119", link: STRIPE_TEAM_ANNUAL },
+    pro:  { price: "10", period: "per month, billed $120/yr", savings: "You're saving $48",      priceKey: "pro_annual"   as PriceKey },
+    team: { price: "29", period: "per month, billed $349/yr", savings: "You're saving $119",     priceKey: "team_annual"  as PriceKey },
   },
 };
 
@@ -38,7 +42,13 @@ const CROSS = (
 function PricingPage() {
   const navigate = useNavigate();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [checkoutLoading, setCheckoutLoading] = useState<PriceKey | null>(null);
   const plan = PLANS[billing];
+
+  const handleCheckout = (priceKey: PriceKey) => {
+    setCheckoutLoading(priceKey);
+    window.location.href = PAYMENT_LINKS[priceKey];
+  };
 
   return (
     <div className="lp-root">
@@ -139,8 +149,12 @@ function PricingPage() {
                   <li key={f} className="pp-feat pp-feat--yes"><span className="pp-feat-icon pp-feat-icon--yes">{CHECK}</span>{f}</li>
                 ))}
               </ul>
-              <button className="pp-card-btn pp-card-btn--primary" onClick={() => window.open(plan.pro.link, "_blank")}>
-                Start Pro
+              <button
+                className="pp-card-btn pp-card-btn--primary"
+                onClick={() => handleCheckout(plan.pro.priceKey)}
+                disabled={checkoutLoading !== null}
+              >
+                {checkoutLoading === plan.pro.priceKey ? "Redirecting…" : "Start Pro"}
               </button>
             </div>
           </div>
@@ -163,8 +177,12 @@ function PricingPage() {
                 <li key={f} className="pp-feat pp-feat--yes"><span className="pp-feat-icon pp-feat-icon--yes">{CHECK}</span>{f}</li>
               ))}
             </ul>
-            <button className="pp-card-btn pp-card-btn--teal" onClick={() => window.open(plan.team.link, "_blank")}>
-              Start Team
+            <button
+              className="pp-card-btn pp-card-btn--teal"
+              onClick={() => handleCheckout(plan.team.priceKey)}
+              disabled={checkoutLoading !== null}
+            >
+              {checkoutLoading === plan.team.priceKey ? "Redirecting…" : "Start Team"}
             </button>
           </div>
 

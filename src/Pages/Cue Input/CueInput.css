@@ -308,6 +308,7 @@
 }
 .ci-drag:hover { color: var(--teal); }
 .ci-drag:active { cursor: grabbing; }
+.ci-drag--locked { cursor: default; opacity: 0.3; pointer-events: none; }
 
 .ci-num {
   width: 22px;
