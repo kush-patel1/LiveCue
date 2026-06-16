@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { db, doc } from "../Backend/firebase";
-import { onSnapshot } from "firebase/firestore";
+import { getDoc } from "firebase/firestore";
 import { Plan, PLAN_LIMITS } from "../Config/planLimits";
 
 interface PlanState {
@@ -26,28 +26,19 @@ export function usePlan(uid: string | null | undefined): PlanState {
     }
 
     let active = true;
-
-    const userRef = doc(db, "users", uid);
-    const unsubscribe = onSnapshot(
-      userRef,
-      (snap) => {
+    getDoc(doc(db, "users", uid))
+      .then((snap) => {
         if (!active) return;
         if (snap.exists()) {
           const data = snap.data();
           const resolved: Plan = data.planOverride ?? data.plan ?? "free";
           setPlan(resolved);
         }
-        setLoading(false);
-      },
-      () => {
-        if (active) setLoading(false);
-      }
-    );
+      })
+      .catch(() => {})
+      .finally(() => { if (active) setLoading(false); });
 
-    return () => {
-      active = false;
-      unsubscribe();
-    };
+    return () => { active = false; };
   }, [uid]);
 
   const limits = PLAN_LIMITS[plan];
