@@ -25,7 +25,7 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const currentUser = auth.currentUser;
-  const { plan, loading: planLoading } = usePlan(currentUser?.uid);
+  const { plan, loading: planLoading, hasStripeSubscription } = usePlan(currentUser?.uid);
   const [portalLoading, setPortalLoading] = useState(false);
 
   const planLimits = PLAN_LIMITS[plan];
@@ -33,6 +33,8 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
 
   const handleManageSubscription = async () => {
     setPortalLoading(true);
+    // Clear cached plan so the correct plan is shown on return from portal
+    sessionStorage.removeItem('LIVECUE_PLAN');
     try {
       await redirectToCustomerPortal();
     } catch {
@@ -236,7 +238,7 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                     <span className="sp-plan-tagline">Free forever · upgrade anytime</span>
                   )}
                 </div>
-                {isPaid ? (
+                {isPaid && hasStripeSubscription ? (
                   <button
                     className="sp-btn-save"
                     onClick={handleManageSubscription}
@@ -244,11 +246,11 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                   >
                     {portalLoading ? 'Loading…' : 'Manage Subscription'}
                   </button>
-                ) : (
+                ) : !isPaid ? (
                   <button className="sp-btn-upgrade" onClick={() => navigate('/pricing')}>
                     Upgrade to Pro
                   </button>
-                )}
+                ) : null}
               </div>
 
               {/* Usage bars */}
