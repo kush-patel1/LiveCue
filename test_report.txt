@@ -45,8 +45,9 @@ All files                      |       0 |        0 |       0 |       0 |
   ProtectedRoute.tsx           |       0 |        0 |       0 |       0 | 12-23             
  src/Components/UpgradeModal   |       0 |      100 |       0 |       0 |                   
   UpgradeModal.tsx             |       0 |      100 |       0 |       0 | 6-38              
- src/Config                    |       0 |      100 |     100 |       0 |                   
+ src/Config                    |       0 |        0 |       0 |       0 |                   
   planLimits.ts                |       0 |      100 |     100 |       0 | 10                
+  stripeLinks.ts               |       0 |        0 |       0 |       0 | 1-13              
  src/Hooks                     |       0 |        0 |       0 |       0 |                   
   usePlan.ts                   |       0 |        0 |       0 |       0 | 18-54             
  src/Interfaces/Cue            |       0 |        0 |       0 |       0 |                   
@@ -79,14 +80,14 @@ All files                      |       0 |        0 |       0 |       0 |
  src/Pages/Live Cue Sheet      |       0 |        0 |       0 |       0 |                   
   LiveCueSheet.tsx             |       0 |        0 |       0 |       0 | 16-301            
  src/Pages/Login Page          |       0 |        0 |       0 |       0 |                   
-  Login.tsx                    |       0 |        0 |       0 |       0 | 13-102            
+  Login.tsx                    |       0 |        0 |       0 |       0 | 14-96             
   LoginProps.ts                |       0 |        0 |       0 |       0 |                   
  src/Pages/Pricing Page        |       0 |        0 |       0 |       0 |                   
-  PricingPage.tsx              |       0 |        0 |       0 |       0 | 6-261             
+  PricingPage.tsx              |       0 |        0 |       0 |       0 | 9-255             
  src/Pages/Settings Page       |       0 |        0 |       0 |       0 |                   
   SettingsPage.tsx             |       0 |        0 |       0 |       0 | 25-485            
  src/Pages/SignUp              |       0 |        0 |       0 |       0 |                   
-  SignUp.tsx                   |       0 |        0 |       0 |       0 | 11-123            
+  SignUp.tsx                   |       0 |        0 |       0 |       0 | 13-117            
   SignUpProps.ts               |       0 |        0 |       0 |       0 |                   
  src/Services/PlanService      |       0 |        0 |       0 |       0 |                   
   grantCheck.ts                |       0 |        0 |       0 |       0 | 12-21             
@@ -98,5 +99,5 @@ All files                      |       0 |        0 |       0 |       0 |
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        4.011 s
+Time:        4.041 s
 Ran all test suites.
