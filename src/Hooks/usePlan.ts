@@ -25,20 +25,29 @@ export function usePlan(uid: string | null | undefined): PlanState {
       return;
     }
 
-    const userRef = doc(db, "users", uid);
-    const unsubscribe = onSnapshot(userRef, (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        // planOverride (from _grants) takes precedence over paid plan
-        const resolved: Plan = data.planOverride ?? data.plan ?? "free";
-        setPlan(resolved);
-      }
-      setLoading(false);
-    }, () => {
-      setLoading(false);
-    });
+    let active = true;
 
-    return unsubscribe;
+    const userRef = doc(db, "users", uid);
+    const unsubscribe = onSnapshot(
+      userRef,
+      (snap) => {
+        if (!active) return;
+        if (snap.exists()) {
+          const data = snap.data();
+          const resolved: Plan = data.planOverride ?? data.plan ?? "free";
+          setPlan(resolved);
+        }
+        setLoading(false);
+      },
+      () => {
+        if (active) setLoading(false);
+      }
+    );
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, [uid]);
 
   const limits = PLAN_LIMITS[plan];
