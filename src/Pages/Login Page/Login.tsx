@@ -8,6 +8,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { User as FirebaseUser } from "firebase/auth";
 import { User } from "../../Interfaces/User/User";
+import { PAYMENT_LINKS } from "../../Config/stripeLinks";
 
 function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser): User {
   return {
@@ -18,13 +19,6 @@ function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser): User {
     password: "",
   };
 }
-
-const PAYMENT_LINKS: Record<string, string> = {
-  pro_monthly:  "https://buy.stripe.com/3cI9AVgIO6ng7qz2Ii18c02",
-  pro_annual:   "https://buy.stripe.com/cNi14p78edPI8uDciS18c03",
-  team_monthly: "https://buy.stripe.com/6oU9AVdwC3b4h191Ee18c00",
-  team_annual:  "https://buy.stripe.com/aFadRb0JQeTM7qzfv418c01",
-};
 
 function Login({ setUser }: LoginPageProps): React.JSX.Element {
   const [email, setEmail] = useState("");
