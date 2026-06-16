@@ -1,6 +1,8 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import Stripe from "stripe";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const Stripe = require("stripe");
+type StripeClient = ReturnType<typeof Stripe>;
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -11,10 +13,10 @@ const db = admin.firestore();
 //   firebase functions:secrets:set STRIPE_SECRET_KEY
 //   firebase functions:secrets:set STRIPE_WEBHOOK_SECRET
 // ---------------------------------------------------------------------------
-function getStripe(): Stripe {
+function getStripe(): StripeClient {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error("STRIPE_SECRET_KEY not set");
-  return new Stripe(key, { apiVersion: "2024-06-20" });
+  return new Stripe(key, { apiVersion: "2026-05-27.dahlia" });
 }
 
 // Stripe Price IDs — replace with your real IDs from the Stripe dashboard
@@ -123,9 +125,11 @@ export const createPortalSession = functions
       throw new functions.https.HttpsError("not-found", "No Stripe customer found for this account");
     }
 
+    // Return URL is hardcoded server-side — never trust client-supplied URLs
+    // to prevent open-redirect phishing after portal cancellation.
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: data.returnUrl ?? "https://live-cue.com/#/settings",
+      return_url: "https://live-cue.com/#/settings",
     });
 
     return { url: session.url };
@@ -146,7 +150,8 @@ export const stripeWebhook = functions
     }
 
     const stripe = getStripe();
-    let event: Stripe.Event;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let event: any;
 
     try {
       event = stripe.webhooks.constructEvent(
@@ -161,57 +166,67 @@ export const stripeWebhook = functions
 
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const subscriptionId = session.subscription as string;
-        // Prefer client_reference_id (Firebase UID appended to payment link).
-        // Fall back to looking up the buyer by email in Firestore.
-        let uid: string | null = session.client_reference_id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const session = event.data.object as any;
+        const subscriptionId: string | null = session.subscription ?? null;
+
+        // Resolve Firebase UID — prefer client_reference_id on the payment link URL
+        let uid: string | null = session.client_reference_id ?? null;
         if (!uid) {
-          const email = session.customer_details?.email;
+          const email: string | undefined = session.customer_details?.email;
           if (email) {
             const snap = await db.collection("users").where("email", "==", email).limit(1).get();
             if (!snap.empty) uid = snap.docs[0].id;
           }
         }
-        if (uid && subscriptionId) {
-          await stripe.subscriptions.update(subscriptionId, {
-            metadata: { firebaseUID: uid },
-          });
+        if (!uid) break;
+
+        // Save Stripe IDs so the portal works and subscription events can find
+        // this user. Plan tier is resolved when Stripe fires
+        // customer.subscription.updated (which always follows a checkout).
+        const update: Record<string, unknown> = {};
+        if (session.customer)  update.stripeCustomerId    = session.customer as string;
+        if (subscriptionId)    update.stripeSubscriptionId = subscriptionId;
+        if (Object.keys(update).length) {
+          await db.collection("users").doc(uid).set(update, { merge: true });
         }
-        // Save stripeCustomerId so the Customer Portal can be opened later
-        if (uid && session.customer) {
-          await db.collection("users").doc(uid).set(
-            { stripeCustomerId: session.customer as string },
-            { merge: true }
-          );
-        }
-        await handleSubscriptionActivated(stripe, subscriptionId, uid ?? undefined);
         break;
       }
       case "customer.subscription.updated": {
-        const sub = event.data.object as Stripe.Subscription;
-        if (sub.status === "past_due" || sub.status === "unpaid" || sub.status === "canceled") {
-          const uid = sub.metadata?.firebaseUID;
-          if (uid) {
-            await db.collection("users").doc(uid).update({
-              plan: "free",
-              planExpiry: null,
-              stripeSubscriptionId: null,
-            });
-          }
+        // Webhook payload includes the full subscription object — no API call needed.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sub = event.data.object as any;
+        const uid = await resolveUidFromSub(sub);
+        if (!uid) break;
+
+        if (["past_due", "unpaid", "canceled"].includes(sub.status)) {
+          await db.collection("users").doc(uid).update({
+            plan: "free", planExpiry: null, stripeSubscriptionId: null,
+          });
         } else if (sub.status === "active" || sub.status === "trialing") {
-          await handleSubscriptionActivated(stripe, sub.id);
+          const priceId: string = sub.items?.data?.[0]?.price?.id ?? "";
+          const plan = resolvePlanFromPriceId(priceId);
+          const planExpiry = new Date(sub.current_period_end * 1000).toISOString();
+
+          const userSnap = await db.collection("users").doc(uid).get();
+          const existing = userSnap.data() ?? {};
+          if (
+            existing.plan !== plan ||
+            existing.stripeSubscriptionId !== sub.id ||
+            existing.planExpiry !== planExpiry
+          ) {
+            await db.collection("users").doc(uid).update({ plan, planExpiry, stripeSubscriptionId: sub.id });
+          }
         }
         break;
       }
       case "customer.subscription.deleted": {
-        const sub = event.data.object as Stripe.Subscription;
-        const uid = sub.metadata?.firebaseUID;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sub = event.data.object as any;
+        const uid = await resolveUidFromSub(sub);
         if (uid) {
           await db.collection("users").doc(uid).update({
-            plan: "free",
-            planExpiry: null,
-            stripeSubscriptionId: null,
+            plan: "free", planExpiry: null, stripeSubscriptionId: null,
           });
         }
         break;
@@ -224,32 +239,16 @@ export const stripeWebhook = functions
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-async function handleSubscriptionActivated(stripe: Stripe, subscriptionId: string, fallbackUid?: string): Promise<void> {
-  const sub = await stripe.subscriptions.retrieve(subscriptionId, {
-    expand: ["items.data.price"],
-  });
 
-  const uid = sub.metadata?.firebaseUID ?? fallbackUid;
-  if (!uid) return;
-
-  const priceId = sub.items.data[0]?.price?.id ?? "";
-  const plan = resolvePlanFromPriceId(priceId);
-  const planExpiry = new Date(sub.current_period_end * 1000).toISOString();
-
-  // Idempotency: skip write if plan, expiry, and subscription ID are already correct
-  const userSnap = await db.collection("users").doc(uid).get();
-  const existing = userSnap.data() ?? {};
-  if (
-    existing.plan === plan &&
-    existing.stripeSubscriptionId === sub.id &&
-    existing.planExpiry === planExpiry
-  ) return;
-
-  await db.collection("users").doc(uid).update({
-    plan,
-    planExpiry,
-    stripeSubscriptionId: sub.id,
-  });
+// Look up the Firebase UID for a subscription webhook object.
+// Checks subscription metadata first, then falls back to looking up the user
+// by stripeSubscriptionId saved during checkout.session.completed.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function resolveUidFromSub(sub: any): Promise<string | null> {
+  if (sub.metadata?.firebaseUID) return sub.metadata.firebaseUID as string;
+  // Fall back: find user whose stripeSubscriptionId matches
+  const snap = await db.collection("users").where("stripeSubscriptionId", "==", sub.id).limit(1).get();
+  return snap.empty ? null : snap.docs[0].id;
 }
 
 function resolvePlanFromPriceId(priceId: string): "pro" | "team" {
