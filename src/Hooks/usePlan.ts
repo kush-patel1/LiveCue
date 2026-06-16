@@ -14,13 +14,17 @@ interface PlanState {
   canUseAIImport: (usedThisMonth: number) => boolean;
 }
 
+const PLAN_CACHE_KEY = "LIVECUE_PLAN";
+
 export function usePlan(uid: string | null | undefined): PlanState {
-  const [plan, setPlan] = useState<Plan>("free");
-  const [loading, setLoading] = useState(true);
+  const cached = (sessionStorage.getItem(PLAN_CACHE_KEY) as Plan | null) ?? "free";
+  const [plan, setPlan] = useState<Plan>(cached);
+  const [loading, setLoading] = useState(!sessionStorage.getItem(PLAN_CACHE_KEY));
 
   useEffect(() => {
     if (!uid) {
       setPlan("free");
+      sessionStorage.removeItem(PLAN_CACHE_KEY);
       setLoading(false);
       return;
     }
@@ -33,6 +37,7 @@ export function usePlan(uid: string | null | undefined): PlanState {
           const data = snap.data();
           const resolved: Plan = data.planOverride ?? data.plan ?? "free";
           setPlan(resolved);
+          sessionStorage.setItem(PLAN_CACHE_KEY, resolved);
         }
       })
       .catch(() => {})
