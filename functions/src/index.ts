@@ -156,6 +156,13 @@ export const stripeWebhook = functions
             metadata: { firebaseUID: uid },
           });
         }
+        // Save stripeCustomerId so the Customer Portal can be opened later
+        if (uid && session.customer) {
+          await db.collection("users").doc(uid).set(
+            { stripeCustomerId: session.customer as string },
+            { merge: true }
+          );
+        }
         await handleSubscriptionActivated(stripe, subscriptionId, uid ?? undefined);
         break;
       }

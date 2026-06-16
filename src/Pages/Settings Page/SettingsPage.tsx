@@ -33,6 +33,8 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
 
   const handleManageSubscription = async () => {
     setPortalLoading(true);
+    // Clear cached plan so the correct plan is shown on return from portal
+    sessionStorage.removeItem('LIVECUE_PLAN');
     try {
       await redirectToCustomerPortal();
     } catch {
