@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./PricingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 import { PAYMENT_LINKS, PlanPriceKey } from "../../Config/stripeLinks";
+import { usePlan } from "../../Hooks/usePlan";
 
 type PriceKey = PlanPriceKey;
 
@@ -40,10 +41,16 @@ function PricingPage() {
   const plan = PLANS[billing];
 
   const currentUser = JSON.parse(sessionStorage.getItem("CURRENT_USER") || "null");
+  const { plan: currentPlan } = usePlan(currentUser?.id ?? null);
 
   const handleCheckout = (priceKey: PriceKey) => {
     if (!currentUser?.id) {
       navigate(`/signup?plan=${priceKey}`);
+      return;
+    }
+    // Prevent duplicate subscriptions — send existing subscribers to the portal
+    if (currentPlan === "pro" || currentPlan === "team") {
+      navigate("/settings");
       return;
     }
     setCheckoutLoading(priceKey);

@@ -26,6 +26,28 @@ const PRICE_IDS: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
+// applyGrant
+// Called on login. Uses admin SDK (bypasses Firestore rules) to check the
+// private _grants collection and write planOverride to the user doc.
+// Client code cannot write plan fields directly — this is the only path.
+// ---------------------------------------------------------------------------
+export const applyGrant = functions.https.onCall(async (_, context) => {
+  if (!context.auth) return { applied: false };
+  const uid = context.auth.uid;
+  const email = (context.auth.token.email ?? "").toLowerCase();
+  if (!email) return { applied: false };
+
+  const grantSnap = await db.collection("_grants").doc(email).get();
+  if (!grantSnap.exists) return { applied: false };
+
+  const { plan } = grantSnap.data() as { plan: string };
+  if (!plan) return { applied: false };
+
+  await db.collection("users").doc(uid).set({ planOverride: plan }, { merge: true });
+  return { applied: true, plan };
+});
+
+// ---------------------------------------------------------------------------
 // createCheckoutSession
 // Client calls this with { priceKey, successUrl, cancelUrl }
 // Returns { url } — frontend redirects the user there
@@ -168,7 +190,18 @@ export const stripeWebhook = functions
       }
       case "customer.subscription.updated": {
         const sub = event.data.object as Stripe.Subscription;
-        await handleSubscriptionActivated(stripe, sub.id);
+        if (sub.status === "past_due" || sub.status === "unpaid" || sub.status === "canceled") {
+          const uid = sub.metadata?.firebaseUID;
+          if (uid) {
+            await db.collection("users").doc(uid).update({
+              plan: "free",
+              planExpiry: null,
+              stripeSubscriptionId: null,
+            });
+          }
+        } else if (sub.status === "active" || sub.status === "trialing") {
+          await handleSubscriptionActivated(stripe, sub.id);
+        }
         break;
       }
       case "customer.subscription.deleted": {
@@ -201,10 +234,20 @@ async function handleSubscriptionActivated(stripe: Stripe, subscriptionId: strin
 
   const priceId = sub.items.data[0]?.price?.id ?? "";
   const plan = resolvePlanFromPriceId(priceId);
+  const planExpiry = new Date(sub.current_period_end * 1000).toISOString();
+
+  // Idempotency: skip write if plan, expiry, and subscription ID are already correct
+  const userSnap = await db.collection("users").doc(uid).get();
+  const existing = userSnap.data() ?? {};
+  if (
+    existing.plan === plan &&
+    existing.stripeSubscriptionId === sub.id &&
+    existing.planExpiry === planExpiry
+  ) return;
 
   await db.collection("users").doc(uid).update({
     plan,
-    planExpiry: new Date(sub.current_period_end * 1000).toISOString(),
+    planExpiry,
     stripeSubscriptionId: sub.id,
   });
 }

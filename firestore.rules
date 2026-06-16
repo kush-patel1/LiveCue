@@ -2,18 +2,32 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users can read/write their own document
-    match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+    // Fields that only Cloud Functions (admin SDK) may write.
+    // Client code can NEVER set these — even on the user's own document.
+    function isPlanField(data) {
+      return data.keys().hasAny([
+        'plan', 'planOverride', 'planExpiry',
+        'stripeCustomerId', 'stripeSubscriptionId'
+      ]);
     }
 
-    // Users can read their own grant (matched by email) — write is admin-only
+    // Users can read their own document and write non-plan fields only.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && !isPlanField(request.resource.data.diff(resource.data).affectedKeys());
+    }
+
+    // _grants: authenticated users may read their own grant (matched by email).
+    // Write is blocked entirely from client code — use Firebase Console only.
     match /_grants/{email} {
-      allow read: if request.auth != null && request.auth.token.email == email;
+      allow read: if request.auth != null
+        && request.auth.token.email.lower() == email;
       allow write: if false;
     }
 
-    // Cues and projects — authenticated users only
+    // Cues and projects: any authenticated user.
     match /cues/{docId} {
       allow read, write: if request.auth != null;
     }
