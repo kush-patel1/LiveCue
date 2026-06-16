@@ -1,12 +1,19 @@
 import { FormEvent, useState } from "react";
 import { User } from "../../Interfaces/User/User";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { SignUpPageProps } from "./SignUpProps";
 import { auth, db, createUserWithEmailAndPassword, setDoc, doc } from "../../Backend/firebase";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import "../Login Page/Login.css";
 import "./SignUp.css";
+
+const PAYMENT_LINKS: Record<string, string> = {
+  pro_monthly:  "https://buy.stripe.com/3cI9AVgIO6ng7qz2Ii18c02",
+  pro_annual:   "https://buy.stripe.com/cNi14p78edPI8uDciS18c03",
+  team_monthly: "https://buy.stripe.com/6oU9AVdwC3b4h191Ee18c00",
+  team_annual:  "https://buy.stripe.com/aFadRb0JQeTM7qzfv418c01",
+};
 
 export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
   const [firstName, setFirstName] = useState("");
@@ -17,6 +24,7 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -38,7 +46,12 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
       const userData: User = { id: credential.user.uid, firstName, lastName, email, password };
       setUser(userData);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(userData));
-      navigate("/HomePage");
+      const planParam = searchParams.get("plan");
+      if (planParam && PAYMENT_LINKS[planParam]) {
+        window.location.href = PAYMENT_LINKS[planParam];
+      } else {
+        navigate("/HomePage");
+      }
     } catch (error: any) {
       setLoading(false);
       if (error.code === "auth/email-already-in-use") {
@@ -119,7 +132,7 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
 
         <p className="auth-footer">
           Already have an account?{' '}
-          <Link to="/login" className="auth-link">Sign in</Link>
+          <Link to={searchParams.get("plan") ? `/login?plan=${searchParams.get("plan")}` : "/login"} className="auth-link">Sign in</Link>
         </p>
       </div>
     </div>

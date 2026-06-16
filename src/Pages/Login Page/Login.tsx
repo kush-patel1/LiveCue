@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from "react";
 import "./Login.css";
 import { LoginPageProps } from "./LoginProps";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import { auth } from "../../Backend/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -19,6 +19,13 @@ function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser): User {
   };
 }
 
+const PAYMENT_LINKS: Record<string, string> = {
+  pro_monthly:  "https://buy.stripe.com/3cI9AVgIO6ng7qz2Ii18c02",
+  pro_annual:   "https://buy.stripe.com/cNi14p78edPI8uDciS18c03",
+  team_monthly: "https://buy.stripe.com/6oU9AVdwC3b4h191Ee18c00",
+  team_annual:  "https://buy.stripe.com/aFadRb0JQeTM7qzfv418c01",
+};
+
 function Login({ setUser }: LoginPageProps): React.JSX.Element {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +33,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -42,7 +50,12 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
       const appUser = mapFirebaseUserToAppUser(credential.user);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(appUser));
       setUser(appUser);
-      navigate("/HomePage");
+      const planParam = searchParams.get("plan");
+      if (planParam && PAYMENT_LINKS[planParam]) {
+        window.location.href = PAYMENT_LINKS[planParam];
+      } else {
+        navigate("/HomePage");
+      }
     } catch (error: any) {
       setLoading(false);
       const code = error.code;
@@ -97,7 +110,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
 
         <p className="auth-footer">
           Don't have an account?{' '}
-          <Link to="/signup" className="auth-link">Sign up</Link>
+          <Link to={searchParams.get("plan") ? `/signup?plan=${searchParams.get("plan")}` : "/signup"} className="auth-link">Sign up</Link>
         </p>
       </div>
     </div>

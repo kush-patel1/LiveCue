@@ -2,8 +2,6 @@ import { useNavigate } from "react-router-dom";
 import "./LandingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 
-const STRIPE_PRO_LINK = "https://buy.stripe.com/3cI9AVgIO6ng7qz2Ii18c02";
-const STRIPE_TEAM_LINK = "https://buy.stripe.com/6oU9AVdwC3b4h191Ee18c00";
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -283,7 +281,7 @@ function LandingPage() {
               <li>Drag-to-reorder</li>
               <li>Shareable live view</li>
             </ul>
-            <button className="btn-price btn-price-white" onClick={() => window.open(STRIPE_PRO_LINK, "_blank")}>
+            <button className="btn-price btn-price-white" onClick={() => navigate("/pricing")}>
               Start Pro
             </button>
           </div>
@@ -300,7 +298,7 @@ function LandingPage() {
               <li>AI Excel import (50/month)</li>
               <li>Priority support</li>
             </ul>
-            <button className="btn-price btn-price-outline" onClick={() => window.open(STRIPE_TEAM_LINK, "_blank")}>
+            <button className="btn-price btn-price-outline" onClick={() => navigate("/pricing")}>
               Start Team
             </button>
           </div>
