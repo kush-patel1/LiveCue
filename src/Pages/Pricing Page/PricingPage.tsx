@@ -2,9 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PricingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
-import { redirectToCheckout } from "../../Services/StripeService/stripeService";
 
-type PriceKey = "pro_monthly" | "pro_annual" | "team_monthly" | "team_annual";
+const PAYMENT_LINKS = {
+  pro_monthly:  "https://buy.stripe.com/3cI9AVgIO6ng7qz2Ii18c02",
+  pro_annual:   "https://buy.stripe.com/cNi14p78edPI8uDciS18c03",
+  team_monthly: "https://buy.stripe.com/6oU9AVdwC3b4h191Ee18c00",
+  team_annual:  "https://buy.stripe.com/aFadRb0JQeTM7qzfv418c01",
+} as const;
+
+type PriceKey = keyof typeof PAYMENT_LINKS;
 
 const PLANS = {
   monthly: {
@@ -39,14 +45,9 @@ function PricingPage() {
   const [checkoutLoading, setCheckoutLoading] = useState<PriceKey | null>(null);
   const plan = PLANS[billing];
 
-  const handleCheckout = async (priceKey: PriceKey) => {
+  const handleCheckout = (priceKey: PriceKey) => {
     setCheckoutLoading(priceKey);
-    try {
-      await redirectToCheckout({ priceKey });
-    } catch (err: any) {
-      alert(err?.message ?? "Failed to start checkout. Please try again.");
-      setCheckoutLoading(null);
-    }
+    window.location.href = PAYMENT_LINKS[priceKey];
   };
 
   return (
