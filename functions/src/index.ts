@@ -140,7 +140,15 @@ export const stripeWebhook = functions
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        await handleSubscriptionActivated(stripe, session.subscription as string);
+        const uid = session.client_reference_id;
+        const subscriptionId = session.subscription as string;
+        // Stamp firebaseUID onto the subscription so recurring events can find the user
+        if (uid && subscriptionId) {
+          await stripe.subscriptions.update(subscriptionId, {
+            metadata: { firebaseUID: uid },
+          });
+        }
+        await handleSubscriptionActivated(stripe, subscriptionId, uid ?? undefined);
         break;
       }
       case "customer.subscription.updated": {
@@ -168,12 +176,12 @@ export const stripeWebhook = functions
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-async function handleSubscriptionActivated(stripe: Stripe, subscriptionId: string): Promise<void> {
+async function handleSubscriptionActivated(stripe: Stripe, subscriptionId: string, fallbackUid?: string): Promise<void> {
   const sub = await stripe.subscriptions.retrieve(subscriptionId, {
     expand: ["items.data.price"],
   });
 
-  const uid = sub.metadata?.firebaseUID;
+  const uid = sub.metadata?.firebaseUID ?? fallbackUid;
   if (!uid) return;
 
   const priceId = sub.items.data[0]?.price?.id ?? "";
