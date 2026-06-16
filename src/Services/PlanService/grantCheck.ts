@@ -4,9 +4,8 @@ import { Plan } from "../../Config/planLimits";
 
 /**
  * Called once on login/signup. Checks the private _grants collection for
- * the user's email. If a grant exists, writes planOverride to the user doc.
- * The _grants collection is populated manually via Firebase console only —
- * no public API or UI exists to add entries.
+ * the user's email. Firestore rules allow authenticated users to read their
+ * own grant doc (matched by email). Writes planOverride to the user doc.
  */
 export async function applyGrantIfExists(uid: string, email: string): Promise<void> {
   try {
@@ -17,9 +16,8 @@ export async function applyGrantIfExists(uid: string, email: string): Promise<vo
     const { plan } = grantSnap.data() as { plan: Plan };
     if (!plan) return;
 
-    const userRef = doc(db, "users", uid);
-    await setDoc(userRef, { planOverride: plan }, { merge: true });
-  } catch {
-    // Silently fail — grant check is best-effort and must never block login
+    await setDoc(doc(db, "users", uid), { planOverride: plan }, { merge: true });
+  } catch (err) {
+    console.error("[grantCheck] failed:", err);
   }
 }
