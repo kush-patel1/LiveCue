@@ -2,8 +2,8 @@ import { useNavigate } from "react-router-dom";
 import "./LandingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 
-const STRIPE_PRO_LINK = "https://buy.stripe.com/test_placeholder_pro";
-const STRIPE_TEAM_LINK = "https://buy.stripe.com/test_placeholder_team";
+const STRIPE_PRO_LINK = "https://buy.stripe.com/3cI9AVgIO6ng7qz2Ii18c02";
+const STRIPE_TEAM_LINK = "https://buy.stripe.com/6oU9AVdwC3b4h191Ee18c00";
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
