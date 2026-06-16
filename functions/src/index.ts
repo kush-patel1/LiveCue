@@ -115,7 +115,7 @@ export const createPortalSession = functions
 // Register it in your Stripe Dashboard → Webhooks.
 // ---------------------------------------------------------------------------
 export const stripeWebhook = functions
-  .runWith({ secrets: ["STRIPE_SECRET_KEY"] })
+  .runWith({ secrets: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"] })
   .https.onRequest(async (req, res) => {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!webhookSecret) {
