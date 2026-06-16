@@ -45,15 +45,15 @@ function PricingPage() {
   const [checkoutLoading, setCheckoutLoading] = useState<PriceKey | null>(null);
   const plan = PLANS[billing];
 
-  const isLoggedIn = !!sessionStorage.getItem("CURRENT_USER");
+  const currentUser = JSON.parse(sessionStorage.getItem("CURRENT_USER") || "null");
 
   const handleCheckout = (priceKey: PriceKey) => {
-    if (!isLoggedIn) {
+    if (!currentUser?.id) {
       navigate(`/signup?plan=${priceKey}`);
       return;
     }
     setCheckoutLoading(priceKey);
-    window.location.href = PAYMENT_LINKS[priceKey];
+    window.location.href = `${PAYMENT_LINKS[priceKey]}?client_reference_id=${currentUser.id}`;
   };
 
   return (
