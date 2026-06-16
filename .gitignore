@@ -24,3 +24,4 @@ yarn-debug.log*
 yarn-error.log*
 functions/lib
 functions/node_modules
+stripe-setup.sh
