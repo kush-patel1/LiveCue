@@ -8,7 +8,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { User as FirebaseUser } from "firebase/auth";
 import { User } from "../../Interfaces/User/User";
-import { PAYMENT_LINKS } from "../../Config/stripeLinks";
+import { getPaymentLink } from "../../Config/stripeLinks";
 
 function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser): User {
   return {
@@ -44,9 +44,9 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
       const appUser = mapFirebaseUserToAppUser(credential.user);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(appUser));
       setUser(appUser);
-      const planParam = searchParams.get("plan");
-      if (planParam && PAYMENT_LINKS[planParam]) {
-        window.location.href = PAYMENT_LINKS[planParam];
+      const paymentUrl = getPaymentLink(searchParams.get("plan"));
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
       } else {
         navigate("/HomePage");
       }

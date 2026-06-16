@@ -6,3 +6,9 @@ export const PAYMENT_LINKS = {
 } as const;
 
 export type PlanPriceKey = keyof typeof PAYMENT_LINKS;
+
+/** Returns the payment URL for a given plan key, or null if the key is invalid. */
+export function getPaymentLink(key: string | null): string | null {
+  if (!key) return null;
+  return (PAYMENT_LINKS as Record<string, string>)[key] ?? null;
+}

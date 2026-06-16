@@ -7,7 +7,7 @@ import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import "../Login Page/Login.css";
 import "./SignUp.css";
-import { PAYMENT_LINKS } from "../../Config/stripeLinks";
+import { getPaymentLink } from "../../Config/stripeLinks";
 
 export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
   const [firstName, setFirstName] = useState("");
@@ -40,9 +40,9 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
       const userData: User = { id: credential.user.uid, firstName, lastName, email, password };
       setUser(userData);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(userData));
-      const planParam = searchParams.get("plan");
-      if (planParam && PAYMENT_LINKS[planParam]) {
-        window.location.href = PAYMENT_LINKS[planParam];
+      const paymentUrl = getPaymentLink(searchParams.get("plan"));
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
       } else {
         navigate("/HomePage");
       }
