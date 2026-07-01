@@ -283,6 +283,48 @@
   background: linear-gradient(135deg, var(--teal) 0%, #3d7080 100%);
   color: #fff;
 }
+.pp-card-btn--coming-soon {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  letter-spacing: 0.04em;
+}
+.pp-card-btn--coming-soon:hover { opacity: 0.45; transform: none; }
+
+/* ── Coming soon banner ── */
+.pp-coming-soon-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: 1px solid rgba(87, 132, 147, 0.4);
+  border-radius: 30px;
+  background: rgba(87, 132, 147, 0.1);
+  color: var(--teal-light);
+  font-family: "Inter-Medium", sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.pp-coming-soon-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--teal-light);
+  box-shadow: 0 0 6px var(--teal-light);
+  flex-shrink: 0;
+  animation: pp-pulse 2s ease-in-out infinite;
+}
+@keyframes pp-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.pp-coming-soon-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-top: 8px;
+  letter-spacing: 0.03em;
+}
 
 /* ── FAQ ── */
 .pp-faq {
