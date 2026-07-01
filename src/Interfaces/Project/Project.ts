@@ -12,5 +12,6 @@ export interface Project {
   cues: Cue[];
   cueAmount: number;
   owner: string;
+  teamId?: string;          // set when project belongs to a team
   fields: CustomField[];
 }

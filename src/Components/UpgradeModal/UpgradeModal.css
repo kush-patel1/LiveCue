@@ -90,3 +90,21 @@
   transition: color 0.2s;
 }
 .um-btn-ghost:hover { color: rgba(255, 255, 255, 0.7); }
+
+/* ── Team upgrade variant ───────────────────────────────────────────────────── */
+.um-card--team {
+  box-shadow: 0 0 60px rgba(120, 90, 200, 0.18), 0 24px 48px rgba(0,0,0,0.5);
+}
+.um-card--team::before {
+  background: linear-gradient(90deg, transparent, rgba(179,157,219,0.4), transparent);
+}
+
+.um-icon--team {
+  background: rgba(120, 90, 200, 0.18);
+  border-color: rgba(120, 90, 200, 0.35);
+  color: #b39ddb;
+}
+
+.um-btn-primary--team {
+  background: linear-gradient(135deg, #7c5cbf 0%, #5e3d9e 100%);
+}
