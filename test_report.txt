@@ -80,14 +80,14 @@ All files                      |       0 |        0 |       0 |       0 |
  src/Pages/Live Cue Sheet      |       0 |        0 |       0 |       0 |                   
   LiveCueSheet.tsx             |       0 |        0 |       0 |       0 | 16-301            
  src/Pages/Login Page          |       0 |        0 |       0 |       0 |                   
-  Login.tsx                    |       0 |        0 |       0 |       0 | 14-96             
+  Login.tsx                    |       0 |        0 |       0 |       0 | 13-95             
   LoginProps.ts                |       0 |        0 |       0 |       0 |                   
  src/Pages/Pricing Page        |       0 |        0 |       0 |       0 |                   
-  PricingPage.tsx              |       0 |        0 |       0 |       0 | 10-262            
+  PricingPage.tsx              |       0 |        0 |       0 |       0 | 6-237             
  src/Pages/Settings Page       |       0 |        0 |       0 |       0 |                   
   SettingsPage.tsx             |       0 |        0 |       0 |       0 | 25-487            
  src/Pages/SignUp              |       0 |        0 |       0 |       0 |                   
-  SignUp.tsx                   |       0 |        0 |       0 |       0 | 13-117            
+  SignUp.tsx                   |       0 |        0 |       0 |       0 | 12-116            
   SignUpProps.ts               |       0 |        0 |       0 |       0 |                   
  src/Services/PlanService      |       0 |      100 |       0 |       0 |                   
   grantCheck.ts                |       0 |      100 |       0 |       0 | 9-11              
@@ -99,5 +99,5 @@ All files                      |       0 |        0 |       0 |       0 |
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        4.078 s
+Time:        4.027 s
 Ran all test suites.
