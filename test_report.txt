@@ -30,7 +30,7 @@ File                           | % Stmts | % Branch | % Funcs | % Lines | Uncove
 -------------------------------|---------|----------|---------|---------|-------------------
 All files                      |       0 |        0 |       0 |       0 |                   
  src                           |       0 |        0 |       0 |       0 |                   
-  App.tsx                      |       0 |      100 |       0 |       0 | 23-26             
+  App.tsx                      |       0 |      100 |       0 |       0 | 24-33             
   ThemeContext.tsx             |       0 |        0 |       0 |       0 | 10-35             
   index.tsx                    |       0 |      100 |     100 |       0 | 7-20              
   reportWebVitals.ts           |       0 |        0 |       0 |       0 | 3-10              
@@ -43,13 +43,13 @@ All files                      |       0 |        0 |       0 |       0 |
   LoadingScreen.tsx            |       0 |      100 |       0 |       0 | 4                 
  src/Components/ProtectedRoute |       0 |        0 |       0 |       0 |                   
   ProtectedRoute.tsx           |       0 |        0 |       0 |       0 | 12-23             
- src/Components/UpgradeModal   |       0 |      100 |       0 |       0 |                   
-  UpgradeModal.tsx             |       0 |      100 |       0 |       0 | 6-38              
+ src/Components/UpgradeModal   |       0 |        0 |       0 |       0 |                   
+  UpgradeModal.tsx             |       0 |        0 |       0 |       0 | 22-104            
  src/Config                    |       0 |        0 |       0 |       0 |                   
   planLimits.ts                |       0 |      100 |     100 |       0 | 10                
   stripeLinks.ts               |       0 |        0 |       0 |       0 | 1-13              
  src/Hooks                     |       0 |        0 |       0 |       0 |                   
-  usePlan.ts                   |       0 |        0 |       0 |       0 | 18-70             
+  usePlan.ts                   |       0 |        0 |       0 |       0 | 20-99             
  src/Interfaces/Cue            |       0 |        0 |       0 |       0 |                   
   Cue.ts                       |       0 |        0 |       0 |       0 |                   
  src/Interfaces/CustomField    |       0 |      100 |     100 |       0 |                   
@@ -59,9 +59,13 @@ All files                      |       0 |        0 |       0 |       0 |
  src/Interfaces/Responses      |       0 |        0 |       0 |       0 |                   
   ApiCallResponse.ts           |       0 |        0 |       0 |       0 |                   
   ApiCallResponseError.ts      |       0 |        0 |       0 |       0 |                   
+ src/Interfaces/Team           |       0 |        0 |       0 |       0 |                   
+  Team.ts                      |       0 |        0 |       0 |       0 |                   
  src/Interfaces/User           |       0 |        0 |       0 |       0 |                   
   User.ts                      |       0 |        0 |       0 |       0 |                   
   UserProjectData.ts           |       0 |        0 |       0 |       0 |                   
+ src/Pages/AcceptInvite        |       0 |        0 |       0 |       0 |                   
+  AcceptInvite.tsx             |       0 |        0 |       0 |       0 | 11-137            
  src/Pages/Admin Page          |       0 |        0 |       0 |       0 |                   
   AdminPage.tsx                |       0 |        0 |       0 |       0 | 15-575            
  src/Pages/Checkout            |       0 |        0 |       0 |       0 |                   
@@ -74,7 +78,7 @@ All files                      |       0 |        0 |       0 |       0 |
  src/Pages/Demo Page           |       0 |        0 |       0 |       0 |                   
   DemoPage.tsx                 |       0 |        0 |       0 |       0 | 9-56              
  src/Pages/Home Page           |       0 |        0 |       0 |       0 |                   
-  HomePage.tsx                 |       0 |        0 |       0 |       0 | 24-432            
+  HomePage.tsx                 |       0 |        0 |       0 |       0 | 24-459            
  src/Pages/Landing Page        |       0 |      100 |       0 |       0 |                   
   LandingPage.tsx              |       0 |      100 |       0 |       0 | 6-355             
  src/Pages/Live Cue Sheet      |       0 |        0 |       0 |       0 |                   
@@ -85,7 +89,7 @@ All files                      |       0 |        0 |       0 |       0 |
  src/Pages/Pricing Page        |       0 |        0 |       0 |       0 |                   
   PricingPage.tsx              |       0 |        0 |       0 |       0 | 6-237             
  src/Pages/Settings Page       |       0 |        0 |       0 |       0 |                   
-  SettingsPage.tsx             |       0 |        0 |       0 |       0 | 25-487            
+  SettingsPage.tsx             |       0 |        0 |       0 |       0 | 28-659            
  src/Pages/SignUp              |       0 |        0 |       0 |       0 |                   
   SignUp.tsx                   |       0 |        0 |       0 |       0 | 12-116            
   SignUpProps.ts               |       0 |        0 |       0 |       0 |                   
@@ -93,11 +97,13 @@ All files                      |       0 |        0 |       0 |       0 |
   grantCheck.ts                |       0 |      100 |       0 |       0 | 9-11              
  src/Services/StripeService    |       0 |        0 |       0 |       0 |                   
   stripeService.ts             |       0 |        0 |       0 |       0 | 3-49              
+ src/Services/TeamService      |       0 |      100 |       0 |       0 |                   
+  teamService.ts               |       0 |      100 |       0 |       0 | 3-22              
  src/Services/UserServices     |       0 |      100 |       0 |       0 |                   
   UserCredentialService.ts     |       0 |      100 |       0 |       0 | 6-25              
 -------------------------------|---------|----------|---------|---------|-------------------
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        4.027 s
+Time:        3.972 s
 Ran all test suites.
