@@ -7,7 +7,6 @@ import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import "../Login Page/Login.css";
 import "./SignUp.css";
-import { getPaymentLink } from "../../Config/stripeLinks";
 
 export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
   const [firstName, setFirstName] = useState("");
@@ -40,9 +39,9 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
       const userData: User = { id: credential.user.uid, firstName, lastName, email, password };
       setUser(userData);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(userData));
-      const paymentUrl = getPaymentLink(searchParams.get("plan"));
-      if (paymentUrl) {
-        window.location.href = paymentUrl;
+      const redirect = searchParams.get("redirect");
+      if (redirect) {
+        navigate(redirect);
       } else {
         navigate("/HomePage");
       }
@@ -126,7 +125,16 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
 
         <p className="auth-footer">
           Already have an account?{' '}
-          <Link to={searchParams.get("plan") ? `/login?plan=${searchParams.get("plan")}` : "/login"} className="auth-link">Sign in</Link>
+          <Link
+            to={
+              searchParams.get("redirect")
+                ? `/login?redirect=${encodeURIComponent(searchParams.get("redirect")!)}`
+                : searchParams.get("plan")
+                  ? `/login?plan=${searchParams.get("plan")}`
+                  : "/login"
+            }
+            className="auth-link"
+          >Sign in</Link>
         </p>
       </div>
     </div>

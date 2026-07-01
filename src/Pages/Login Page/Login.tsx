@@ -8,7 +8,6 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { User as FirebaseUser } from "firebase/auth";
 import { User } from "../../Interfaces/User/User";
-import { getPaymentLink } from "../../Config/stripeLinks";
 
 function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser): User {
   return {
@@ -44,9 +43,9 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
       const appUser = mapFirebaseUserToAppUser(credential.user);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(appUser));
       setUser(appUser);
-      const paymentUrl = getPaymentLink(searchParams.get("plan"));
-      if (paymentUrl) {
-        window.location.href = paymentUrl;
+      const redirect = searchParams.get("redirect");
+      if (redirect) {
+        navigate(redirect);
       } else {
         navigate("/HomePage");
       }
@@ -104,7 +103,16 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
 
         <p className="auth-footer">
           Don't have an account?{' '}
-          <Link to={searchParams.get("plan") ? `/signup?plan=${searchParams.get("plan")}` : "/signup"} className="auth-link">Sign up</Link>
+          <Link
+            to={
+              searchParams.get("redirect")
+                ? `/signup?redirect=${encodeURIComponent(searchParams.get("redirect")!)}`
+                : searchParams.get("plan")
+                  ? `/signup?plan=${searchParams.get("plan")}`
+                  : "/signup"
+            }
+            className="auth-link"
+          >Sign up</Link>
         </p>
       </div>
     </div>

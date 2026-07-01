@@ -2,19 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PricingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
-import { PAYMENT_LINKS, PlanPriceKey } from "../../Config/stripeLinks";
-import { usePlan } from "../../Hooks/usePlan";
-
-type PriceKey = PlanPriceKey;
 
 const PLANS = {
   monthly: {
-    pro:  { price: "14", period: "per month",                 savings: "Save $48 with annual",   priceKey: "pro_monthly"  as PriceKey },
-    team: { price: "39", period: "per month",                 savings: "Save $119 with annual",  priceKey: "team_monthly" as PriceKey },
+    pro:  { price: "14", period: "per month",                 savings: "Save $48 with annual",   priceKey: "pro_monthly" },
+    team: { price: "39", period: "per month",                 savings: "Save $119 with annual",  priceKey: "team_monthly"},
   },
   annual: {
-    pro:  { price: "10", period: "per month, billed $120/yr", savings: "You're saving $48",      priceKey: "pro_annual"   as PriceKey },
-    team: { price: "29", period: "per month, billed $349/yr", savings: "You're saving $119",     priceKey: "team_annual"  as PriceKey },
+    pro:  { price: "10", period: "per month, billed $120/yr", savings: "You're saving $48",      priceKey: "pro_annual"  },
+    team: { price: "29", period: "per month, billed $349/yr", savings: "You're saving $119",     priceKey: "team_annual" },
   },
 };
 
@@ -37,25 +33,7 @@ const CROSS = (
 function PricingPage() {
   const navigate = useNavigate();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
-  const [checkoutLoading, setCheckoutLoading] = useState<PriceKey | null>(null);
   const plan = PLANS[billing];
-
-  const currentUser = JSON.parse(sessionStorage.getItem("CURRENT_USER") || "null");
-  const { plan: currentPlan } = usePlan(currentUser?.id ?? null);
-
-  const handleCheckout = (priceKey: PriceKey) => {
-    if (!currentUser?.id) {
-      navigate(`/signup?plan=${priceKey}`);
-      return;
-    }
-    // Prevent duplicate subscriptions — send existing subscribers to the portal
-    if (currentPlan === "pro" || currentPlan === "team") {
-      navigate("/settings");
-      return;
-    }
-    setCheckoutLoading(priceKey);
-    window.location.href = `${PAYMENT_LINKS[priceKey]}?client_reference_id=${currentUser.id}`;
-  };
 
   return (
     <div className="lp-root">
@@ -89,6 +67,10 @@ function PricingPage() {
         <p className="pp-hero-sub">
           No hidden fees. No long-term contracts. Start free and upgrade when you're ready.
         </p>
+        <div className="pp-coming-soon-banner">
+          <span className="pp-coming-soon-dot" />
+          Paid plans are coming soon — subscriptions are not yet available.
+        </div>
 
         {/* Billing toggle */}
         <div className="pp-toggle glass-card">
@@ -134,6 +116,7 @@ function PricingPage() {
             <button className="pp-card-btn pp-card-btn--outline" onClick={() => navigate("/signup")}>
               Get Started Free
             </button>
+            <div className="pp-coming-soon-label">Free plan always available</div>
           </div>
 
           {/* Pro (featured) */}
@@ -156,12 +139,8 @@ function PricingPage() {
                   <li key={f} className="pp-feat pp-feat--yes"><span className="pp-feat-icon pp-feat-icon--yes">{CHECK}</span>{f}</li>
                 ))}
               </ul>
-              <button
-                className="pp-card-btn pp-card-btn--primary"
-                onClick={() => handleCheckout(plan.pro.priceKey)}
-                disabled={checkoutLoading !== null}
-              >
-                {checkoutLoading === plan.pro.priceKey ? "Redirecting…" : "Start Pro"}
+              <button className="pp-card-btn pp-card-btn--primary pp-card-btn--coming-soon" disabled>
+                Coming Soon
               </button>
             </div>
           </div>
@@ -184,12 +163,8 @@ function PricingPage() {
                 <li key={f} className="pp-feat pp-feat--yes"><span className="pp-feat-icon pp-feat-icon--yes">{CHECK}</span>{f}</li>
               ))}
             </ul>
-            <button
-              className="pp-card-btn pp-card-btn--teal"
-              onClick={() => handleCheckout(plan.team.priceKey)}
-              disabled={checkoutLoading !== null}
-            >
-              {checkoutLoading === plan.team.priceKey ? "Redirecting…" : "Start Team"}
+            <button className="pp-card-btn pp-card-btn--teal pp-card-btn--coming-soon" disabled>
+              Coming Soon
             </button>
           </div>
 
