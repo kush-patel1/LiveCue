@@ -101,7 +101,7 @@ function AdminPage({ projects }: AdminPageProps) {
   const liveCardRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const shareUrl = `https://kush-patel1.github.io/LiveCue/#/LiveCueSheet/${projectId}`;
+  const shareUrl = `https://live-cue.com/#/LiveCueSheet/${projectId}`;
 
   // Initial load + project metadata
   useEffect(() => {
