@@ -11,4 +11,5 @@ export interface User {
   planExpiry?: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  teamId?: string;          // set when user owns or is a member of a team
 }

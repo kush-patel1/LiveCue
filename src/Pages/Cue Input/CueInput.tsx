@@ -212,7 +212,7 @@ function CueInput({ projects }: CueInputProps) {
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
 
   const uid = (JSON.parse(sessionStorage.getItem('CURRENT_USER') || 'null'))?.id ?? null;
-  const { canAddCue, canUseCustomFields, canDragReorder, canUseAIImport } = usePlan(uid);
+  const { plan, canAddCue, canUseCustomFields, canDragReorder, canUseAIImport } = usePlan(uid);
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState<'text' | 'time'>('text');
   const [deleteCueId, setDeleteCueId] = useState<string | null>(null);
@@ -588,7 +588,7 @@ function CueInput({ projects }: CueInputProps) {
       )}
 
       {upgradeFeature && (
-        <UpgradeModal feature={upgradeFeature} onClose={() => setUpgradeFeature(null)} />
+        <UpgradeModal feature={upgradeFeature} currentPlan={plan} onClose={() => setUpgradeFeature(null)} />
       )}
 
     </div>

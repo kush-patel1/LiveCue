@@ -58,7 +58,8 @@ function nextUpcomingProject(projects: Project[]): Project | null {
 
 const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUser }) => {
   const navigate = useNavigate();
-  const { canCreateProject } = usePlan(user?.id);
+  const { plan, canCreateProject, teamId, isTeamOwner } = usePlan(user?.id);
+  const isTeamMember = !!teamId && !isTeamOwner;
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
@@ -101,6 +102,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
       cues: [],
       cueAmount: 0,
       owner: user.id,
+      ...(teamId ? { teamId } : {}),
       fields: DEFAULT_FIELDS,
     };
 
@@ -141,6 +143,14 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // When team membership resolves, re-fetch so members see the owner's projects.
+  useEffect(() => {
+    if (!user?.id) return;
+    const unsub = fetchProjects(user.id);
+    return unsub;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamId, isTeamOwner]);
+
   const fetchCues = async (projectId: string): Promise<Cue[]> => {
     try {
       const snap = await getDocs(query(collection(db, 'cues'), where('projectRef', '==', projectId)));
@@ -151,7 +161,11 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
   };
 
   const fetchProjects = (userId: string): (() => void) => {
-    const q = query(collection(db, 'projects'), where('owner', '==', userId));
+    // Members see all projects belonging to the team (queried by teamId).
+    // Owners and solo users see their own projects (queried by owner uid).
+    const q = isTeamMember && teamId
+      ? query(collection(db, 'projects'), where('teamId', '==', teamId))
+      : query(collection(db, 'projects'), where('owner', '==', userId));
     const unsub = onSnapshot(q, async (snap) => {
       try {
         const list: Project[] = [];
@@ -288,9 +302,18 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
 
         {/* Project list */}
         <div className="hp-section-header">
-          <span className="hp-section-title">Your projects</span>
+          <span className="hp-section-title">{isTeamMember ? 'Team projects' : 'Your projects'}</span>
           <span className="hp-section-count">{projects.length} total</span>
         </div>
+
+        {/* Seats nudge for Pro users */}
+        {plan === 'pro' && (
+          <div className="hp-team-nudge" onClick={() => setUpgradeFeature('seats')}>
+            <span className="hp-team-nudge-icon">👥</span>
+            <span className="hp-team-nudge-text">Want to collaborate? <strong>Upgrade to Team</strong> for 5 shared seats.</span>
+            <span className="hp-team-nudge-arrow">→</span>
+          </div>
+        )}
 
         <div className="hp-list">
           {sorted.length === 0 && (
@@ -323,8 +346,12 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
                   <div className="hp-card-actions">
                     <button className="hp-act hp-act-edit" title="Edit" onClick={() => navigate(`/CueInput/${project.firebaseID}`)}>✎</button>
                     <button className="hp-act hp-act-live" title="Go Live" onClick={() => navigate(`/AdminPage/${project.firebaseID}`)}>⊙</button>
-                    <div className="hp-act-divider" />
-                    <button className="hp-act hp-act-del" title="Delete" onClick={() => setDeleteProjectId(project.firebaseID)}>⌫</button>
+                    {project.owner === user?.id && (
+                      <>
+                        <div className="hp-act-divider" />
+                        <button className="hp-act hp-act-del" title="Delete" onClick={() => setDeleteProjectId(project.firebaseID)}>⌫</button>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -398,7 +425,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
 
       {/* ── Upgrade modal ── */}
       {upgradeFeature && (
-        <UpgradeModal feature={upgradeFeature} onClose={() => setUpgradeFeature(null)} />
+        <UpgradeModal feature={upgradeFeature} currentPlan={plan} onClose={() => setUpgradeFeature(null)} />
       )}
 
       {/* ── New project modal ── */}

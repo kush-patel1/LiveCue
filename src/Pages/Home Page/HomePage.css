@@ -618,6 +618,37 @@
 
 .confirm-btn-delete:hover { background: #7d4848; }
 
+/* ── Team seats nudge (Pro users) ──────────────────────────────────────────── */
+.hp-team-nudge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px;
+  margin-bottom: 12px;
+  background: rgba(120, 90, 200, 0.08);
+  border: 1px solid rgba(120, 90, 200, 0.22);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.hp-team-nudge:hover {
+  background: rgba(120, 90, 200, 0.14);
+  border-color: rgba(120, 90, 200, 0.38);
+}
+.hp-team-nudge-icon { font-size: 15px; flex-shrink: 0; }
+.hp-team-nudge-text {
+  flex: 1;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: rgba(255, 255, 255, 0.6);
+}
+.hp-team-nudge-text strong { color: #b39ddb; font-weight: 600; }
+.hp-team-nudge-arrow {
+  font-size: 14px;
+  color: rgba(179, 157, 219, 0.6);
+  flex-shrink: 0;
+}
+
 /* ── Inter font weights ─────────────────────────────────────────────────────── */
 .inter-regular  { font-family: 'Inter', sans-serif; font-weight: 400; }
 .inter-medium   { font-family: 'Inter', sans-serif; font-weight: 500; }

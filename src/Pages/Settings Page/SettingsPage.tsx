@@ -9,10 +9,13 @@ import {
   updateEmail, updatePassword, deleteUser,
   reauthenticateWithCredential, EmailAuthProvider, updateProfile,
 } from '../../Backend/firebase';
+import { getDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { usePlan } from '../../Hooks/usePlan';
 import { redirectToCustomerPortal } from '../../Services/StripeService/stripeService';
+import { inviteTeamMember, removeTeamMember } from '../../Services/TeamService/teamService';
 import { PLAN_LIMITS } from '../../Config/planLimits';
+import { Team } from '../../Interfaces/Team/Team';
 
 interface SettingsPageProps {
   projects: Project[];
@@ -25,8 +28,15 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const currentUser = auth.currentUser;
-  const { plan, loading: planLoading, hasStripeSubscription } = usePlan(currentUser?.uid);
+  const { plan, loading: planLoading, hasStripeSubscription, teamId } = usePlan(currentUser?.uid);
   const [portalLoading, setPortalLoading] = useState(false);
+
+  // ── Team state ─────────────────────────────────────────────────────────────
+  const [teamData, setTeamData] = useState<Team | null>(null);
+  const [teamLoading, setTeamLoading] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const planLimits = PLAN_LIMITS[plan];
   const isPaid = plan === 'pro' || plan === 'team';
@@ -69,6 +79,63 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
     setLastName(parts.slice(1).join(' ') || '');
     setNewEmail(currentUser.email || '');
   }, [currentUser]);
+
+  useEffect(() => {
+    if (!teamId) { setTeamData(null); return; }
+    setTeamLoading(true);
+    getDoc(doc(db, 'teams', teamId))
+      .then(snap => { if (snap.exists()) setTeamData({ id: snap.id, ...snap.data() } as Team); })
+      .catch(() => {})
+      .finally(() => setTeamLoading(false));
+  }, [teamId]);
+
+  const reloadTeam = async () => {
+    if (!teamId) return;
+    const snap = await getDoc(doc(db, 'teams', teamId));
+    if (snap.exists()) setTeamData({ id: snap.id, ...snap.data() } as Team);
+  };
+
+  const handleInvite = async () => {
+    const email = inviteEmail.trim().toLowerCase();
+    if (!email) return;
+    setInviteLoading(true);
+    try {
+      await inviteTeamMember(email);
+      setInviteEmail('');
+      await reloadTeam();
+      flash(`Invite sent to ${email}`);
+    } catch (e: any) {
+      flash(e.message || 'Failed to send invite.', false);
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const handleRemoveMember = async (uid: string) => {
+    setRemovingId(uid);
+    try {
+      await removeTeamMember({ uid });
+      await reloadTeam();
+      flash('Member removed.');
+    } catch (e: any) {
+      flash(e.message || 'Failed to remove member.', false);
+    } finally {
+      setRemovingId(null);
+    }
+  };
+
+  const handleRevokeInvite = async (email: string) => {
+    setRemovingId(email);
+    try {
+      await removeTeamMember({ email });
+      await reloadTeam();
+      flash('Invite revoked.');
+    } catch (e: any) {
+      flash(e.message || 'Failed to revoke invite.', false);
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
   const flash = (msg: string, ok = true) => {
     setFeedback({ msg, ok });
@@ -315,6 +382,111 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
 
             </div>
           </div>
+
+          {/* ── Team ── */}
+          {plan === 'team' && teamId && (
+            <div className="sp-section">
+              <div className="sp-section-label">Team</div>
+              <div className="sp-card">
+                <div className="sp-team-header">
+                  <div className="sp-card-title">Team Members</div>
+                  {teamData && (
+                    <span className="sp-team-seats">
+                      {(teamData.memberIds?.length ?? 0) + 1} / {teamData.seats} seats used
+                    </span>
+                  )}
+                </div>
+                <div className="sp-card-desc">
+                  Invite teammates by email. They'll receive a sign-in link granting them team access.
+                </div>
+
+                {teamLoading ? (
+                  <div className="sp-team-empty">Loading…</div>
+                ) : (
+                  <>
+                    {/* Owner row */}
+                    <div className="sp-team-list">
+                      <div className="sp-team-member">
+                        <div className="sp-team-avatar">
+                          {(currentUser?.displayName?.[0] ?? currentUser?.email?.[0] ?? '?').toUpperCase()}
+                        </div>
+                        <div className="sp-team-member-info">
+                          <span className="sp-team-member-name">
+                            {currentUser?.displayName || currentUser?.email}
+                          </span>
+                          <span className="sp-team-member-role">Owner</span>
+                        </div>
+                      </div>
+
+                      {/* Accepted members */}
+                      {(teamData?.memberIds ?? []).map(uid => (
+                        <div key={uid} className="sp-team-member">
+                          <div className="sp-team-avatar sp-team-avatar--member">M</div>
+                          <div className="sp-team-member-info">
+                            <span className="sp-team-member-name sp-team-member-uid">{uid}</span>
+                            <span className="sp-team-member-role">Member</span>
+                          </div>
+                          <button
+                            className="sp-team-remove"
+                            onClick={() => handleRemoveMember(uid)}
+                            disabled={removingId === uid}
+                          >
+                            {removingId === uid ? '…' : 'Remove'}
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* Pending invites */}
+                      {(teamData?.pendingInvites ?? []).map(email => (
+                        <div key={email} className="sp-team-member sp-team-member--pending">
+                          <div className="sp-team-avatar sp-team-avatar--pending">?</div>
+                          <div className="sp-team-member-info">
+                            <span className="sp-team-member-name">{email}</span>
+                            <span className="sp-team-member-role sp-team-member-role--pending">Invite pending</span>
+                          </div>
+                          <button
+                            className="sp-team-remove"
+                            onClick={() => handleRevokeInvite(email)}
+                            disabled={removingId === email}
+                          >
+                            {removingId === email ? '…' : 'Revoke'}
+                          </button>
+                        </div>
+                      ))}
+
+                      {(teamData?.memberIds?.length ?? 0) === 0 &&
+                       (teamData?.pendingInvites?.length ?? 0) === 0 && (
+                        <div className="sp-team-empty">No members yet. Send your first invite below.</div>
+                      )}
+                    </div>
+
+                    {/* Invite input */}
+                    {teamData && (teamData.memberIds?.length ?? 0) < (teamData.seats - 1) ? (
+                      <div className="sp-team-invite">
+                        <input
+                          className="sp-input"
+                          type="email"
+                          placeholder="teammate@example.com"
+                          value={inviteEmail}
+                          onChange={e => setInviteEmail(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') handleInvite(); }}
+                        />
+                        <button
+                          className="sp-btn-save"
+                          onClick={handleInvite}
+                          disabled={!inviteEmail.trim() || inviteLoading}
+                        >
+                          {inviteLoading ? 'Sending…' : 'Send Invite'}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="sp-team-full">All seats are filled. Remove a member to invite someone new.</div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ── Account ── */}
           <div className="sp-section">

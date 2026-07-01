@@ -7,8 +7,14 @@ service cloud.firestore {
     function isPlanField(data) {
       return data.keys().hasAny([
         'plan', 'planOverride', 'planExpiry',
-        'stripeCustomerId', 'stripeSubscriptionId'
+        'stripeCustomerId', 'stripeSubscriptionId', 'teamId'
       ]);
+    }
+
+    // Returns true if the calling user is a member or owner of a team.
+    function isTeamMember(teamId) {
+      let team = get(/databases/$(database)/documents/teams/$(teamId)).data;
+      return team.ownerId == request.auth.uid || team.memberIds.hasAny([request.auth.uid]);
     }
 
     // Users can read their own document and write non-plan fields only.
@@ -27,13 +33,36 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Cues and projects: any authenticated user.
+    // Teams: owner can read/write their team doc (members list, invites).
+    // Members can read the team doc (to resolve team membership in usePlan).
+    // All writes go through Cloud Functions except owner managing invites.
+    match /teams/{teamId} {
+      allow read: if request.auth != null && isTeamMember(teamId);
+      allow write: if request.auth != null
+        && get(/databases/$(database)/documents/teams/$(teamId)).data.ownerId == request.auth.uid;
+    }
+
+    // Cues: authenticated user who can read the parent project may read/write its cues.
+    // projectRef on the cue doc holds the Firestore project document ID.
     match /cues/{docId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if request.auth != null && (
+        resource == null
+        || (
+          get(/databases/$(database)/documents/projects/$(resource.data.projectRef)).data.owner == request.auth.uid
+          || (
+            get(/databases/$(database)/documents/projects/$(resource.data.projectRef)).data.teamId != null
+            && isTeamMember(get(/databases/$(database)/documents/projects/$(resource.data.projectRef)).data.teamId)
+          )
+        )
+      );
     }
 
     match /projects/{docId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if request.auth != null && (
+        resource == null
+        || resource.data.owner == request.auth.uid
+        || (resource.data.teamId != null && isTeamMember(resource.data.teamId))
+      );
     }
   }
 }
