@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 import "./CheckoutSuccess.css";
 
 function CheckoutSuccess() {
+  usePageTitle("Welcome to Pro");
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(5);
 

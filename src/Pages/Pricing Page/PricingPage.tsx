@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import "./PricingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 
@@ -31,6 +32,7 @@ const CROSS = (
 );
 
 function PricingPage() {
+  usePageTitle("Pricing");
   const navigate = useNavigate();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const plan = PLANS[billing];

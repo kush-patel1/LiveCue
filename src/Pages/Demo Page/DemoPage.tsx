@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../Backend/firebase";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
@@ -10,6 +11,7 @@ const DEMO_EMAIL = process.env.REACT_APP_DEMO_EMAIL || "";
 const DEMO_PASSWORD = process.env.REACT_APP_DEMO_PASSWORD || "";
 
 function DemoPage() {
+  usePageTitle("Demo");
   const navigate = useNavigate();
   const [error, setError] = useState("");
 

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { usePageTitle } from '../../Hooks/usePageTitle';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LoadingScreen } from '../../Components/LoadingScreen/LoadingScreen';
 import './CueInput.css';
@@ -206,6 +207,7 @@ function CueInput({ projects }: CueInputProps) {
   const { projectId } = useParams();
   const [cues, setCues] = useState<Cue[]>([]);
   const [project, setProject] = useState<Project | null>(null);
+  usePageTitle(project ? project.title : "Cue Editor");
   const [fields, setFields] = useState<CustomField[]>(DEFAULT_FIELDS);
   const [showFieldModal, setShowFieldModal] = useState(false);
   const [showAIImport, setShowAIImport] = useState(false);
