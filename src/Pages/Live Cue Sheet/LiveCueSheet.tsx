@@ -13,12 +13,23 @@ interface LiveCueSheetProps {
   projects: Project[];
 }
 
+// Returns seconds-since-midnight for a given ISO string, ignoring the date portion
+function timeOfDaySecs(iso: string): number {
+  const d = new Date(iso);
+  return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+}
+
+// Difference in seconds between two ISO times using only their time-of-day (a - b)
+function todDiffSecs(aIso: string, bIso: string): number {
+  return timeOfDaySecs(aIso) - timeOfDaySecs(bIso);
+}
+
 function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 function fmtDuration(startIso: string, endIso: string) {
-  const mins = Math.round((new Date(endIso).getTime() - new Date(startIso).getTime()) / 60000);
+  const mins = Math.round(todDiffSecs(endIso, startIso) / 60);
   if (mins <= 0) return '—';
   if (mins < 60) return `${mins}m`;
   const h = Math.floor(mins / 60);
@@ -26,14 +37,17 @@ function fmtDuration(startIso: string, endIso: string) {
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
-function fmtCountdown(ms: number): string {
-  const abs = Math.abs(ms);
-  const totalSecs = Math.floor(abs / 1000);
-  const h = Math.floor(totalSecs / 3600);
-  const m = Math.floor((totalSecs % 3600) / 60);
-  const s = totalSecs % 60;
+function fmtCountdown(absSecs: number): string {
+  const h = Math.floor(absSecs / 3600);
+  const m = Math.floor((absSecs % 3600) / 60);
+  const s = absSecs % 60;
   if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+// Seconds since midnight for the live clock
+function nowSecs(now: Date): number {
+  return now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 }
 
 const BROADCAST_EXPIRY_MS = 2 * 60 * 1000; // 2 minutes
@@ -142,9 +156,10 @@ function LiveCueSheet({ projects }: LiveCueSheetProps) {
   const sorted = [...cues].sort((a, b) => a.cueNumber - b.cueNumber);
   const liveIndex = sorted.findIndex(c => c.isLive);
   const liveCue = liveIndex >= 0 ? sorted[liveIndex] : null;
+  const ns = nowSecs(now);
   const nextCue = liveIndex >= 0
     ? sorted[liveIndex + 1]
-    : sorted.find(c => new Date(c.startTime) > now);
+    : sorted.find(c => timeOfDaySecs(c.startTime) > ns);
 
   if (loading) return <LoadingScreen />;
 
@@ -194,14 +209,14 @@ function LiveCueSheet({ projects }: LiveCueSheetProps) {
           <span className="lcs-status-title">{liveCue.cueNumber} — {liveCue.title}</span>
           <span className="lcs-status-sep">·</span>
           <span className="lcs-status-meta">
-            +{fmtCountdown(Math.max(0, now.getTime() - new Date(liveCue.startTime).getTime()))} elapsed
+            +{fmtCountdown(Math.max(0, ns - timeOfDaySecs(liveCue.startTime)))} elapsed
           </span>
           {nextCue && (
             <>
               <span className="lcs-status-sep">·</span>
               <span className="lcs-status-meta">
                 Up next: <strong>{nextCue.title}</strong>
-                {' '}in {fmtCountdown(Math.abs(new Date(nextCue.startTime).getTime() - now.getTime()))}
+                {' '}in {fmtCountdown(Math.max(0, timeOfDaySecs(nextCue.startTime) - ns))}
               </span>
             </>
           )}
@@ -212,7 +227,7 @@ function LiveCueSheet({ projects }: LiveCueSheetProps) {
           <span className="lcs-status-title">{nextCue.title}</span>
           <span className="lcs-status-sep">·</span>
           <span className="lcs-status-meta">
-            starts in {fmtCountdown(Math.max(0, new Date(nextCue.startTime).getTime() - now.getTime()))}
+            starts in {fmtCountdown(Math.max(0, timeOfDaySecs(nextCue.startTime) - ns))}
           </span>
         </div>
       ) : null}

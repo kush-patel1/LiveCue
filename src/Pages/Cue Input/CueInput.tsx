@@ -74,7 +74,7 @@ function SortableFieldHeader({ field, onRemove }: {
   );
 }
 
-function cascadeTimes(cues: Cue[]): Cue[] {
+/*function cascadeTimes(cues: Cue[]): Cue[] {
   const result = [...cues];
   for (let i = 1; i < result.length; i++) {
     const prev = result[i - 1];
@@ -85,7 +85,7 @@ function cascadeTimes(cues: Cue[]): Cue[] {
     result[i] = { ...curr, startTime: newStart.toISOString(), endTime: newEnd.toISOString() };
   }
   return result;
-}
+}*/
 
 function SortableCueRow({
   cue, index, fields, isLast, dragEnabled, onInputChange, onTimeChange, onDelete,
@@ -321,11 +321,14 @@ function CueInput({ projects }: CueInputProps) {
     setSaveStatus('saving');
     const updated = [...cues];
     updated[index] = { ...updated[index], [field]: fromTimeInput(timeStr, updated[index][field]) };
-    const cascaded = cascadeTimes(updated);
-    setCues(cascaded);
-    cascaded.slice(index).forEach((c) => debouncedUpdate(c));
-    // Keep homepage start time in sync when first cue's start changes
-    if (index === 0 && field === 'startTime') syncProjectMeta(cascaded);
+    // Keep the next cue's start time in sync with this cue's end time
+    if (field === 'endTime' && index + 1 < updated.length) {
+      updated[index + 1] = { ...updated[index + 1], startTime: updated[index].endTime };
+      debouncedUpdate(updated[index + 1]);
+    }
+    setCues(updated);
+    debouncedUpdate(updated[index]);
+    if (index === 0 && field === 'startTime') syncProjectMeta(updated);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -336,14 +339,12 @@ function CueInput({ projects }: CueInputProps) {
     const reordered = arrayMove(cues, oldIndex, newIndex).map((c, i) => ({
       ...c, cueNumber: i + 1, isLive: i === 0,
     }));
-    const cascaded = cascadeTimes(reordered);
-    setCues(cascaded);
-    syncProjectMeta(cascaded);
+    setCues(reordered);
+    syncProjectMeta(reordered);
     await Promise.all(
-      cascaded.map((c) =>
+      reordered.map((c) =>
         updateDoc(doc(db, 'cues', c.id), {
-          cueNumber: c.cueNumber, startTime: c.startTime,
-          endTime: c.endTime, isLive: c.isLive,
+          cueNumber: c.cueNumber, isLive: c.isLive,
         })
       )
     );

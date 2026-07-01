@@ -12,11 +12,14 @@ interface AdminPageProps {
   projects: Project[];
 }
 
+function todSecs(iso: string): number {
+  const d = new Date(iso);
+  return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+}
+
 function getDriftMinutes(cue: Cue): number | null {
   if (!cue.actualStartTime) return null;
-  return Math.round(
-    (new Date(cue.actualStartTime).getTime() - new Date(cue.startTime).getTime()) / 60000
-  );
+  return Math.round((todSecs(cue.actualStartTime) - todSecs(cue.startTime)) / 60);
 }
 
 function mapCue(data: any, id: string): Cue {
@@ -43,7 +46,7 @@ function fmtTime(iso: string) {
 }
 
 function fmtDuration(startIso: string, endIso: string) {
-  const mins = Math.round((new Date(endIso).getTime() - new Date(startIso).getTime()) / 60000);
+  const mins = Math.round((todSecs(endIso) - todSecs(startIso)) / 60);
   if (mins <= 0) return '—';
   if (mins < 60) return `${mins}m`;
   const h = Math.floor(mins / 60);
@@ -58,11 +61,11 @@ function fmtElapsed(seconds: number) {
   return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-function fmtCountdown(ms: number) {
-  const abs = Math.abs(ms);
-  const s = Math.floor(abs / 1000) % 60;
-  const m = Math.floor(abs / 60000) % 60;
-  const h = Math.floor(abs / 3600000);
+function fmtCountdown(secs: number) {
+  const abs = Math.abs(Math.round(secs));
+  const s = abs % 60;
+  const m = Math.floor(abs / 60) % 60;
+  const h = Math.floor(abs / 3600);
   if (h > 0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
@@ -161,18 +164,14 @@ function AdminPage({ projects }: AdminPageProps) {
   const nextCue = liveIdx >= 0 ? sorted[liveIdx + 1] : sorted[0];
   const globalDrift = liveCue ? getDriftMinutes(liveCue) : null;
 
-  const nextCueMs = nextCue
-    ? new Date(nextCue.startTime).getTime() - now.getTime()
-    : null;
+  const ns = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
-  const liveElapsedMs = liveCue
-    ? now.getTime() - new Date(liveCue.startTime).getTime()
-    : null;
-  const liveDurationMs = liveCue
-    ? new Date(liveCue.endTime).getTime() - new Date(liveCue.startTime).getTime()
-    : null;
-  const liveProgressPct = (liveElapsedMs != null && liveDurationMs && liveDurationMs > 0)
-    ? Math.min(100, Math.max(0, (liveElapsedMs / liveDurationMs) * 100))
+  const nextCueSecs = nextCue ? todSecs(nextCue.startTime) - ns : null;
+
+  const liveElapsedSecs = liveCue ? ns - todSecs(liveCue.startTime) : null;
+  const liveDurationSecs = liveCue ? todSecs(liveCue.endTime) - todSecs(liveCue.startTime) : null;
+  const liveProgressPct = (liveElapsedSecs != null && liveDurationSecs && liveDurationSecs > 0)
+    ? Math.min(100, Math.max(0, (liveElapsedSecs / liveDurationSecs) * 100))
     : 0;
 
   const toggleLive = async () => {
@@ -188,20 +187,9 @@ function AdminPage({ projects }: AdminPageProps) {
 
   const handleNextCue = async () => {
     if (liveIdx === -1 || liveIdx >= sorted.length - 1) return;
-    const ts = new Date().toISOString();
     const next = sorted[liveIdx + 1];
     await updateDoc(doc(db, 'cues', sorted[liveIdx].id), { isLive: false });
-    await updateDoc(doc(db, 'cues', next.id), { isLive: true, actualStartTime: ts });
-    const drift = Math.round((new Date(ts).getTime() - new Date(next.startTime).getTime()) / 60000);
-    if (Math.abs(drift) >= 2 && liveIdx + 1 < sorted.length - 1) {
-      const driftMs = drift * 60000;
-      await Promise.all(sorted.slice(liveIdx + 2).map(cue =>
-        updateDoc(doc(db, 'cues', cue.id), {
-          startTime: new Date(new Date(cue.startTime).getTime() + driftMs).toISOString(),
-          endTime:   new Date(new Date(cue.endTime).getTime()   + driftMs).toISOString(),
-        })
-      ));
-    }
+    await updateDoc(doc(db, 'cues', next.id), { isLive: true, actualStartTime: new Date().toISOString() });
   };
 
   const handlePrevCue = async () => {
@@ -372,21 +360,21 @@ function AdminPage({ projects }: AdminPageProps) {
                     <span className="adm-readout-key">NOW</span>
                     <span className="adm-readout-val">{liveCue.cueNumber}. {liveCue.title}</span>
                   </div>
-                  {liveElapsedMs != null && (
+                  {liveElapsedSecs != null && (
                     <div className="adm-readout-row">
                       <span className="adm-readout-key">ELAPSED</span>
-                      <span className="adm-readout-val adm-mono">{fmtCountdown(liveElapsedMs)}</span>
+                      <span className="adm-readout-val adm-mono">{fmtCountdown(liveElapsedSecs)}</span>
                     </div>
                   )}
                 </div>
               )}
 
-              {nextCue && nextCueMs != null && (
+              {nextCue && nextCueSecs != null && (
                 <div className="adm-next-cue-block">
                   <div className="adm-next-label">NEXT UP</div>
                   <div className="adm-next-title">{nextCue.cueNumber}. {nextCue.title}</div>
-                  <div className={`adm-next-countdown ${nextCueMs < 60000 ? 'adm-next-countdown--urgent' : ''}`}>
-                    {nextCueMs > 0 ? `in ${fmtCountdown(nextCueMs)}` : `${fmtCountdown(Math.abs(nextCueMs))} ago`}
+                  <div className={`adm-next-countdown ${nextCueSecs < 60 ? 'adm-next-countdown--urgent' : ''}`}>
+                    {nextCueSecs > 0 ? `in ${fmtCountdown(nextCueSecs)}` : `${fmtCountdown(Math.abs(nextCueSecs))} ago`}
                   </div>
                 </div>
               )}
