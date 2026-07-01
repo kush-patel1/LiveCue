@@ -188,20 +188,9 @@ function AdminPage({ projects }: AdminPageProps) {
 
   const handleNextCue = async () => {
     if (liveIdx === -1 || liveIdx >= sorted.length - 1) return;
-    const ts = new Date().toISOString();
     const next = sorted[liveIdx + 1];
     await updateDoc(doc(db, 'cues', sorted[liveIdx].id), { isLive: false });
-    await updateDoc(doc(db, 'cues', next.id), { isLive: true, actualStartTime: ts });
-    const drift = Math.round((new Date(ts).getTime() - new Date(next.startTime).getTime()) / 60000);
-    if (Math.abs(drift) >= 2 && liveIdx + 1 < sorted.length - 1) {
-      const driftMs = drift * 60000;
-      await Promise.all(sorted.slice(liveIdx + 2).map(cue =>
-        updateDoc(doc(db, 'cues', cue.id), {
-          startTime: new Date(new Date(cue.startTime).getTime() + driftMs).toISOString(),
-          endTime:   new Date(new Date(cue.endTime).getTime()   + driftMs).toISOString(),
-        })
-      ));
-    }
+    await updateDoc(doc(db, 'cues', next.id), { isLive: true, actualStartTime: new Date().toISOString() });
   };
 
   const handlePrevCue = async () => {
