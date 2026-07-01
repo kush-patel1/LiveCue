@@ -1,9 +1,11 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import "./ContactPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 
 function ContactPage() {
+  usePageTitle("Contact");
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);

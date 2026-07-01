@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import { LoadingScreen } from "../../Components/LoadingScreen/LoadingScreen";
 import { useNavigate, useParams } from "react-router-dom";
 import "./LiveCueSheet.css";
@@ -42,6 +43,7 @@ function LiveCueSheet({ projects }: LiveCueSheetProps) {
   const { projectId } = useParams<{ projectId: string }>();
   const [cues, setCues] = useState<Cue[]>([]);
   const [project, setProject] = useState<{ title: string; date: Date; fields: CustomField[] } | null>(null);
+  usePageTitle(project ? `${project.title} – Live` : "Live Cue Sheet");
   const [broadcast, setBroadcast] = useState<{ message: string; at: number } | null>(null);
   const [now, setNow] = useState(new Date());
   const [loading, setLoading] = useState(true);

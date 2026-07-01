@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '../../Hooks/usePageTitle';
 import { LoadingScreen } from '../../Components/LoadingScreen/LoadingScreen';
 import './HomePage.css';
 import logo from '../../Assets/Logo/LIVECUE-Logo.png';
@@ -57,6 +58,7 @@ function nextUpcomingProject(projects: Project[]): Project | null {
 }
 
 const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUser }) => {
+  usePageTitle("Projects");
   const navigate = useNavigate();
   const { plan, canCreateProject, teamId, isTeamOwner } = usePlan(user?.id);
   const isTeamMember = !!teamId && !isTeamOwner;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 import { auth } from "../../Backend/firebase";
 import { acceptTeamInvite } from "../../Services/TeamService/teamService";
@@ -8,6 +9,7 @@ import "./AcceptInvite.css";
 type State = "loading" | "success" | "error" | "no-invite";
 
 function AcceptInvite() {
+  usePageTitle("Team Invite");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const teamId = searchParams.get("teamId") ?? "";

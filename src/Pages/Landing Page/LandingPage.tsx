@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import "./LandingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
 
@@ -101,6 +102,7 @@ const USE_CASES = [
 ];
 
 function LandingPage() {
+  usePageTitle("Live Event Cue Management");
   const navigate = useNavigate();
 
   return (

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '../../Hooks/usePageTitle';
 import './SettingsPage.css';
 import logo from '../../Assets/Logo/LIVECUE-Logo.png';
 import { useTheme } from '../../ThemeContext';
@@ -25,6 +26,7 @@ interface SettingsPageProps {
 type ReauthAction = 'email' | 'password' | 'delete-account' | null;
 
 function SettingsPage({ projects, setProjects }: SettingsPageProps) {
+  usePageTitle("Settings");
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const currentUser = auth.currentUser;

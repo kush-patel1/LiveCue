@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import { useNavigate, useParams } from "react-router-dom";
 import "./AdminPage.css";
 import { Project } from "../../Interfaces/Project/Project";
@@ -83,6 +84,7 @@ function AdminPage({ projects }: AdminPageProps) {
   const { projectId } = useParams();
   const [cues, setCues] = useState<Cue[]>([]);
   const [project, setProject] = useState<Project | null>(null);
+  usePageTitle(project ? `${project.title} – Admin` : "Admin");
   const [fields, setFields] = useState<CustomField[]>(DEFAULT_FIELDS);
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);

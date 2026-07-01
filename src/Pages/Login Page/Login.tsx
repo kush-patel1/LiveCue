@@ -1,4 +1,5 @@
 import React, { FormEvent, useState } from "react";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import "./Login.css";
 import { LoginPageProps } from "./LoginProps";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -20,6 +21,7 @@ function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser): User {
 }
 
 function Login({ setUser }: LoginPageProps): React.JSX.Element {
+  usePageTitle("Log In");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");

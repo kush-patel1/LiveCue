@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { usePageTitle } from "../../Hooks/usePageTitle";
 import { User } from "../../Interfaces/User/User";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { SignUpPageProps } from "./SignUpProps";
@@ -9,6 +10,7 @@ import "../Login Page/Login.css";
 import "./SignUp.css";
 
 export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
+  usePageTitle("Sign Up");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
