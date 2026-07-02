@@ -147,3 +147,29 @@
 .auth-link:hover {
   text-decoration: underline;
 }
+
+/* ── Forgot password ── */
+.auth-forgot {
+  align-self: flex-end;
+  margin-top: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--teal-light, #7fa8b5);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.auth-forgot:hover { opacity: 0.8; text-decoration: underline; }
+.auth-forgot:disabled { opacity: 0.5; cursor: default; }
+
+.auth-notice {
+  background: rgba(87, 132, 147, 0.12);
+  border: 1px solid rgba(127, 168, 181, 0.3);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--teal-light, #9ec3ce);
+  margin-bottom: 16px;
+}
