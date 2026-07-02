@@ -836,3 +836,7 @@
   .lp-cta-inner { padding: 48px 32px; }
   .lp-footer-top { grid-template-columns: 1fr 1fr; }
 }
+
+.lp-footer-legal { display: inline-flex; gap: 18px; }
+.lp-footer-legal span { cursor: pointer; transition: color 0.15s; }
+.lp-footer-legal span:hover { color: #d7e0e4; text-decoration: underline; }
