@@ -55,65 +55,49 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Demo hub
+   Demo hub — layers on the shared site theme (PricingPage.css: lp-*, pp-*)
    ───────────────────────────────────────────────────────────────────────── */
-.demo-hub {
-  min-height: 100vh;
-  background: radial-gradient(1200px 600px at 50% -10%, #14212a 0%, #0b1116 60%);
-  color: #e8eef0;
-  padding: 0 0 80px;
+.demo-hub-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+  max-width: 1040px;
+  margin: 0 auto;
+  align-items: stretch;
 }
 
-.demo-hub-inner { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-
-.demo-hero { text-align: center; padding: 72px 0 40px; }
-.demo-hero-eyebrow {
-  font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--demo-teal-light); margin-bottom: 14px;
-}
-.demo-hero-title {
-  font-size: clamp(34px, 5vw, 52px); font-weight: 800; margin: 0 0 16px;
-  letter-spacing: -0.02em;
-}
-.demo-hero-sub {
-  font-size: 17px; color: #a9bcc4; max-width: 620px; margin: 0 auto; line-height: 1.55;
-}
-
-.demo-cards {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 18px; margin-top: 44px;
-}
-
-.demo-card {
+/* Match the pricing cards but make the whole card a clickable target. */
+.demo-hub-card {
+  display: flex;
+  flex-direction: column;
   text-align: left;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
-  border: 1px solid rgba(127, 168, 181, 0.18);
-  border-radius: 18px; padding: 26px 24px; cursor: pointer;
-  transition: transform 0.18s, border-color 0.18s, background 0.18s;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
-.demo-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(127, 168, 181, 0.5);
-  background: linear-gradient(180deg, rgba(87,132,147,0.14), rgba(87,132,147,0.05));
-}
-.demo-card-icon {
-  width: 42px; height: 42px; border-radius: 12px;
+.demo-hub-card:hover { transform: translateY(-6px); }
+
+.demo-hub-card .pp-card-desc { flex: 1; }
+
+.demo-hub-card-icon {
+  width: 46px; height: 46px; border-radius: 13px;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(87, 132, 147, 0.18); color: var(--demo-teal-light);
-  margin-bottom: 16px;
+  background: rgba(87, 132, 147, 0.16);
+  color: var(--teal-light, #7fa8b5);
+  margin-bottom: 18px;
 }
-.demo-card-title { font-size: 18px; font-weight: 700; margin: 0 0 6px; }
-.demo-card-desc { font-size: 14px; color: #9fb4bc; line-height: 1.5; margin: 0; }
-.demo-card-cta {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 13px; font-weight: 600; color: var(--demo-teal-light); margin-top: 16px;
-}
+
+.demo-hub-card .pp-card-btn { margin-top: 4px; }
 
 .demo-hub-note {
-  margin-top: 40px; text-align: center; font-size: 13px; color: #7e939b;
+  margin: 40px auto 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted, #8a97a0);
 }
-.demo-hub-note a, .demo-hub-link { color: var(--demo-teal-light); cursor: pointer; text-decoration: underline; }
-
-.demo-hub-logo {
-  height: 30px; cursor: pointer; display: block; margin: 0 auto; padding-top: 28px;
+.demo-hub-link {
+  color: var(--teal-light, #7fa8b5);
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 600;
 }
+.demo-hub-link:hover { opacity: 0.85; }
