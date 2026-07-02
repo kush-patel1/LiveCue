@@ -26,8 +26,8 @@ function getStripe(): StripeClient {
 //   Pro monthly  $14/mo   |  Pro yearly  $120/yr
 //   Team monthly $39/mo   |  Team yearly $349/yr
 // ---------------------------------------------------------------------------
-const PRO_PRICE_IDS:  string[] = ["price_1TiraGRtA2YJiCC5UrJeJQQn", "price_1ToWgRRtA2YJiCC5JKm2hmJK"]; // ["price_..." (monthly), "price_..." (yearly)]
-const TEAM_PRICE_IDS: string[] = ["price_1TiralRtA2YJiCC5DHkyCLKr", "price_1ToWhLRtA2YJiCC5jS10xOgA"]; // ["price_..." (monthly), "price_..." (yearly)]
+const PRO_PRICE_IDS:  string[] = ["price_1Tor2ARtA2YJiCC59S2Og0jg", "price_1Tor2ARtA2YJiCC5YscCP21B"]; // LIVE: monthly, yearly
+const TEAM_PRICE_IDS: string[] = ["price_1Tor27RtA2YJiCC5wgRSZeYR", "price_1Tor27RtA2YJiCC5Bu54fG86"]; // LIVE: monthly, yearly
 
 function resolvePlanFromPriceId(priceId: string): "pro" | "team" | null {
   if (TEAM_PRICE_IDS.includes(priceId)) return "team";
