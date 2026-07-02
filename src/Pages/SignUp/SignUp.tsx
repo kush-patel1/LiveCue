@@ -5,6 +5,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { SignUpPageProps } from "./SignUpProps";
 import { auth, db, createUserWithEmailAndPassword, setDoc, doc } from "../../Backend/firebase";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
+import { safeRedirect } from "../../utils/safeRedirect";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import "../Login Page/Login.css";
 import "./SignUp.css";
@@ -35,18 +36,16 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
     try {
       const credential = await createUserWithEmailAndPassword(auth, email, password);
       const userRef = doc(db, "users", credential.user.uid);
-      await setDoc(userRef, { firstName, lastName, email, password, plan: "free" });
+      // Never store the password — Firebase Auth owns it. Plan fields are
+      // written server-side only (webhook / applyGrant); new users are free
+      // by default in usePlan when no plan field exists.
+      await setDoc(userRef, { firstName, lastName, email });
       await applyGrantIfExists(credential.user.uid, email);
 
-      const userData: User = { id: credential.user.uid, firstName, lastName, email, password };
+      const userData: User = { id: credential.user.uid, firstName, lastName, email, password: "" };
       setUser(userData);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(userData));
-      const redirect = searchParams.get("redirect");
-      if (redirect) {
-        navigate(redirect);
-      } else {
-        navigate("/HomePage");
-      }
+      navigate(safeRedirect(searchParams.get("redirect")));
     } catch (error: any) {
       setLoading(false);
       if (error.code === "auth/email-already-in-use") {

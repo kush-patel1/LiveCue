@@ -30,8 +30,24 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const currentUser = auth.currentUser;
-  const { plan, loading: planLoading, hasStripeSubscription, teamId } = usePlan(currentUser?.uid);
+  const {
+    plan, loading: planLoading, hasStripeSubscription, teamId,
+    planExpiry, billingInterval, subscriptionStatus, cancelAtPeriodEnd,
+  } = usePlan(currentUser?.uid);
   const [portalLoading, setPortalLoading] = useState(false);
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    // Clear the cached plan so any change made in the portal is re-read on return
+    sessionStorage.removeItem('LIVECUE_PLAN');
+    sessionStorage.removeItem('LIVECUE_HAS_SUB');
+    try {
+      await redirectToCustomerPortal();
+    } catch {
+      setPortalLoading(false);
+      alert('Could not open the billing portal. Please try again.');
+    }
+  };
 
   // ── Team state ─────────────────────────────────────────────────────────────
   const [teamData, setTeamData] = useState<Team | null>(null);
@@ -43,18 +59,6 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
   const planLimits = PLAN_LIMITS[plan];
   const isPaid = plan === 'pro' || plan === 'team';
 
-  const handleManageSubscription = async () => {
-    setPortalLoading(true);
-    // Clear cached plan so the correct plan is shown on return from portal
-    sessionStorage.removeItem('LIVECUE_PLAN');
-    try {
-      await redirectToCustomerPortal();
-    } catch {
-      navigate('/pricing');
-    } finally {
-      setPortalLoading(false);
-    }
-  };
 
   // ── Account state ─────────────────────────────────────────────────────────
   const [firstName, setFirstName] = useState('');
@@ -313,7 +317,7 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                     onClick={handleManageSubscription}
                     disabled={portalLoading}
                   >
-                    {portalLoading ? 'Loading…' : 'Manage Subscription'}
+                    {portalLoading ? 'Opening…' : 'Manage Subscription'}
                   </button>
                 ) : !isPaid ? (
                   <button className="sp-btn-upgrade" onClick={() => navigate('/pricing')}>
@@ -321,6 +325,31 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                   </button>
                 ) : null}
               </div>
+
+              {/* Billing status */}
+              {isPaid && hasStripeSubscription && (
+                <div className="sp-billing-status">
+                  {subscriptionStatus === 'past_due' && (
+                    <div className="sp-billing-alert sp-billing-alert--warn">
+                      ⚠ Your last payment failed. Update your card in Manage
+                      Subscription to keep your {plan === 'team' ? 'Team' : 'Pro'} access.
+                    </div>
+                  )}
+                  {cancelAtPeriodEnd && planExpiry && (
+                    <div className="sp-billing-alert sp-billing-alert--info">
+                      Your subscription is canceled and will end on{' '}
+                      {new Date(planExpiry).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}.
+                      You keep full access until then — resubscribe anytime from Manage Subscription.
+                    </div>
+                  )}
+                  {!cancelAtPeriodEnd && subscriptionStatus === 'active' && planExpiry && (
+                    <div className="sp-billing-line">
+                      Billed {billingInterval === 'yearly' ? 'yearly' : 'monthly'} · renews{' '}
+                      {new Date(planExpiry).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Usage bars */}
               <div className="sp-plan-usage">

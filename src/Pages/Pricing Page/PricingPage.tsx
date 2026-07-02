@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Hooks/usePageTitle";
 import "./PricingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
+import { auth } from "../../Backend/firebase";
+import { usePlan } from "../../Hooks/usePlan";
+import { buildCheckoutUrl, paymentsEnabled, PlanPriceKey } from "../../Config/stripeLinks";
 
 const PLANS = {
   monthly: {
@@ -37,6 +40,26 @@ function PricingPage() {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const plan = PLANS[billing];
 
+  const user = auth.currentUser;
+  const { plan: currentPlan, hasStripeSubscription } = usePlan(user?.uid);
+  const live = paymentsEnabled();
+
+  const handleCheckout = (key: PlanPriceKey) => {
+    if (!user) { navigate("/signup"); return; }
+    // Already subscribed → manage (upgrade/downgrade) via the Stripe portal
+    // in Settings instead of creating a duplicate subscription.
+    if (hasStripeSubscription) { navigate("/settings"); return; }
+    const url = buildCheckoutUrl(key, user.uid, user.email);
+    if (url) window.location.href = url;
+  };
+
+  const paidBtnLabel = (target: "pro" | "team") => {
+    if (!live) return "Coming Soon";
+    if (hasStripeSubscription && currentPlan === target) return "Current Plan";
+    if (hasStripeSubscription) return "Switch in Settings";
+    return target === "pro" ? "Upgrade to Pro" : "Start with Team";
+  };
+
   return (
     <div className="lp-root">
 
@@ -69,10 +92,12 @@ function PricingPage() {
         <p className="pp-hero-sub">
           No hidden fees. No long-term contracts. Start free and upgrade when you're ready.
         </p>
-        <div className="pp-coming-soon-banner">
-          <span className="pp-coming-soon-dot" />
-          Paid plans are coming soon — subscriptions are not yet available.
-        </div>
+        {!live && (
+          <div className="pp-coming-soon-banner">
+            <span className="pp-coming-soon-dot" />
+            Paid plans are coming soon — subscriptions are not yet available.
+          </div>
+        )}
 
         {/* Billing toggle */}
         <div className="pp-toggle glass-card">
@@ -141,8 +166,12 @@ function PricingPage() {
                   <li key={f} className="pp-feat pp-feat--yes"><span className="pp-feat-icon pp-feat-icon--yes">{CHECK}</span>{f}</li>
                 ))}
               </ul>
-              <button className="pp-card-btn pp-card-btn--primary pp-card-btn--coming-soon" disabled>
-                Coming Soon
+              <button
+                className={`pp-card-btn pp-card-btn--primary${live ? "" : " pp-card-btn--coming-soon"}`}
+                disabled={!live || (hasStripeSubscription && currentPlan === "pro")}
+                onClick={() => handleCheckout(plan.pro.priceKey as PlanPriceKey)}
+              >
+                {paidBtnLabel("pro")}
               </button>
             </div>
           </div>
@@ -165,8 +194,12 @@ function PricingPage() {
                 <li key={f} className="pp-feat pp-feat--yes"><span className="pp-feat-icon pp-feat-icon--yes">{CHECK}</span>{f}</li>
               ))}
             </ul>
-            <button className="pp-card-btn pp-card-btn--teal pp-card-btn--coming-soon" disabled>
-              Coming Soon
+            <button
+              className={`pp-card-btn pp-card-btn--teal${live ? "" : " pp-card-btn--coming-soon"}`}
+              disabled={!live || (hasStripeSubscription && currentPlan === "team")}
+              onClick={() => handleCheckout(plan.team.priceKey as PlanPriceKey)}
+            >
+              {paidBtnLabel("team")}
             </button>
           </div>
 

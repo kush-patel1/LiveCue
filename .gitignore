@@ -25,3 +25,6 @@ yarn-error.log*
 functions/lib
 functions/node_modules
 stripe-setup.sh
+
+# firebase deploy cache
+.firebase/

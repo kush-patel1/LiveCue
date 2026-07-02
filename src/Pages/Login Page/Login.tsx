@@ -9,6 +9,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { User as FirebaseUser } from "firebase/auth";
 import { User } from "../../Interfaces/User/User";
+import { safeRedirect } from "../../utils/safeRedirect";
 
 function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser): User {
   return {
@@ -45,12 +46,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
       const appUser = mapFirebaseUserToAppUser(credential.user);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(appUser));
       setUser(appUser);
-      const redirect = searchParams.get("redirect");
-      if (redirect) {
-        navigate(redirect);
-      } else {
-        navigate("/HomePage");
-      }
+      navigate(safeRedirect(searchParams.get("redirect")));
     } catch (error: any) {
       setLoading(false);
       const code = error.code;

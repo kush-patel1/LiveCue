@@ -81,3 +81,11 @@
   transition: opacity 0.2s, transform 0.15s;
 }
 .cs-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.cs-icon--spin svg {
+  animation: cs-spin 1s linear infinite;
+}
+
+@keyframes cs-spin {
+  to { transform: rotate(360deg); }
+}
