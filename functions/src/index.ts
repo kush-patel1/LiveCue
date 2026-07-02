@@ -245,6 +245,37 @@ async function downgradeToFree(uid: string): Promise<void> {
     cancelAtPeriodEnd: false,
     stripeSubscriptionId: null,
   }, { merge: true });
+
+  // If this user owned a team, tearing down their subscription must revoke
+  // every member's access too — otherwise members keep team access for free.
+  await dismantleTeamOwnedBy(uid);
+}
+
+// When an owner loses the team plan, remove the team and strip teamId from the
+// owner and all members so usePlan resolves everyone back to free.
+async function dismantleTeamOwnedBy(ownerUid: string): Promise<void> {
+  const teamsSnap = await db.collection("teams").where("ownerId", "==", ownerUid).get();
+  if (teamsSnap.empty) return;
+
+  for (const teamDoc of teamsSnap.docs) {
+    const data = teamDoc.data();
+    const memberIds: string[] = data.memberIds ?? [];
+    const batch = db.batch();
+    for (const memberUid of memberIds) {
+      batch.set(
+        db.collection("users").doc(memberUid),
+        { teamId: admin.firestore.FieldValue.delete() },
+        { merge: true }
+      );
+    }
+    batch.set(
+      db.collection("users").doc(ownerUid),
+      { teamId: admin.firestore.FieldValue.delete() },
+      { merge: true }
+    );
+    batch.delete(teamDoc.ref);
+    await batch.commit();
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -257,8 +288,8 @@ export const inviteTeamMember = functions.https.onCall(async (data, context) => 
   }
 
   const inviteeEmail = (data.email ?? "").trim().toLowerCase();
-  if (!inviteeEmail) {
-    throw new functions.https.HttpsError("invalid-argument", "email is required");
+  if (!inviteeEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(inviteeEmail)) {
+    throw new functions.https.HttpsError("invalid-argument", "A valid email is required");
   }
 
   const ownerUid = context.auth.uid;
@@ -267,6 +298,9 @@ export const inviteTeamMember = functions.https.onCall(async (data, context) => 
 
   if ((userData.planOverride ?? userData.plan) !== "team") {
     throw new functions.https.HttpsError("permission-denied", "Team plan required to invite members");
+  }
+  if (inviteeEmail === (context.auth.token.email ?? "").toLowerCase()) {
+    throw new functions.https.HttpsError("already-exists", "You're already the team owner");
   }
 
   const teamId: string = userData.teamId ?? "";
@@ -282,76 +316,139 @@ export const inviteTeamMember = functions.https.onCall(async (data, context) => 
     throw new functions.https.HttpsError("permission-denied", "Only the team owner can invite members");
   }
 
-  const memberIds:     string[] = teamData.memberIds     ?? [];
+  const memberIds:      string[] = teamData.memberIds     ?? [];
   const pendingInvites: string[] = teamData.pendingInvites ?? [];
   const seats:          number   = teamData.seats         ?? 5;
 
-  if (memberIds.length >= seats - 1) {
-    throw new functions.https.HttpsError("resource-exhausted", "All team seats are full");
+  // Seat math: owner + members + already-pending invites all consume a seat.
+  if (memberIds.length + pendingInvites.length + 1 >= seats) {
+    throw new functions.https.HttpsError("resource-exhausted", "All team seats are allocated");
   }
   if (pendingInvites.includes(inviteeEmail)) {
     throw new functions.https.HttpsError("already-exists", "An invite is already pending for this email");
   }
 
-  // Check if already a member
+  // Already a member of THIS team?
   const existingSnap = await db.collection("users").where("email", "==", inviteeEmail).limit(1).get();
   if (!existingSnap.empty && existingSnap.docs[0].data().teamId === teamId) {
-    throw new functions.https.HttpsError("already-exists", "This user is already on your team");
+    throw new functions.https.HttpsError("already-exists", "This person is already on your team");
   }
 
   await teamRef.update({ pendingInvites: [...pendingInvites, inviteeEmail] });
 
-  await admin.auth().generateSignInWithEmailLink(inviteeEmail, {
-    url: `https://live-cue.com/#/accept-invite?teamId=${teamId}`,
-    handleCodeInApp: true,
-  });
-
-  return { success: true };
+  // We don't send email ourselves (no provider configured). The client shows a
+  // copyable invite link, AND the invitee auto-joins when they sign in/up with
+  // this email (claimMyInvite). Return the link for the owner to share.
+  return {
+    success: true,
+    inviteLink: `https://live-cue.com/#/accept-invite?teamId=${teamId}`,
+  };
 });
+
+// Shared join logic — adds the authed user to a team by their token email.
+async function joinTeam(teamId: string, uid: string, email: string, displayName: string): Promise<void> {
+  const teamRef  = db.collection("teams").doc(teamId);
+  const teamSnap = await teamRef.get();
+  if (!teamSnap.exists) {
+    throw new functions.https.HttpsError("not-found", "Team not found");
+  }
+
+  const teamData        = teamSnap.data()!;
+  const pendingInvites: string[] = teamData.pendingInvites ?? [];
+  const memberIds:      string[] = teamData.memberIds ?? [];
+
+  if (memberIds.includes(uid)) return; // already a member — idempotent
+
+  if (!pendingInvites.includes(email)) {
+    throw new functions.https.HttpsError("permission-denied", "No pending invite found for your email");
+  }
+  const seats: number = teamData.seats ?? 5;
+  if (memberIds.length + 1 >= seats) {
+    throw new functions.https.HttpsError("resource-exhausted", "Team is full — ask your team owner to free up a seat");
+  }
+
+  // Leave any previous team first so we don't orphan a seat there.
+  const userSnap = await db.collection("users").doc(uid).get();
+  const priorTeamId: string = userSnap.data()?.teamId ?? "";
+  const batch = db.batch();
+  if (priorTeamId && priorTeamId !== teamId) {
+    batch.set(db.collection("teams").doc(priorTeamId), {
+      memberIds: admin.firestore.FieldValue.arrayRemove(uid),
+      [`memberInfo.${uid}`]: admin.firestore.FieldValue.delete(),
+    }, { merge: true });
+  }
+
+  batch.set(teamRef, {
+    pendingInvites: pendingInvites.filter((e) => e !== email),
+    memberIds:      admin.firestore.FieldValue.arrayUnion(uid),
+    // Parallel display map so the owner sees who joined (memberIds stays a
+    // plain string[] so the Firestore rules' hasAny() check keeps working).
+    [`memberInfo.${uid}`]: { email, displayName: displayName || email },
+  }, { merge: true });
+  batch.set(db.collection("users").doc(uid), { teamId }, { merge: true });
+  await batch.commit();
+}
 
 export const acceptTeamInvite = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Must be logged in");
   }
-
   const teamId = (data.teamId ?? "").trim();
   if (!teamId) {
     throw new functions.https.HttpsError("invalid-argument", "teamId is required");
   }
+  const email = (context.auth.token.email ?? "").toLowerCase();
+  const name  = (context.auth.token.name as string) ?? "";
+  await joinTeam(teamId, context.auth.uid, email, name);
+  return { success: true, teamId };
+});
 
-  const inviteeUid   = context.auth.uid;
-  const inviteeEmail = (context.auth.token.email ?? "").toLowerCase();
+// Called on login/signup — auto-joins the user to any team that has a pending
+// invite for their email, so they don't need the invite link at all.
+export const claimMyInvite = functions.https.onCall(async (_data, context) => {
+  if (!context.auth) return { claimed: false };
+  const email = (context.auth.token.email ?? "").toLowerCase();
+  if (!email) return { claimed: false };
+
+  const snap = await db.collection("teams").where("pendingInvites", "array-contains", email).limit(1).get();
+  if (snap.empty) return { claimed: false };
+
+  const name = (context.auth.token.name as string) ?? "";
+  try {
+    await joinTeam(snap.docs[0].id, context.auth.uid, email, name);
+    return { claimed: true, teamId: snap.docs[0].id };
+  } catch {
+    return { claimed: false };
+  }
+});
+
+// A member removes themselves from their team.
+export const leaveTeam = functions.https.onCall(async (_data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "Must be logged in");
+  }
+  const uid      = context.auth.uid;
+  const userSnap = await db.collection("users").doc(uid).get();
+  const teamId: string = userSnap.data()?.teamId ?? "";
+  if (!teamId) {
+    throw new functions.https.HttpsError("not-found", "You're not on a team");
+  }
 
   const teamRef  = db.collection("teams").doc(teamId);
   const teamSnap = await teamRef.get();
-
-  if (!teamSnap.exists) {
-    throw new functions.https.HttpsError("not-found", "Team not found");
-  }
-
-  const teamData       = teamSnap.data()!;
-  const pendingInvites: string[] = teamData.pendingInvites ?? [];
-
-  if (!pendingInvites.includes(inviteeEmail)) {
-    throw new functions.https.HttpsError("permission-denied", "No pending invite found for your email");
-  }
-
-  const memberIds: string[] = teamData.memberIds ?? [];
-  const seats:     number   = teamData.seats     ?? 5;
-
-  if (memberIds.length >= seats - 1) {
-    throw new functions.https.HttpsError("resource-exhausted", "Team is full — ask your team owner to free up a seat");
+  if (teamSnap.exists && teamSnap.data()!.ownerId === uid) {
+    throw new functions.https.HttpsError("failed-precondition",
+      "The team owner can't leave. Cancel the Team subscription instead.");
   }
 
   const batch = db.batch();
-  batch.update(teamRef, {
-    pendingInvites: pendingInvites.filter((e) => e !== inviteeEmail),
-    memberIds:      [...memberIds, inviteeUid],
-  });
-  batch.set(db.collection("users").doc(inviteeUid), { teamId }, { merge: true });
+  batch.set(teamRef, {
+    memberIds: admin.firestore.FieldValue.arrayRemove(uid),
+    [`memberInfo.${uid}`]: admin.firestore.FieldValue.delete(),
+  }, { merge: true });
+  batch.set(db.collection("users").doc(uid), { teamId: admin.firestore.FieldValue.delete() }, { merge: true });
   await batch.commit();
-
-  return { success: true, teamId };
+  return { success: true };
 });
 
 export const removeTeamMember = functions.https.onCall(async (data, context) => {
@@ -386,7 +483,10 @@ export const removeTeamMember = functions.https.onCall(async (data, context) => 
   const batch = db.batch();
 
   if (targetUid && memberIds.includes(targetUid)) {
-    batch.update(teamRef, { memberIds: memberIds.filter((id) => id !== targetUid) });
+    batch.set(teamRef, {
+      memberIds: memberIds.filter((id) => id !== targetUid),
+      [`memberInfo.${targetUid}`]: admin.firestore.FieldValue.delete(),
+    }, { merge: true });
     batch.set(
       db.collection("users").doc(targetUid),
       { teamId: admin.firestore.FieldValue.delete() },
@@ -412,22 +512,36 @@ async function resolveUidFromSub(sub: any): Promise<string | null> { // eslint-d
   return snap.empty ? null : snap.docs[0].id;
 }
 
+const TEAM_SEATS = 5;
+
 async function ensureTeamDoc(ownerUid: string): Promise<void> {
   const userRef  = db.collection("users").doc(ownerUid);
   const userSnap = await userRef.get();
-  const existingTeamId: string = userSnap.data()?.teamId ?? "";
+  const userData = userSnap.data() ?? {};
+  const existingTeamId: string = userData.teamId ?? "";
+
+  const ownerInfo = {
+    email: (userData.email ?? "").toLowerCase(),
+    displayName: [userData.firstName, userData.lastName].filter(Boolean).join(" ") || (userData.email ?? ""),
+  };
 
   if (existingTeamId) {
     const teamSnap = await db.collection("teams").doc(existingTeamId).get();
-    if (teamSnap.exists) return;
+    if (teamSnap.exists) {
+      // Keep owner display info fresh
+      await teamSnap.ref.set({ ownerInfo }, { merge: true });
+      return;
+    }
   }
 
   const teamRef = db.collection("teams").doc();
   await teamRef.set({
     ownerId:        ownerUid,
+    ownerInfo,
     memberIds:      [],
+    memberInfo:     {},
     pendingInvites: [],
-    seats:          5,
+    seats:          TEAM_SEATS,
     createdAt:      new Date().toISOString(),
   });
 

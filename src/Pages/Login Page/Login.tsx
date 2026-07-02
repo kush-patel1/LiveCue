@@ -7,6 +7,7 @@ import { CredentialLoadingScreen } from "../../Components/LoadingScreen/Credenti
 import { auth } from "../../Backend/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
+import { claimMyInvite } from "../../Services/TeamService/teamService";
 import { User as FirebaseUser } from "firebase/auth";
 import { User } from "../../Interfaces/User/User";
 import { safeRedirect } from "../../utils/safeRedirect";
@@ -43,6 +44,8 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
       await applyGrantIfExists(credential.user.uid, credential.user.email ?? email);
+      // Auto-join a team if this email was invited
+      await claimMyInvite();
       const appUser = mapFirebaseUserToAppUser(credential.user);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(appUser));
       setUser(appUser);

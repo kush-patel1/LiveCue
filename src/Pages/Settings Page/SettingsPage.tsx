@@ -14,7 +14,7 @@ import { getDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { usePlan } from '../../Hooks/usePlan';
 import { redirectToCustomerPortal } from '../../Services/StripeService/stripeService';
-import { inviteTeamMember, removeTeamMember } from '../../Services/TeamService/teamService';
+import { inviteTeamMember, removeTeamMember, leaveTeam } from '../../Services/TeamService/teamService';
 import { PLAN_LIMITS } from '../../Config/planLimits';
 import { Team } from '../../Interfaces/Team/Team';
 
@@ -31,7 +31,7 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
   const { theme, toggleTheme } = useTheme();
   const currentUser = auth.currentUser;
   const {
-    plan, loading: planLoading, hasStripeSubscription, teamId,
+    plan, loading: planLoading, hasStripeSubscription, teamId, isTeamOwner,
     planExpiry, billingInterval, subscriptionStatus, cancelAtPeriodEnd,
   } = usePlan(currentUser?.uid);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -55,6 +55,9 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteLoading, setInviteLoading] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [inviteLink, setInviteLink] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [leaving, setLeaving] = useState(false);
 
   const planLimits = PLAN_LIMITS[plan];
   const isPaid = plan === 'pro' || plan === 'team';
@@ -106,14 +109,38 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
     if (!email) return;
     setInviteLoading(true);
     try {
-      await inviteTeamMember(email);
+      const { inviteLink: link } = await inviteTeamMember(email);
       setInviteEmail('');
+      setInviteLink(link);
+      setLinkCopied(false);
       await reloadTeam();
-      flash(`Invite sent to ${email}`);
+      flash(`${email} invited — share the link below, or they'll auto-join when they sign in.`);
     } catch (e: any) {
-      flash(e.message || 'Failed to send invite.', false);
+      flash(e.message || 'Failed to create invite.', false);
     } finally {
       setInviteLoading(false);
+    }
+  };
+
+  const copyInviteLink = () => {
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    });
+  };
+
+  const handleLeaveTeam = async () => {
+    setLeaving(true);
+    try {
+      await leaveTeam();
+      sessionStorage.removeItem('LIVECUE_PLAN');
+      sessionStorage.removeItem('LIVECUE_TEAM');
+      sessionStorage.removeItem('LIVECUE_TEAM_OWNER');
+      flash('You left the team.');
+      setTimeout(() => window.location.reload(), 800);
+    } catch (e: any) {
+      flash(e.message || 'Failed to leave team.', false);
+      setLeaving(false);
     }
   };
 
@@ -414,8 +441,8 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
             </div>
           </div>
 
-          {/* ── Team ── */}
-          {plan === 'team' && teamId && (
+          {/* ── Team (owner view) ── */}
+          {plan === 'team' && teamId && isTeamOwner && (
             <div className="sp-section">
               <div className="sp-section-label">Team</div>
               <div className="sp-card">
@@ -423,20 +450,21 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                   <div className="sp-card-title">Team Members</div>
                   {teamData && (
                     <span className="sp-team-seats">
-                      {(teamData.memberIds?.length ?? 0) + 1} / {teamData.seats} seats used
+                      {(teamData.memberIds?.length ?? 0) + (teamData.pendingInvites?.length ?? 0) + 1} / {teamData.seats} seats used
                     </span>
                   )}
                 </div>
                 <div className="sp-card-desc">
-                  Invite teammates by email. They'll receive a sign-in link granting them team access.
+                  Invite teammates by email. They join automatically the next time they sign
+                  in with that address — or share the invite link directly.
                 </div>
 
                 {teamLoading ? (
                   <div className="sp-team-empty">Loading…</div>
                 ) : (
                   <>
-                    {/* Owner row */}
                     <div className="sp-team-list">
+                      {/* Owner row */}
                       <div className="sp-team-member">
                         <div className="sp-team-avatar">
                           {(currentUser?.displayName?.[0] ?? currentUser?.email?.[0] ?? '?').toUpperCase()}
@@ -450,22 +478,30 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                       </div>
 
                       {/* Accepted members */}
-                      {(teamData?.memberIds ?? []).map(uid => (
-                        <div key={uid} className="sp-team-member">
-                          <div className="sp-team-avatar sp-team-avatar--member">M</div>
-                          <div className="sp-team-member-info">
-                            <span className="sp-team-member-name sp-team-member-uid">{uid}</span>
-                            <span className="sp-team-member-role">Member</span>
+                      {(teamData?.memberIds ?? []).map(uid => {
+                        const info = teamData?.memberInfo?.[uid];
+                        const name = info?.displayName || info?.email || uid;
+                        return (
+                          <div key={uid} className="sp-team-member">
+                            <div className="sp-team-avatar sp-team-avatar--member">
+                              {(name[0] ?? 'M').toUpperCase()}
+                            </div>
+                            <div className="sp-team-member-info">
+                              <span className="sp-team-member-name">{name}</span>
+                              <span className="sp-team-member-role">
+                                {info?.email && info.email !== name ? info.email : 'Member'}
+                              </span>
+                            </div>
+                            <button
+                              className="sp-team-remove"
+                              onClick={() => handleRemoveMember(uid)}
+                              disabled={removingId === uid}
+                            >
+                              {removingId === uid ? '…' : 'Remove'}
+                            </button>
                           </div>
-                          <button
-                            className="sp-team-remove"
-                            onClick={() => handleRemoveMember(uid)}
-                            disabled={removingId === uid}
-                          >
-                            {removingId === uid ? '…' : 'Remove'}
-                          </button>
-                        </div>
-                      ))}
+                        );
+                      })}
 
                       {/* Pending invites */}
                       {(teamData?.pendingInvites ?? []).map(email => (
@@ -491,8 +527,18 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                       )}
                     </div>
 
+                    {/* Copyable invite link (after creating an invite) */}
+                    {inviteLink && (
+                      <div className="sp-invite-link-row">
+                        <div className="sp-url-display">{inviteLink}</div>
+                        <button className="sp-btn-ghost" onClick={copyInviteLink}>
+                          {linkCopied ? '✓ Copied' : 'Copy link'}
+                        </button>
+                      </div>
+                    )}
+
                     {/* Invite input */}
-                    {teamData && (teamData.memberIds?.length ?? 0) < (teamData.seats - 1) ? (
+                    {teamData && ((teamData.memberIds?.length ?? 0) + (teamData.pendingInvites?.length ?? 0)) < (teamData.seats - 1) ? (
                       <div className="sp-team-invite">
                         <input
                           className="sp-input"
@@ -507,14 +553,64 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                           onClick={handleInvite}
                           disabled={!inviteEmail.trim() || inviteLoading}
                         >
-                          {inviteLoading ? 'Sending…' : 'Send Invite'}
+                          {inviteLoading ? 'Inviting…' : 'Invite'}
                         </button>
                       </div>
                     ) : (
-                      <div className="sp-team-full">All seats are filled. Remove a member to invite someone new.</div>
+                      <div className="sp-team-full">All seats are allocated. Remove a member or revoke an invite to free one up.</div>
                     )}
                   </>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* ── Team (member view) ── */}
+          {plan === 'team' && teamId && !isTeamOwner && (
+            <div className="sp-section">
+              <div className="sp-section-label">Team</div>
+              <div className="sp-card">
+                <div className="sp-card-title">Your Team</div>
+                <div className="sp-card-desc">
+                  {teamData?.ownerInfo?.displayName
+                    ? <>You're a member of <strong>{teamData.ownerInfo.displayName}</strong>'s team, which gives you full Team access.</>
+                    : <>You're a member of a team, which gives you full Team access.</>}
+                </div>
+
+                {!teamLoading && teamData && (
+                  <div className="sp-team-list">
+                    <div className="sp-team-member">
+                      <div className="sp-team-avatar">
+                        {(teamData.ownerInfo?.displayName?.[0] ?? teamData.ownerInfo?.email?.[0] ?? 'O').toUpperCase()}
+                      </div>
+                      <div className="sp-team-member-info">
+                        <span className="sp-team-member-name">
+                          {teamData.ownerInfo?.displayName || teamData.ownerInfo?.email || 'Team owner'}
+                        </span>
+                        <span className="sp-team-member-role">Owner</span>
+                      </div>
+                    </div>
+                    <div className="sp-team-member">
+                      <div className="sp-team-avatar sp-team-avatar--member">
+                        {(currentUser?.displayName?.[0] ?? currentUser?.email?.[0] ?? 'Y').toUpperCase()}
+                      </div>
+                      <div className="sp-team-member-info">
+                        <span className="sp-team-member-name">{currentUser?.displayName || currentUser?.email}</span>
+                        <span className="sp-team-member-role">You</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="sp-team-invite">
+                  <button
+                    className="sp-btn-danger"
+                    onClick={handleLeaveTeam}
+                    disabled={leaving}
+                  >
+                    {leaving ? 'Leaving…' : 'Leave team'}
+                  </button>
+                </div>
               </div>
             </div>
           )}
