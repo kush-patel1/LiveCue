@@ -340,3 +340,10 @@
   .cp-hero { padding: 72px 5% 48px; }
   .cp-info, .cp-form-card { padding: 28px 24px; }
 }
+
+.cp-form-error {
+  color: #e07a7a;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 4px 0 0;
+}

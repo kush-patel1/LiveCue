@@ -58,6 +58,19 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
 
+    // contactMessages: anyone (incl. logged-out visitors) may submit a contact
+    // form. Never client-readable — the team reads them in the Firebase console.
+    // Shape + size limits keep it from being abused as free storage.
+    match /contactMessages/{id} {
+      allow create: if request.resource.data.email is string
+        && request.resource.data.email.size() <= 200
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 5000
+        && request.resource.data.subject.size() <= 200;
+      allow read, update, delete: if false;
+    }
+
     // _grants: authenticated users may read their own grant (matched by email).
     // Write is blocked entirely from client code — use Firebase Console only.
     match /_grants/{email} {
