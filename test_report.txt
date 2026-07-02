@@ -30,7 +30,7 @@ File                           | % Stmts | % Branch | % Funcs | % Lines | Uncove
 -------------------------------|---------|----------|---------|---------|-------------------
 All files                      |       0 |        0 |       0 |       0 |                   
  src                           |       0 |        0 |       0 |       0 |                   
-  App.tsx                      |       0 |      100 |       0 |       0 | 24-33             
+  App.tsx                      |       0 |      100 |       0 |       0 | 27-36             
   ThemeContext.tsx             |       0 |        0 |       0 |       0 | 10-35             
   index.tsx                    |       0 |      100 |     100 |       0 | 7-20              
   reportWebVitals.ts           |       0 |        0 |       0 |       0 | 3-10              
@@ -47,10 +47,17 @@ All files                      |       0 |        0 |       0 |       0 |
   UpgradeModal.tsx             |       0 |        0 |       0 |       0 | 22-104            
  src/Config                    |       0 |        0 |       0 |       0 |                   
   planLimits.ts                |       0 |      100 |     100 |       0 | 10                
-  stripeLinks.ts               |       0 |        0 |       0 |       0 | 1-13              
+  stripeLinks.ts               |       0 |        0 |       0 |       0 | 10-42             
+ src/Demo                      |       0 |        0 |       0 |       0 |                   
+  DemoAdmin.tsx                |       0 |        0 |       0 |       0 | 10-341            
+  DemoBanner.tsx               |       0 |        0 |       0 |       0 | 14-28             
+  DemoEditor.tsx               |       0 |        0 |       0 |       0 | 12-200            
+  DemoHub.tsx                  |       0 |        0 |       0 |       0 | 7-107             
+  DemoLive.tsx                 |       0 |        0 |       0 |       0 | 11-127            
+  demoData.ts                  |       0 |      100 |       0 |       0 | 10-33             
  src/Hooks                     |       0 |        0 |       0 |       0 |                   
   usePageTitle.ts              |       0 |        0 |       0 |       0 | 4-6               
-  usePlan.ts                   |       0 |        0 |       0 |       0 | 20-99             
+  usePlan.ts                   |       0 |        0 |       0 |       0 | 31-148            
  src/Interfaces/Cue            |       0 |        0 |       0 |       0 |                   
   Cue.ts                       |       0 |        0 |       0 |       0 |                   
  src/Interfaces/CustomField    |       0 |      100 |     100 |       0 |                   
@@ -70,41 +77,39 @@ All files                      |       0 |        0 |       0 |       0 |
  src/Pages/Admin Page          |       0 |        0 |       0 |       0 |                   
   AdminPage.tsx                |       0 |        0 |       0 |       0 | 16-565            
  src/Pages/Checkout            |       0 |        0 |       0 |       0 |                   
-  CheckoutSuccess.tsx          |       0 |        0 |       0 |       0 | 8-46              
+  CheckoutSuccess.tsx          |       0 |        0 |       0 |       0 | 11-101            
  src/Pages/Contact Page        |       0 |        0 |       0 |       0 |                   
   ContactPage.tsx              |       0 |        0 |       0 |       0 | 8-197             
  src/Pages/Cue Input           |       0 |        0 |       0 |       0 |                   
   AIImportModal.tsx            |       0 |        0 |       0 |       0 | 24-334            
   CueInput.tsx                 |       0 |        0 |       0 |       0 | 26-594            
- src/Pages/Demo Page           |       0 |        0 |       0 |       0 |                   
-  DemoPage.tsx                 |       0 |        0 |       0 |       0 | 10-58             
  src/Pages/Home Page           |       0 |        0 |       0 |       0 |                   
-  HomePage.tsx                 |       0 |        0 |       0 |       0 | 25-461            
+  HomePage.tsx                 |       0 |        0 |       0 |       0 | 25-453            
  src/Pages/Landing Page        |       0 |      100 |       0 |       0 |                   
   LandingPage.tsx              |       0 |      100 |       0 |       0 | 7-357             
  src/Pages/Live Cue Sheet      |       0 |        0 |       0 |       0 |                   
   LiveCueSheet.tsx             |       0 |        0 |       0 |       0 | 18-318            
  src/Pages/Login Page          |       0 |        0 |       0 |       0 |                   
-  Login.tsx                    |       0 |        0 |       0 |       0 | 14-97             
+  Login.tsx                    |       0 |        0 |       0 |       0 | 15-93             
   LoginProps.ts                |       0 |        0 |       0 |       0 |                   
  src/Pages/Pricing Page        |       0 |        0 |       0 |       0 |                   
-  PricingPage.tsx              |       0 |        0 |       0 |       0 | 7-239             
+  PricingPage.tsx              |       0 |        0 |       0 |       0 | 10-272            
  src/Pages/Settings Page       |       0 |        0 |       0 |       0 |                   
-  SettingsPage.tsx             |       0 |        0 |       0 |       0 | 29-661            
+  SettingsPage.tsx             |       0 |        0 |       0 |       0 | 29-690            
  src/Pages/SignUp              |       0 |        0 |       0 |       0 |                   
-  SignUp.tsx                   |       0 |        0 |       0 |       0 | 13-118            
+  SignUp.tsx                   |       0 |        0 |       0 |       0 | 14-117            
   SignUpProps.ts               |       0 |        0 |       0 |       0 |                   
  src/Services/PlanService      |       0 |      100 |       0 |       0 |                   
   grantCheck.ts                |       0 |      100 |       0 |       0 | 9-11              
  src/Services/StripeService    |       0 |        0 |       0 |       0 |                   
-  stripeService.ts             |       0 |        0 |       0 |       0 | 3-49              
+  stripeService.ts             |       0 |        0 |       0 |       0 | 9-14              
  src/Services/TeamService      |       0 |      100 |       0 |       0 |                   
   teamService.ts               |       0 |      100 |       0 |       0 | 3-22              
- src/Services/UserServices     |       0 |      100 |       0 |       0 |                   
-  UserCredentialService.ts     |       0 |      100 |       0 |       0 | 6-25              
+ src/utils                     |       0 |        0 |       0 |       0 |                   
+  safeRedirect.ts              |       0 |        0 |       0 |       0 | 10-17             
 -------------------------------|---------|----------|---------|---------|-------------------
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        4.171 s
+Time:        4.529 s
 Ran all test suites.
