@@ -1,17 +1,13 @@
 // ---------------------------------------------------------------------------
-// Stripe Payment Links — TEST MODE.
-// Create these in the Stripe dashboard (test mode) → Payment Links, one per
-// price, then paste the URLs here. Before going live, replace with the
-// live-mode links (they won't contain "/test_").
-//
+// Stripe Payment Links — LIVE MODE.
 //   Pro monthly  $14/mo   |  Pro yearly  $120/yr
 //   Team monthly $39/mo   |  Team yearly $349/yr
 // ---------------------------------------------------------------------------
 export const PAYMENT_LINKS = {
-  pro_monthly:  "https://buy.stripe.com/test_6oU9AVdwC3b4h191Ee18c00", // paste test payment link
-  pro_annual:   "https://buy.stripe.com/test_5kQ6oJdwC5jc12b0Aa18c05",
-  team_monthly: "https://buy.stripe.com/test_3cI9AVgIO6ng7qz2Ii18c02",
-  team_annual:  "https://buy.stripe.com/test_8x29AV78edPI3aj0Aa18c04",
+  pro_monthly:  "https://buy.stripe.com/8x29AV78edPI3aj0Aa18c04",
+  pro_annual:   "https://buy.stripe.com/5kQ6oJdwC5jc12b0Aa18c05",
+  team_monthly: "https://buy.stripe.com/9B64gBgIO2708uDdmW18c06",
+  team_annual:  "https://buy.stripe.com/bJe6oJ64a8voaCLciS18c07",
 } as const;
 
 export type PlanPriceKey = keyof typeof PAYMENT_LINKS;

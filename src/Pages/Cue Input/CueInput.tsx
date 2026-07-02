@@ -8,6 +8,7 @@ import { Project } from '../../Interfaces/Project/Project';
 import { Cue } from '../../Interfaces/Cue/Cue';
 import { CustomField, DEFAULT_FIELDS } from '../../Interfaces/CustomField/CustomField';
 import { AIImportModal, toDateTimeString, ParsedCue } from './AIImportModal';
+import { PrintableCueSheet } from '../../Components/PrintableCueSheet/PrintableCueSheet';
 import { usePlan } from '../../Hooks/usePlan';
 import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/UpgradeModal';
 import dayjs from 'dayjs';
@@ -476,6 +477,7 @@ function CueInput({ projects }: CueInputProps) {
           <span className="ci-count-badge">{cues.length} cue{cues.length !== 1 ? 's' : ''}</span>
           <button className="ci-btn-ghost" onClick={() => canUseCustomFields() ? setShowFieldModal(true) : setUpgradeFeature('customFields')}>⚙ Fields</button>
           <button className="ci-btn-ghost" onClick={() => canUseAIImport(0) ? setShowAIImport(true) : setUpgradeFeature('aiImport')}>📥 Import</button>
+          <button className="ci-btn-ghost" onClick={() => window.print()}>🖨 Print / PDF</button>
           <button className="ci-btn-live" onClick={() => navigate(`/AdminPage/${projectId}`)}>⊙ Go Live</button>
         </div>
       </header>
@@ -592,6 +594,16 @@ function CueInput({ projects }: CueInputProps) {
 
       {upgradeFeature && (
         <UpgradeModal feature={upgradeFeature} currentPlan={plan} onClose={() => setUpgradeFeature(null)} />
+      )}
+
+      {/* Print / PDF (hidden on screen; shown by the print stylesheet) */}
+      {project && (
+        <PrintableCueSheet
+          title={project.title}
+          date={project.date instanceof Date ? project.date : new Date(project.date)}
+          cues={cues}
+          fields={fields}
+        />
       )}
 
     </div>

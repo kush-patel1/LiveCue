@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Hooks/usePageTitle";
 import "./ContactPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
+import { db, collection, addDoc, auth } from "../../Backend/firebase";
 
 function ContactPage() {
   usePageTitle("Contact");
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", eventType: "", subject: "", message: "" });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -17,10 +19,28 @@ function ContactPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    await new Promise((res) => setTimeout(res, 1000));
-    setLoading(false);
-    setSubmitted(true);
+    try {
+      // Persisted to Firestore so no message is lost. Read them in the
+      // Firebase console under the `contactMessages` collection.
+      await addDoc(collection(db, "contactMessages"), {
+        firstName: form.firstName.trim().slice(0, 100),
+        lastName:  form.lastName.trim().slice(0, 100),
+        email:     form.email.trim().slice(0, 200),
+        eventType: (form.eventType || "").slice(0, 100),
+        subject:   form.subject.trim().slice(0, 200),
+        message:   form.message.trim().slice(0, 5000),
+        fromUid:   auth.currentUser?.uid ?? null,
+        createdAt: new Date().toISOString(),
+        handled:   false,
+      });
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong sending your message. Please email us directly at hello@live-cue.com.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -159,6 +179,7 @@ function ContactPage() {
                   <label>Message</label>
                   <textarea required name="message" rows={5} placeholder="Tell us about your event and how we can help..." value={form.message} onChange={handleChange} />
                 </div>
+                {error && <p className="cp-form-error">{error}</p>}
                 <button className="btn-cp-submit" type="submit" disabled={loading}>
                   {loading ? "Sending..." : "Send Message"}
                 </button>

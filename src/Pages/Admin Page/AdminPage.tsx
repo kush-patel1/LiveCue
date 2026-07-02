@@ -7,6 +7,7 @@ import { Cue } from "../../Interfaces/Cue/Cue";
 import { CustomField, DEFAULT_FIELDS } from "../../Interfaces/CustomField/CustomField";
 import { db, collection, getDocs, query, where, updateDoc, doc, onSnapshot } from "../../Backend/firebase";
 import { LoadingScreen } from "../../Components/LoadingScreen/LoadingScreen";
+import { PrintableCueSheet } from "../../Components/PrintableCueSheet/PrintableCueSheet";
 
 interface AdminPageProps {
   projects: Project[];
@@ -95,6 +96,7 @@ function AdminPage({ projects }: AdminPageProps) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [now, setNow] = useState(new Date());
   const [urlCopied, setUrlCopied] = useState(false);
+  const [shareEnabled, setShareEnabled] = useState(true);
   const [broadcastInput, setBroadcastInput] = useState('');
   const [broadcastSent, setBroadcastSent] = useState(false);
   const [editingCue, setEditingCue] = useState<Cue | null>(null);
@@ -119,6 +121,7 @@ function AdminPage({ projects }: AdminPageProps) {
     if (found) {
       setProject(found);
       setFields(found.fields?.length ? found.fields : DEFAULT_FIELDS);
+      setShareEnabled(found.shareEnabled !== false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, projects]);
@@ -245,6 +248,17 @@ function AdminPage({ projects }: AdminPageProps) {
     });
   };
 
+  const toggleShare = async () => {
+    if (!projectId) return;
+    const next = !shareEnabled;
+    setShareEnabled(next);
+    try {
+      await updateDoc(doc(db, 'projects', projectId), { shareEnabled: next });
+    } catch {
+      setShareEnabled(!next); // revert on failure
+    }
+  };
+
   function cardVariant(index: number): 'past' | 'live' | 'next' | 'future' {
     if (liveIdx < 0) return index === 0 ? 'next' : 'future';
     const diff = index - liveIdx;
@@ -286,6 +300,7 @@ function AdminPage({ projects }: AdminPageProps) {
         </div>
 
         <div className="adm-topbar-right">
+          <button className="adm-print-btn" onClick={() => window.print()} title="Print or save as PDF">🖨</button>
           {globalDrift !== null && (
             <span className={`adm-drift-badge adm-drift--${globalDrift === 0 ? 'ok' : globalDrift > 0 ? 'late' : 'early'}`}>
               {globalDrift === 0 ? '✓ ON TIME' : globalDrift > 0 ? `▲ +${globalDrift}m` : `▼ ${Math.abs(globalDrift)}m`}
@@ -409,10 +424,28 @@ function AdminPage({ projects }: AdminPageProps) {
           <div className="adm-module adm-module--share">
             <div className="adm-module-label">SHARE</div>
             <div className="adm-module-body">
-              <div className="adm-url-display">{shareUrl}</div>
-              <button className="adm-copy-btn" onClick={copyUrl}>
-                {urlCopied ? '✓ COPIED' : 'COPY LINK'}
-              </button>
+              <label className="adm-share-toggle-row">
+                <span className="adm-share-toggle-label">
+                  {shareEnabled ? 'Live link is public' : 'Live link is off'}
+                </span>
+                <span
+                  className={`adm-share-toggle${shareEnabled ? ' adm-share-toggle--on' : ''}`}
+                  onClick={toggleShare}
+                >
+                  <span className="adm-share-toggle-knob" />
+                </span>
+              </label>
+              {shareEnabled ? (
+                <>
+                  <div className="adm-url-display">{shareUrl}</div>
+                  <button className="adm-copy-btn" onClick={copyUrl}>
+                    {urlCopied ? '✓ COPIED' : 'COPY LINK'}
+                  </button>
+                  <p className="adm-share-hint">Anyone with this link can view the live cue sheet.</p>
+                </>
+              ) : (
+                <p className="adm-share-hint">Sharing is off — only you and your team can view this sheet.</p>
+              )}
             </div>
           </div>
 
@@ -567,6 +600,16 @@ function AdminPage({ projects }: AdminPageProps) {
             </div>
           </div>
         </>
+      )}
+
+      {/* Print / PDF (hidden on screen; shown by the print stylesheet) */}
+      {project && (
+        <PrintableCueSheet
+          title={project.title}
+          date={project.date instanceof Date ? project.date : new Date(project.date)}
+          cues={cues}
+          fields={fields}
+        />
       )}
     </div>
   );

@@ -5,8 +5,9 @@ import { LoginPageProps } from "./LoginProps";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import { auth } from "../../Backend/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
+import { claimMyInvite } from "../../Services/TeamService/teamService";
 import { User as FirebaseUser } from "firebase/auth";
 import { User } from "../../Interfaces/User/User";
 import { safeRedirect } from "../../utils/safeRedirect";
@@ -28,8 +29,33 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetMsg, setResetMsg] = useState("");
+  const [resetSending, setResetSending] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  async function handleForgotPassword() {
+    setResetMsg("");
+    setPasswordError("");
+    if (!email) {
+      setEmailError("Enter your email above, then tap “Forgot password?”");
+      return;
+    }
+    setResetSending(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      // Neutral wording avoids leaking whether an account exists.
+      setResetMsg(`If an account exists for ${email}, a reset link is on its way. Check your inbox and spam folder.`);
+    } catch (error: any) {
+      if (error.code === "auth/invalid-email") {
+        setEmailError("That doesn't look like a valid email");
+      } else {
+        setResetMsg(`If an account exists for ${email}, a reset link is on its way.`);
+      }
+    } finally {
+      setResetSending(false);
+    }
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,6 +69,8 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
       await applyGrantIfExists(credential.user.uid, credential.user.email ?? email);
+      // Auto-join a team if this email was invited
+      await claimMyInvite();
       const appUser = mapFirebaseUserToAppUser(credential.user);
       sessionStorage.setItem("CURRENT_USER", JSON.stringify(appUser));
       setUser(appUser);
@@ -94,7 +122,17 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
               autoComplete="current-password"
             />
             {passwordError && <span className="auth-error">{passwordError}</span>}
+            <button
+              type="button"
+              className="auth-forgot"
+              onClick={handleForgotPassword}
+              disabled={resetSending}
+            >
+              {resetSending ? "Sending…" : "Forgot password?"}
+            </button>
           </div>
+
+          {resetMsg && <div className="auth-notice">{resetMsg}</div>}
 
           <button className="auth-submit" type="submit">Sign in</button>
         </form>

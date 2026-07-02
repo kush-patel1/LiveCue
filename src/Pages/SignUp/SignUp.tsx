@@ -5,6 +5,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { SignUpPageProps } from "./SignUpProps";
 import { auth, db, createUserWithEmailAndPassword, setDoc, doc } from "../../Backend/firebase";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
+import { claimMyInvite } from "../../Services/TeamService/teamService";
 import { safeRedirect } from "../../utils/safeRedirect";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import "../Login Page/Login.css";
@@ -41,6 +42,8 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
       // by default in usePlan when no plan field exists.
       await setDoc(userRef, { firstName, lastName, email });
       await applyGrantIfExists(credential.user.uid, email);
+      // Auto-join a team if this email was invited
+      await claimMyInvite();
 
       const userData: User = { id: credential.user.uid, firstName, lastName, email, password: "" };
       setUser(userData);
