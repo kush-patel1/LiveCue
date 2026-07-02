@@ -1,0 +1,119 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Demo shell + banner
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --demo-teal: #578493;
+  --demo-teal-light: #7fa8b5;
+}
+
+/* ── Banner ── */
+.demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 18px;
+  background: linear-gradient(90deg, rgba(87, 132, 147, 0.16), rgba(87, 132, 147, 0.08));
+  border-bottom: 1px solid rgba(87, 132, 147, 0.35);
+  backdrop-filter: blur(10px);
+}
+
+.demo-banner-left { display: flex; align-items: center; gap: 10px; }
+
+.demo-banner-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--demo-teal-light);
+  box-shadow: 0 0 0 0 rgba(127, 168, 181, 0.6);
+  animation: demo-pulse 2s ease-in-out infinite;
+}
+@keyframes demo-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(127, 168, 181, 0.55); }
+  70%  { box-shadow: 0 0 0 7px rgba(127, 168, 181, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(127, 168, 181, 0); }
+}
+
+.demo-banner-text { display: flex; flex-direction: column; line-height: 1.25; }
+.demo-banner-text strong { font-size: 13px; color: #e8eef0; letter-spacing: 0.01em; }
+.demo-banner-sub { font-size: 11px; color: #9fb4bc; }
+
+.demo-banner-actions { display: flex; gap: 8px; }
+.demo-banner-btn {
+  font-size: 12px; font-weight: 600;
+  border-radius: 980px; padding: 7px 16px; cursor: pointer;
+  border: 1px solid transparent; transition: opacity 0.15s, transform 0.12s;
+}
+.demo-banner-btn:hover { transform: translateY(-1px); }
+.demo-banner-btn--ghost {
+  background: transparent; color: #cfe0e5; border-color: rgba(127, 168, 181, 0.4);
+}
+.demo-banner-btn--solid {
+  background: linear-gradient(135deg, #578493, #3d7080); color: #fff;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Demo hub
+   ───────────────────────────────────────────────────────────────────────── */
+.demo-hub {
+  min-height: 100vh;
+  background: radial-gradient(1200px 600px at 50% -10%, #14212a 0%, #0b1116 60%);
+  color: #e8eef0;
+  padding: 0 0 80px;
+}
+
+.demo-hub-inner { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+.demo-hero { text-align: center; padding: 72px 0 40px; }
+.demo-hero-eyebrow {
+  font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--demo-teal-light); margin-bottom: 14px;
+}
+.demo-hero-title {
+  font-size: clamp(34px, 5vw, 52px); font-weight: 800; margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+.demo-hero-sub {
+  font-size: 17px; color: #a9bcc4; max-width: 620px; margin: 0 auto; line-height: 1.55;
+}
+
+.demo-cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px; margin-top: 44px;
+}
+
+.demo-card {
+  text-align: left;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  border: 1px solid rgba(127, 168, 181, 0.18);
+  border-radius: 18px; padding: 26px 24px; cursor: pointer;
+  transition: transform 0.18s, border-color 0.18s, background 0.18s;
+}
+.demo-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(127, 168, 181, 0.5);
+  background: linear-gradient(180deg, rgba(87,132,147,0.14), rgba(87,132,147,0.05));
+}
+.demo-card-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(87, 132, 147, 0.18); color: var(--demo-teal-light);
+  margin-bottom: 16px;
+}
+.demo-card-title { font-size: 18px; font-weight: 700; margin: 0 0 6px; }
+.demo-card-desc { font-size: 14px; color: #9fb4bc; line-height: 1.5; margin: 0; }
+.demo-card-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; color: var(--demo-teal-light); margin-top: 16px;
+}
+
+.demo-hub-note {
+  margin-top: 40px; text-align: center; font-size: 13px; color: #7e939b;
+}
+.demo-hub-note a, .demo-hub-link { color: var(--demo-teal-light); cursor: pointer; text-decoration: underline; }
+
+.demo-hub-logo {
+  height: 30px; cursor: pointer; display: block; margin: 0 auto; padding-top: 28px;
+}

@@ -12,7 +12,10 @@ import { ProtectedRoute } from "./Components/ProtectedRoute/ProtectedRoute";
 import LandingPage from "./Pages/Landing Page/LandingPage";
 import PricingPage from "./Pages/Pricing Page/PricingPage";
 import ContactPage from "./Pages/Contact Page/ContactPage";
-import DemoPage from "./Pages/Demo Page/DemoPage";
+import DemoHub from "./Demo/DemoHub";
+import DemoEditor from "./Demo/DemoEditor";
+import DemoAdmin from "./Demo/DemoAdmin";
+import DemoLive from "./Demo/DemoLive";
 import SettingsPage from "./Pages/Settings Page/SettingsPage";
 import CheckoutSuccess from "./Pages/Checkout/CheckoutSuccess";
 import AcceptInvite from "./Pages/AcceptInvite/AcceptInvite";
@@ -40,7 +43,10 @@ function App() {
           <Route path="/signup" element={<SignUp setUser={setUser} />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/demo" element={<DemoPage />} />
+          <Route path="/demo" element={<DemoHub />} />
+          <Route path="/demo/editor" element={<DemoEditor />} />
+          <Route path="/demo/admin" element={<DemoAdmin />} />
+          <Route path="/demo/live" element={<DemoLive />} />
           <Route path="/checkout-success" element={<CheckoutSuccess />} />
           <Route path="/accept-invite" element={<AcceptInvite />} />
           <Route path="/settings" element={<SettingsPage projects={projects} setProjects={setProjects} />} />

@@ -213,7 +213,6 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
 
   if (loading) return <LoadingScreen />;
 
-  const isDemo = sessionStorage.getItem('IS_DEMO') === 'true';
   const displayName = auth.currentUser?.displayName || '';
   const firstName = displayName.split(' ')[0] || '';
   const initials = displayName
@@ -256,13 +255,6 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
 
       {/* ── Main ── */}
       <main className="hp-main">
-        {isDemo && (
-          <div className="hp-demo-banner">
-            You're viewing a demo account. Data is read-only and resets periodically.
-            <button onClick={() => navigate('/signup')}>Create Free Account</button>
-          </div>
-        )}
-
         {/* Top bar */}
         <div className="hp-topbar">
           <div>
