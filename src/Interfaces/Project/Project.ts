@@ -14,4 +14,5 @@ export interface Project {
   owner: string;
   teamId?: string;          // set when project belongs to a team
   fields: CustomField[];
+  shareEnabled?: boolean;   // true = live cue sheet link is publicly viewable
 }

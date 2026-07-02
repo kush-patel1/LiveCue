@@ -95,6 +95,7 @@ function AdminPage({ projects }: AdminPageProps) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [now, setNow] = useState(new Date());
   const [urlCopied, setUrlCopied] = useState(false);
+  const [shareEnabled, setShareEnabled] = useState(true);
   const [broadcastInput, setBroadcastInput] = useState('');
   const [broadcastSent, setBroadcastSent] = useState(false);
   const [editingCue, setEditingCue] = useState<Cue | null>(null);
@@ -119,6 +120,7 @@ function AdminPage({ projects }: AdminPageProps) {
     if (found) {
       setProject(found);
       setFields(found.fields?.length ? found.fields : DEFAULT_FIELDS);
+      setShareEnabled(found.shareEnabled !== false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, projects]);
@@ -243,6 +245,17 @@ function AdminPage({ projects }: AdminPageProps) {
       setUrlCopied(true);
       setTimeout(() => setUrlCopied(false), 2000);
     });
+  };
+
+  const toggleShare = async () => {
+    if (!projectId) return;
+    const next = !shareEnabled;
+    setShareEnabled(next);
+    try {
+      await updateDoc(doc(db, 'projects', projectId), { shareEnabled: next });
+    } catch {
+      setShareEnabled(!next); // revert on failure
+    }
   };
 
   function cardVariant(index: number): 'past' | 'live' | 'next' | 'future' {
@@ -409,10 +422,28 @@ function AdminPage({ projects }: AdminPageProps) {
           <div className="adm-module adm-module--share">
             <div className="adm-module-label">SHARE</div>
             <div className="adm-module-body">
-              <div className="adm-url-display">{shareUrl}</div>
-              <button className="adm-copy-btn" onClick={copyUrl}>
-                {urlCopied ? '✓ COPIED' : 'COPY LINK'}
-              </button>
+              <label className="adm-share-toggle-row">
+                <span className="adm-share-toggle-label">
+                  {shareEnabled ? 'Live link is public' : 'Live link is off'}
+                </span>
+                <span
+                  className={`adm-share-toggle${shareEnabled ? ' adm-share-toggle--on' : ''}`}
+                  onClick={toggleShare}
+                >
+                  <span className="adm-share-toggle-knob" />
+                </span>
+              </label>
+              {shareEnabled ? (
+                <>
+                  <div className="adm-url-display">{shareUrl}</div>
+                  <button className="adm-copy-btn" onClick={copyUrl}>
+                    {urlCopied ? '✓ COPIED' : 'COPY LINK'}
+                  </button>
+                  <p className="adm-share-hint">Anyone with this link can view the live cue sheet.</p>
+                </>
+              ) : (
+                <p className="adm-share-hint">Sharing is off — only you and your team can view this sheet.</p>
+              )}
             </div>
           </div>
 

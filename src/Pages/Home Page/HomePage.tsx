@@ -106,6 +106,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
       owner: user.id,
       ...(teamId ? { teamId } : {}),
       fields: DEFAULT_FIELDS,
+      shareEnabled: true, // live cue sheet link is viewable by anyone with it
     };
 
     try {
