@@ -1,0 +1,92 @@
+/* Hidden on screen — only shown when printing (see the @media print block). */
+.print-sheet {
+  display: none;
+}
+
+@media print {
+  /* Hide the app; show only the printable sheet. */
+  body * {
+    visibility: hidden;
+  }
+  .print-sheet,
+  .print-sheet * {
+    visibility: visible;
+  }
+  .print-sheet {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+    color: #000;
+    background: #fff;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .print-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .print-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 0 0 3px;
+  }
+  .print-date {
+    font-size: 12px;
+    color: #333;
+  }
+  .print-brand {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #578493;
+  }
+
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+  }
+  .print-table th,
+  .print-table td {
+    border: 1px solid #999;
+    padding: 5px 7px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .print-table th {
+    background: #eef2f3 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 700;
+  }
+  /* Repeat the header row on every printed page. */
+  .print-table thead { display: table-header-group; }
+  .print-table tr { page-break-inside: avoid; }
+
+  .print-col-num  { width: 26px; text-align: center; font-weight: 700; }
+  .print-col-time { width: 62px; white-space: nowrap; }
+  .print-col-dur  { width: 40px; white-space: nowrap; }
+  .print-col-title { font-weight: 600; }
+  .print-empty { text-align: center; color: #666; font-style: italic; }
+
+  .print-foot {
+    margin-top: 14px;
+    font-size: 9px;
+    color: #666;
+    text-align: center;
+  }
+
+  @page {
+    margin: 14mm 12mm;
+  }
+}

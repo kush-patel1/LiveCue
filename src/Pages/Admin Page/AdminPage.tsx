@@ -7,6 +7,7 @@ import { Cue } from "../../Interfaces/Cue/Cue";
 import { CustomField, DEFAULT_FIELDS } from "../../Interfaces/CustomField/CustomField";
 import { db, collection, getDocs, query, where, updateDoc, doc, onSnapshot } from "../../Backend/firebase";
 import { LoadingScreen } from "../../Components/LoadingScreen/LoadingScreen";
+import { PrintableCueSheet } from "../../Components/PrintableCueSheet/PrintableCueSheet";
 
 interface AdminPageProps {
   projects: Project[];
@@ -299,6 +300,7 @@ function AdminPage({ projects }: AdminPageProps) {
         </div>
 
         <div className="adm-topbar-right">
+          <button className="adm-print-btn" onClick={() => window.print()} title="Print or save as PDF">🖨</button>
           {globalDrift !== null && (
             <span className={`adm-drift-badge adm-drift--${globalDrift === 0 ? 'ok' : globalDrift > 0 ? 'late' : 'early'}`}>
               {globalDrift === 0 ? '✓ ON TIME' : globalDrift > 0 ? `▲ +${globalDrift}m` : `▼ ${Math.abs(globalDrift)}m`}
@@ -598,6 +600,16 @@ function AdminPage({ projects }: AdminPageProps) {
             </div>
           </div>
         </>
+      )}
+
+      {/* Print / PDF (hidden on screen; shown by the print stylesheet) */}
+      {project && (
+        <PrintableCueSheet
+          title={project.title}
+          date={project.date instanceof Date ? project.date : new Date(project.date)}
+          cues={cues}
+          fields={fields}
+        />
       )}
     </div>
   );

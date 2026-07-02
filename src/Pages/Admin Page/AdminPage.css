@@ -1035,3 +1035,16 @@
   line-height: 1.4;
   color: var(--text-faint, #7e8b91);
 }
+
+.adm-print-btn {
+  background: transparent;
+  border: 1px solid rgba(120, 130, 135, 0.35);
+  border-radius: 8px;
+  color: var(--text-secondary, #9aa7ad);
+  font-size: 15px;
+  line-height: 1;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.adm-print-btn:hover { background: rgba(120, 130, 135, 0.12); border-color: rgba(120,130,135,0.6); }
