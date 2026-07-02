@@ -4,9 +4,11 @@ service cloud.firestore {
 
     // Fields that only Cloud Functions (admin SDK) may write.
     // Client code can NEVER set these — even on the user's own document.
-    function isPlanField(data) {
-      return data.keys().hasAny([
-        'plan', 'planOverride', 'planExpiry',
+    // Takes a set/list of field names.
+    function hasPlanField(keys) {
+      return keys.hasAny([
+        'plan', 'planOverride', 'planExpiry', 'billingInterval',
+        'subscriptionStatus', 'cancelAtPeriodEnd',
         'stripeCustomerId', 'stripeSubscriptionId', 'teamId'
       ]);
     }
@@ -17,12 +19,35 @@ service cloud.firestore {
       return team.ownerId == request.auth.uid || team.memberIds.hasAny([request.auth.uid]);
     }
 
-    // Users can read their own document and write non-plan fields only.
+    // Ownership check for a project by its document ID — true if the caller
+    // owns the project or is a member of the project's team.
+    function ownsProject(projectId) {
+      let project = get(/databases/$(database)/documents/projects/$(projectId)).data;
+      return project.owner == request.auth.uid
+        || (project.teamId != null && isTeamMember(project.teamId));
+    }
+
+    // The only fields a client may write to its own user doc. Everything else
+    // (plan, billing, teamId) is admin-SDK-only. Constraining the whole doc to
+    // this set also blocks arbitrary/oversized junk from being stored.
+    function isProfileOnly(keys) {
+      return keys.hasOnly(['firstName', 'lastName', 'email']);
+    }
+
+    // Users can read their own document and write profile fields only.
+    // create: the entire initial payload must be profile-only.
+    // update: only profile fields may change (diff must touch nothing else),
+    //         and plan fields can never be among the changed keys.
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if request.auth != null
+      allow create: if request.auth != null
         && request.auth.uid == uid
-        && !isPlanField(request.resource.data.diff(resource.data).affectedKeys());
+        && isProfileOnly(request.resource.data.keys());
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && isProfileOnly(request.resource.data.diff(resource.data).affectedKeys())
+        && !hasPlanField(request.resource.data.diff(resource.data).affectedKeys());
+      allow delete: if request.auth != null && request.auth.uid == uid;
     }
 
     // _grants: authenticated users may read their own grant (matched by email).
@@ -33,36 +58,37 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Teams: owner can read/write their team doc (members list, invites).
-    // Members can read the team doc (to resolve team membership in usePlan).
-    // All writes go through Cloud Functions except owner managing invites.
+    // Teams: members may read the team doc (to resolve membership in usePlan).
+    // Seat count, membership, ownership, and invites are billing-sensitive and
+    // are mutated ONLY by Cloud Functions (admin SDK) — no client writes, so a
+    // team owner cannot self-serve extra seats or add arbitrary members.
     match /teams/{teamId} {
       allow read: if request.auth != null && isTeamMember(teamId);
-      allow write: if request.auth != null
-        && get(/databases/$(database)/documents/teams/$(teamId)).data.ownerId == request.auth.uid;
+      allow write: if false;
     }
 
-    // Cues: authenticated user who can read the parent project may read/write its cues.
-    // projectRef on the cue doc holds the Firestore project document ID.
+    // Cues: read/write requires ownership (or team membership) of the PARENT
+    // project. projectRef on the cue holds the project's document ID.
+    // create: validate the referenced project belongs to the caller — a bare
+    //         "resource == null" would let any authed user inject cues into
+    //         someone else's project.
+    // update/delete: validate against the cue's existing projectRef.
     match /cues/{docId} {
-      allow read, write: if request.auth != null && (
-        resource == null
-        || (
-          get(/databases/$(database)/documents/projects/$(resource.data.projectRef)).data.owner == request.auth.uid
-          || (
-            get(/databases/$(database)/documents/projects/$(resource.data.projectRef)).data.teamId != null
-            && isTeamMember(get(/databases/$(database)/documents/projects/$(resource.data.projectRef)).data.teamId)
-          )
-        )
-      );
+      allow read, update, delete: if request.auth != null
+        && ownsProject(resource.data.projectRef);
+      allow create: if request.auth != null
+        && ownsProject(request.resource.data.projectRef);
     }
 
+    // Projects: owner (or team member) may read/write.
+    // create: the new doc must be owned by the caller — prevents creating docs
+    //         under another user's UID and stops arbitrary-owner injection.
     match /projects/{docId} {
-      allow read, write: if request.auth != null && (
-        resource == null
-        || resource.data.owner == request.auth.uid
-        || (resource.data.teamId != null && isTeamMember(resource.data.teamId))
-      );
+      allow read, update, delete: if request.auth != null
+        && (resource.data.owner == request.auth.uid
+            || (resource.data.teamId != null && isTeamMember(resource.data.teamId)));
+      allow create: if request.auth != null
+        && request.resource.data.owner == request.auth.uid;
     }
   }
 }

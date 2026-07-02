@@ -478,3 +478,35 @@
   padding: 6px 0;
   font-style: italic;
 }
+
+/* ── Billing status ── */
+.sp-billing-status {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sp-billing-line {
+  font-size: 13px;
+  color: var(--text-secondary, #8a8f98);
+}
+
+.sp-billing-alert {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.sp-billing-alert--warn {
+  background: rgba(240, 180, 60, 0.1);
+  border: 1px solid rgba(240, 180, 60, 0.35);
+  color: #d9a53c;
+}
+
+.sp-billing-alert--info {
+  background: rgba(87, 132, 147, 0.1);
+  border: 1px solid rgba(87, 132, 147, 0.35);
+  color: var(--teal-light, #7fa8b5);
+}
