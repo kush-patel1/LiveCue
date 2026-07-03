@@ -13,7 +13,8 @@ import { exportCuesToCsv } from '../../utils/exportCsv';
 import { usePlan } from '../../Hooks/usePlan';
 import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/UpgradeModal';
 import dayjs from 'dayjs';
-import { db, collection, addDoc, query, where, doc, updateDoc, deleteDoc, onSnapshot } from '../../Backend/firebase';
+import { db, collection, addDoc, query, where, doc, updateDoc, deleteDoc, onSnapshot, auth } from '../../Backend/firebase';
+import { CueComment } from '../../Interfaces/Comment/CueComment';
 import { debounce } from 'lodash';
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent,
@@ -90,12 +91,14 @@ function SortableFieldHeader({ field, onRemove }: {
 }*/
 
 function SortableCueRow({
-  cue, index, fields, isLast, dragEnabled, onInputChange, onTimeChange, onDelete,
+  cue, index, fields, isLast, dragEnabled, onInputChange, onTimeChange, onDelete, onOpenComments, commentCount,
 }: {
   cue: Cue; index: number; fields: CustomField[]; isLast: boolean; dragEnabled: boolean;
   onInputChange: (index: number, fieldId: string, value: string) => void;
   onTimeChange: (index: number, field: 'startTime' | 'endTime', timeStr: string) => void;
   onDelete: (id: string) => void;
+  onOpenComments: (id: string) => void;
+  commentCount: number;
 }) {
   // Strip seconds/ms from both ends before diffing so partial minutes don't skew the display
   const durationMinutes = Math.max(0, Math.round(
@@ -198,6 +201,12 @@ function SortableCueRow({
       ))}
 
       <div className="ci-col-del">
+        <button
+          className={`ci-cmt-btn${commentCount > 0 ? ' ci-cmt-btn--has' : ''}`}
+          onClick={() => onOpenComments(cue.id)}
+          title="Comments"
+          aria-label={`Comments on cue ${cue.cueNumber}`}
+        >💬{commentCount > 0 ? <span className="ci-cmt-count">{commentCount}</span> : null}</button>
         <button className="ci-del-btn" onClick={() => onDelete(cue.id)} title="Delete cue" aria-label={`Delete cue ${cue.cueNumber}`}>✕</button>
       </div>
     </div>
@@ -209,6 +218,9 @@ function CueInput({ projects }: CueInputProps) {
   const { projectId } = useParams();
   const [cues, setCues] = useState<Cue[]>([]);
   const [project, setProject] = useState<Project | null>(null);
+  const [comments, setComments] = useState<CueComment[]>([]);
+  const [commentsCueId, setCommentsCueId] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState('');
   usePageTitle(project ? project.title : "Cue Editor");
   const [fields, setFields] = useState<CustomField[]>(DEFAULT_FIELDS);
   const [showFieldModal, setShowFieldModal] = useState(false);
@@ -279,6 +291,38 @@ function CueInput({ projects }: CueInputProps) {
     }, (err) => { console.error('Error syncing cues:', err); setLoading(false); });
     return unsub;
   }, [projectId]);
+
+  // Real-time comments for the whole project (drives per-cue counts + the panel)
+  useEffect(() => {
+    if (!projectId) return;
+    const q = query(collection(db, 'comments'), where('projectRef', '==', projectId));
+    return onSnapshot(q, (snap) => {
+      setComments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CueComment))
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
+    }, () => {});
+  }, [projectId]);
+
+  const addComment = async () => {
+    const text = commentText.trim();
+    if (!text || !commentsCueId || !projectId || !auth.currentUser) return;
+    const authorName = auth.currentUser.displayName || auth.currentUser.email || 'Someone';
+    setCommentText('');
+    try {
+      await addDoc(collection(db, 'comments'), {
+        projectRef: projectId,
+        cueId: commentsCueId,
+        uid: auth.currentUser.uid,
+        authorName,
+        text,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err) { console.error('Error posting comment:', err); }
+  };
+
+  const deleteComment = async (id: string) => {
+    try { await deleteDoc(doc(db, 'comments', id)); }
+    catch (err) { console.error('Error deleting comment:', err); }
+  };
 
   const debouncedUpdate = useRef(
     debounce(async (cue: Cue) => {
@@ -543,6 +587,8 @@ function CueInput({ projects }: CueInputProps) {
                   onInputChange={handleInputChange}
                   onTimeChange={handleTimeChange}
                   onDelete={setDeleteCueId}
+                  onOpenComments={setCommentsCueId}
+                  commentCount={comments.filter((c) => c.cueId === cue.id).length}
                 />
               ))}
             </SortableContext>
@@ -621,6 +667,52 @@ function CueInput({ projects }: CueInputProps) {
       {upgradeFeature && (
         <UpgradeModal feature={upgradeFeature} currentPlan={plan} onClose={() => setUpgradeFeature(null)} />
       )}
+
+      {/* Comments drawer */}
+      {commentsCueId && (() => {
+        const cue = cues.find((c) => c.id === commentsCueId);
+        const thread = comments.filter((c) => c.cueId === commentsCueId);
+        return (
+          <>
+            <div className="ci-cmt-overlay" onClick={() => setCommentsCueId(null)} />
+            <div className="ci-cmt-drawer">
+              <div className="ci-cmt-head">
+                <div>
+                  <div className="ci-cmt-label">COMMENTS</div>
+                  <div className="ci-cmt-title">{cue ? `${cue.cueNumber}. ${cue.title || 'Untitled'}` : ''}</div>
+                </div>
+                <button className="ci-cmt-close" onClick={() => setCommentsCueId(null)} aria-label="Close comments">✕</button>
+              </div>
+              <div className="ci-cmt-list">
+                {thread.length === 0 && <div className="ci-cmt-empty">No comments yet. Start the conversation.</div>}
+                {thread.map((c) => (
+                  <div key={c.id} className="ci-cmt-item">
+                    <div className="ci-cmt-item-head">
+                      <span className="ci-cmt-author">{c.authorName}</span>
+                      <span className="ci-cmt-time">{new Date(c.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                      {auth.currentUser?.uid === c.uid && (
+                        <button className="ci-cmt-del" onClick={() => deleteComment(c.id)} aria-label="Delete comment">✕</button>
+                      )}
+                    </div>
+                    <div className="ci-cmt-text">{c.text}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="ci-cmt-compose">
+                <textarea
+                  className="ci-cmt-input"
+                  placeholder="Add a comment…"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addComment(); } }}
+                  rows={2}
+                />
+                <button className="ci-cmt-send" onClick={addComment} disabled={!commentText.trim()}>Post</button>
+              </div>
+            </div>
+          </>
+        );
+      })()}
 
       {/* Print / PDF (hidden on screen; shown by the print stylesheet) */}
       {project && (

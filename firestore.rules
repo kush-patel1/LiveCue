@@ -137,6 +137,22 @@ service cloud.firestore {
     // list: never public — only the owner/team can enumerate projects, so no one
     //       can scan the collection even though single shared docs are readable.
     // create: the new doc must be owned by the caller.
+    // Per-cue comments (crew notes). Any project member can read and post;
+    // authors and editors/owners can delete. Not public.
+    match /comments/{docId} {
+      allow read: if request.auth != null && ownsProject(resource.data.projectRef);
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && projectRole(request.resource.data.projectRef) != 'none'
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 2000;
+      allow delete: if request.auth != null
+        && (resource.data.uid == request.auth.uid
+            || projectRole(resource.data.projectRef) in ['owner', 'editor']);
+      allow update: if false;
+    }
+
     match /projects/{docId} {
       allow get: if projectIsPublic(docId)
         || (request.auth != null
