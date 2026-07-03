@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import { Cue } from "../Interfaces/Cue/Cue";
 import { CustomField } from "../Interfaces/CustomField/CustomField";
 import { DEMO_FIELDS, DEMO_TITLE, DEMO_DATE, DEMO_PROJECT_ID, makeDemoCues } from "./demoData";
+import { exportCuesToCsv } from "../utils/exportCsv";
 
 const toTimeInput = (iso: string): string => {
   try { return dayjs(iso).format("HH:mm"); } catch { return ""; }
@@ -110,6 +111,7 @@ function DemoEditor() {
               {saveStatus === "saved" && "✓ Saved (demo — not persisted)"}
             </span>
             <span className="ci-count-badge">{cues.length} cue{cues.length !== 1 ? "s" : ""}</span>
+            <button className="ci-btn-ghost" onClick={() => exportCuesToCsv(DEMO_TITLE, cues, fields)}>⬇ CSV</button>
             <button className="ci-btn-live" onClick={() => navigate("/demo/admin")}>⊙ Go Live</button>
           </div>
         </header>
