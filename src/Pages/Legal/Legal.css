@@ -58,3 +58,10 @@
   font-size: 13px;
   color: #9fb4bc;
 }
+
+.legal-inline-link {
+  color: #7fa8b5;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.legal-inline-link:hover { opacity: 0.85; }
