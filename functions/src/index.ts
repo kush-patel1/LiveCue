@@ -60,6 +60,33 @@ export const applyGrant = functions.https.onCall(async (_, context) => {
 });
 
 // ---------------------------------------------------------------------------
+// adminClearMyBilling
+// One-off cleanup tool. Clears the CALLER's leftover Stripe fields (e.g. a
+// test-mode customer left over after switching to live mode). Gated to an admin
+// email allowlist so it can't be abused. Not exposed in any UI — call it from
+// the browser console: httpsCallable(getFunctions(), "adminClearMyBilling")({}).
+// ---------------------------------------------------------------------------
+const ADMIN_EMAILS = ["kushptl@udel.edu", "kushpatel705@gmail.com"];
+
+export const adminClearMyBilling = functions.https.onCall(async (_data, context) => {
+  const email = (context.auth?.token.email ?? "").toLowerCase();
+  if (!context.auth || !ADMIN_EMAILS.includes(email)) {
+    throw new functions.https.HttpsError("permission-denied", "Admins only");
+  }
+  await db.collection("users").doc(context.auth.uid).set({
+    plan: "free",
+    planOverride: admin.firestore.FieldValue.delete(),
+    planExpiry: null,
+    billingInterval: null,
+    subscriptionStatus: null,
+    cancelAtPeriodEnd: false,
+    stripeCustomerId: admin.firestore.FieldValue.delete(),
+    stripeSubscriptionId: null,
+  }, { merge: true });
+  return { cleared: true };
+});
+
+// ---------------------------------------------------------------------------
 // createPortalSession
 // Returns a Stripe Customer Portal URL so the user can manage / cancel their
 // subscription. The return URL is hardcoded server-side to prevent open-redirect

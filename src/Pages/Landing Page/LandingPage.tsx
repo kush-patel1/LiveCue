@@ -361,7 +361,11 @@ function LandingPage() {
           <div className="lp-footer-divider" />
           <div className="lp-footer-bottom">
             <span>© {new Date().getFullYear()} LiveCue. All rights reserved.</span>
-            <span>Built for event professionals.</span>
+            <span className="lp-footer-legal">
+              <span onClick={() => navigate("/terms")}>Terms</span>
+              <span onClick={() => navigate("/privacy")}>Privacy</span>
+              <span onClick={() => navigate("/contact")}>Contact</span>
+            </span>
           </div>
         </div>
       </footer>

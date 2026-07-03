@@ -1,0 +1,44 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Global accessibility baseline
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Visible keyboard focus for anyone tabbing through the app. Many custom
+   buttons strip the default outline; :focus-visible only shows for keyboard
+   users, so mouse clicks stay clean. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #7fa8b5;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respect users who ask for less motion — disable animations/large transitions
+   (protects against motion sickness / vestibular issues). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Screen-reader-only helper: visually hidden but announced. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -19,9 +19,15 @@ import DemoLive from "./Demo/DemoLive";
 import SettingsPage from "./Pages/Settings Page/SettingsPage";
 import CheckoutSuccess from "./Pages/Checkout/CheckoutSuccess";
 import AcceptInvite from "./Pages/AcceptInvite/AcceptInvite";
+import TermsPage from "./Pages/Legal/TermsPage";
+import PrivacyPage from "./Pages/Legal/PrivacyPage";
+import NotFound from "./Pages/NotFound/NotFound";
+import AdminReset from "./Pages/Admin Reset/AdminReset";
+import { ErrorBoundary } from "./Components/ErrorBoundary/ErrorBoundary";
 import { ThemeProvider } from "./ThemeContext";
 import './App.css';
 import './theme.css';
+import './a11y.css';
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
@@ -35,6 +41,7 @@ function App() {
 
   return (
     <ThemeProvider>
+      <ErrorBoundary>
       <HashRouter>
         <ScrollToTop />
         <Routes>
@@ -54,8 +61,13 @@ function App() {
           <Route path="/HomePage" element={<ProtectedRoute><HomePage user={user} setUser={setUser} projects={projects} setProjects={setProjects} /></ProtectedRoute>} />
           <Route path="/LiveCueSheet/:projectId" element={<LiveCueSheet projects={projects} />} />
           <Route path="/AdminPage/:projectId" element={<ProtectedRoute><AdminPage projects={projects} /></ProtectedRoute>} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/admin/reset-billing" element={<AdminReset />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </HashRouter>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }

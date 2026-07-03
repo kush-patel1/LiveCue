@@ -13,6 +13,7 @@ import { Cue } from '../../Interfaces/Cue/Cue';
 import { DEFAULT_FIELDS } from '../../Interfaces/CustomField/CustomField';
 import { usePlan } from '../../Hooks/usePlan';
 import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/UpgradeModal';
+import { WelcomeModal } from '../../Components/WelcomeModal/WelcomeModal';
 
 interface HomePageProps {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
@@ -62,8 +63,23 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
   const navigate = useNavigate();
   const { plan, canCreateProject, teamId, isTeamOwner } = usePlan(user?.id);
   const isTeamMember = !!teamId && !isTeamOwner;
+
+  // First-run welcome — shown once per user (keyed by uid in localStorage).
+  useEffect(() => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    const key = `livecue_welcomed_${uid}`;
+    if (!localStorage.getItem(key)) setShowWelcome(true);
+  }, [user?.id]);
+
+  const dismissWelcome = () => {
+    const uid = auth.currentUser?.uid;
+    if (uid) localStorage.setItem(`livecue_welcomed_${uid}`, '1');
+    setShowWelcome(false);
+  };
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
   const projectToDelete = projects.find(p => p.firebaseID === deleteProjectId);
@@ -421,6 +437,15 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
       {/* ── Upgrade modal ── */}
       {upgradeFeature && (
         <UpgradeModal feature={upgradeFeature} currentPlan={plan} onClose={() => setUpgradeFeature(null)} />
+      )}
+
+      {showWelcome && (
+        <WelcomeModal
+          plan={plan}
+          firstName={firstName}
+          onCreateProject={() => { dismissWelcome(); setShowModal(true); }}
+          onClose={dismissWelcome}
+        />
       )}
 
       {/* ── New project modal ── */}
