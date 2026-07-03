@@ -15,6 +15,7 @@ import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/Upgr
 import dayjs from 'dayjs';
 import { db, collection, addDoc, query, where, doc, updateDoc, deleteDoc, onSnapshot, auth } from '../../Backend/firebase';
 import { CueComment } from '../../Interfaces/Comment/CueComment';
+import { ProjectSnapshot, SnapshotCue } from '../../Interfaces/Snapshot/ProjectSnapshot';
 import { debounce } from 'lodash';
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent,
@@ -224,6 +225,9 @@ function CueInput({ projects }: CueInputProps) {
   const [commentsCueId, setCommentsCueId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
   const [autoTiming, setAutoTiming] = useState(false);
+  const [snapshots, setSnapshots] = useState<ProjectSnapshot[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   usePageTitle(project ? project.title : "Cue Editor");
   const [fields, setFields] = useState<CustomField[]>(DEFAULT_FIELDS);
   const [showFieldModal, setShowFieldModal] = useState(false);
@@ -334,6 +338,54 @@ function CueInput({ projects }: CueInputProps) {
   const deleteComment = async (id: string) => {
     try { await deleteDoc(doc(db, 'comments', id)); }
     catch (err) { console.error('Error deleting comment:', err); }
+  };
+
+  // Saved versions (revision history)
+  useEffect(() => {
+    if (!projectId) return;
+    const q = query(collection(db, 'snapshots'), where('projectRef', '==', projectId));
+    return onSnapshot(q, (snap) => {
+      setSnapshots(snap.docs.map((d) => ({ id: d.id, ...d.data() } as ProjectSnapshot))
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
+    }, () => {});
+  }, [projectId]);
+
+  const saveVersion = async () => {
+    if (!canEdit || !projectId || !auth.currentUser) return;
+    const suggested = `Version ${new Date().toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
+    const label = window.prompt('Name this version:', suggested);
+    if (label === null) return;
+    const authorName = auth.currentUser.displayName || auth.currentUser.email || 'Someone';
+    const snapCues: SnapshotCue[] = [...cues].sort((a, b) => a.cueNumber - b.cueNumber).map((c) => ({
+      cueNumber: c.cueNumber, title: c.title, startTime: c.startTime, endTime: c.endTime,
+      isLive: c.isLive, fieldValues: c.fieldValues || {},
+    }));
+    try {
+      await addDoc(collection(db, 'snapshots'), {
+        projectRef: projectId, authorName, label: label.trim() || 'Untitled version',
+        createdAt: new Date().toISOString(), cues: snapCues,
+      });
+    } catch (err) { console.error('Error saving version:', err); }
+  };
+
+  const restoreVersion = async (snap: ProjectSnapshot) => {
+    if (!canEdit || !projectId) return;
+    if (!window.confirm(`Restore "${snap.label}"? This replaces all current cues with that version.`)) return;
+    setRestoring(true);
+    try {
+      await Promise.all(cues.map((c) => deleteDoc(doc(db, 'cues', c.id))));
+      await Promise.all(snap.cues.map((sc) => addDoc(collection(db, 'cues'), {
+        cueNumber: sc.cueNumber, title: sc.title, startTime: sc.startTime, endTime: sc.endTime,
+        projectRef: projectId, isLive: false, fieldValues: sc.fieldValues || {},
+      })));
+      setShowHistory(false);
+    } catch (err) { console.error('Error restoring version:', err); }
+    finally { setRestoring(false); }
+  };
+
+  const deleteVersion = async (id: string) => {
+    try { await deleteDoc(doc(db, 'snapshots', id)); }
+    catch (err) { console.error('Error deleting version:', err); }
   };
 
   const debouncedUpdate = useRef(
@@ -573,6 +625,7 @@ function CueInput({ projects }: CueInputProps) {
           >⟳ Auto-time: {autoTiming ? 'On' : 'Off'}</button>
           <button className="ci-btn-ghost" onClick={() => window.print()}>🖨 Print / PDF</button>
           <button className="ci-btn-ghost" onClick={() => project && exportCuesToCsv(project.title, cues, fields)}>⬇ CSV</button>
+          <button className="ci-btn-ghost" onClick={() => setShowHistory(true)}>🕘 History</button>
           <button className="ci-btn-live" onClick={() => navigate(`/AdminPage/${projectId}`)}>⊙ Go Live</button>
         </div>
       </header>
@@ -745,6 +798,44 @@ function CueInput({ projects }: CueInputProps) {
           </>
         );
       })()}
+
+      {/* Revision history drawer */}
+      {showHistory && (
+        <>
+          <div className="ci-cmt-overlay" onClick={() => setShowHistory(false)} />
+          <div className="ci-cmt-drawer">
+            <div className="ci-cmt-head">
+              <div>
+                <div className="ci-cmt-label">REVISION HISTORY</div>
+                <div className="ci-cmt-title">Saved versions</div>
+              </div>
+              <button className="ci-cmt-close" onClick={() => setShowHistory(false)} aria-label="Close history">✕</button>
+            </div>
+            <div className="ci-cmt-compose" style={{ borderTop: 'none', borderBottom: '1px solid var(--border-main, rgba(127,168,181,0.14))' }}>
+              <button className="ci-cmt-send" style={{ alignSelf: 'stretch' }} onClick={saveVersion} disabled={!canEdit}>
+                💾 Save current version
+              </button>
+            </div>
+            <div className="ci-cmt-list">
+              {snapshots.length === 0 && <div className="ci-cmt-empty">No saved versions yet. Save one before big changes so you can roll back.</div>}
+              {snapshots.map((s) => (
+                <div key={s.id} className="ci-ver-item">
+                  <div className="ci-ver-info">
+                    <div className="ci-ver-label">{s.label}</div>
+                    <div className="ci-ver-meta">
+                      {s.cues.length} cue{s.cues.length !== 1 ? 's' : ''} · {s.authorName} · {new Date(s.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <button className="ci-ver-restore" onClick={() => restoreVersion(s)} disabled={restoring || !canEdit}>
+                    {restoring ? '…' : 'Restore'}
+                  </button>
+                  <button className="ci-cmt-del" onClick={() => deleteVersion(s.id)} aria-label="Delete version">✕</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Print / PDF (hidden on screen; shown by the print stylesheet) */}
       {project && (

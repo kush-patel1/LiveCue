@@ -137,6 +137,16 @@ service cloud.firestore {
     // list: never public — only the owner/team can enumerate projects, so no one
     //       can scan the collection even though single shared docs are readable.
     // create: the new doc must be owned by the caller.
+    // Saved versions of a cue sheet (revision history). Owner/editor only.
+    match /snapshots/{docId} {
+      allow read: if request.auth != null && ownsProject(resource.data.projectRef);
+      allow create: if request.auth != null
+        && projectRole(request.resource.data.projectRef) in ['owner', 'editor'];
+      allow delete: if request.auth != null
+        && projectRole(resource.data.projectRef) in ['owner', 'editor'];
+      allow update: if false;
+    }
+
     // Per-cue comments (crew notes). Any project member can read and post;
     // authors and editors/owners can delete. Not public.
     match /comments/{docId} {
