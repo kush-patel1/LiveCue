@@ -901,3 +901,13 @@
   }
   .ci-btn-ghost, .ci-btn-live { font-size: 12px; padding: 7px 12px; }
 }
+
+.ci-readonly-banner {
+  flex-shrink: 0;
+  padding: 9px 24px;
+  background: rgba(240, 193, 78, 0.1);
+  border-bottom: 1px solid rgba(240, 193, 78, 0.3);
+  color: #d9a53c;
+  font-size: 13px;
+  font-weight: 500;
+}

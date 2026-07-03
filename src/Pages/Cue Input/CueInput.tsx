@@ -216,7 +216,7 @@ function CueInput({ projects }: CueInputProps) {
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
 
   const uid = (JSON.parse(sessionStorage.getItem('CURRENT_USER') || 'null'))?.id ?? null;
-  const { plan, canAddCue, canUseCustomFields, canDragReorder, canUseAIImport } = usePlan(uid);
+  const { plan, canAddCue, canUseCustomFields, canDragReorder, canUseAIImport, canEdit, teamRole } = usePlan(uid);
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState<'text' | 'time'>('text');
   const [deleteCueId, setDeleteCueId] = useState<string | null>(null);
@@ -307,6 +307,7 @@ function CueInput({ projects }: CueInputProps) {
   };
 
   const handleInputChange = (index: number, fieldId: string, value: string) => {
+    if (!canEdit) return;
     setSaveStatus('saving');
     const updated = [...cues];
     if (fieldId === 'title') {
@@ -319,6 +320,7 @@ function CueInput({ projects }: CueInputProps) {
   };
 
   const handleTimeChange = (index: number, field: 'startTime' | 'endTime', timeStr: string) => {
+    if (!canEdit) return;
     if (!timeStr) return;
     setSaveStatus('saving');
     const updated = [...cues];
@@ -334,6 +336,7 @@ function CueInput({ projects }: CueInputProps) {
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
+    if (!canEdit) return;
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     const oldIndex = cues.findIndex((c) => c.id === active.id);
@@ -363,6 +366,7 @@ function CueInput({ projects }: CueInputProps) {
   };
 
   const addCue = async () => {
+    if (!canEdit) return;
     if (!canAddCue(cues.length)) { setUpgradeFeature('cues'); return; }
     if (!projectId) return;
     const isFirst = cues.length === 0;
@@ -386,6 +390,7 @@ function CueInput({ projects }: CueInputProps) {
   };
 
   const addField = async () => {
+    if (!canEdit) return;
     if (!canUseCustomFields()) { setUpgradeFeature('customFields'); return; }
     if (!newFieldLabel.trim() || !projectId) return;
     const newField: CustomField = {
@@ -400,6 +405,7 @@ function CueInput({ projects }: CueInputProps) {
   };
 
   const removeField = async (id: string) => {
+    if (!canEdit) return;
     const updated = fields.filter((f) => f.id !== id);
     setFields(updated);
     await persistFields(updated);
@@ -412,6 +418,7 @@ function CueInput({ projects }: CueInputProps) {
   };
 
   const handleDeleteCue = async () => {
+    if (!canEdit) { setDeleteCueId(null); return; }
     if (!deleteCueId) return;
     try {
       await deleteDoc(doc(db, 'cues', deleteCueId));
@@ -483,6 +490,13 @@ function CueInput({ projects }: CueInputProps) {
           <button className="ci-btn-live" onClick={() => navigate(`/AdminPage/${projectId}`)}>⊙ Go Live</button>
         </div>
       </header>
+
+      {!canEdit && (
+        <div className="ci-readonly-banner">
+          👁 View only — your role ({teamRole}) can't edit this cue sheet.
+          {teamRole === 'operator' && ' You can run the show from Go Live.'}
+        </div>
+      )}
 
       {/* ── Table (scrolls both axes) ── */}
       <div className="ci-table-wrap">

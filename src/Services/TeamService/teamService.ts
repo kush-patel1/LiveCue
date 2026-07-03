@@ -29,6 +29,11 @@ export async function leaveTeam(): Promise<void> {
   await fn({});
 }
 
+export async function setMemberRole(uid: string, role: "editor" | "operator" | "viewer"): Promise<void> {
+  const fn = httpsCallable<{ uid: string; role: string }, RemoveResult>(functions, "setMemberRole");
+  await fn({ uid, role });
+}
+
 /** Auto-join any team that has a pending invite for the signed-in user's email. */
 export async function claimMyInvite(): Promise<ClaimResult> {
   try {

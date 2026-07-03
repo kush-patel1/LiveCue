@@ -410,7 +410,8 @@ async function joinTeam(teamId: string, uid: string, email: string, displayName:
     memberIds:      admin.firestore.FieldValue.arrayUnion(uid),
     // Parallel display map so the owner sees who joined (memberIds stays a
     // plain string[] so the Firestore rules' hasAny() check keeps working).
-    [`memberInfo.${uid}`]: { email, displayName: displayName || email },
+    // New members start as "editor"; the owner can change this in Settings.
+    [`memberInfo.${uid}`]: { email, displayName: displayName || email, role: "editor" },
   }, { merge: true });
   batch.set(db.collection("users").doc(uid), { teamId }, { merge: true });
   await batch.commit();
@@ -447,6 +448,35 @@ export const claimMyInvite = functions.https.onCall(async (_data, context) => {
   } catch {
     return { claimed: false };
   }
+});
+
+// Owner sets a member's role (editor | operator | viewer).
+export const setMemberRole = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "Must be logged in");
+  }
+  const targetUid: string = data.uid ?? "";
+  const role: string = data.role ?? "";
+  if (!targetUid || !["editor", "operator", "viewer"].includes(role)) {
+    throw new functions.https.HttpsError("invalid-argument", "uid and a valid role are required");
+  }
+
+  const ownerUid = context.auth.uid;
+  const teamId: string = (await db.collection("users").doc(ownerUid).get()).data()?.teamId ?? "";
+  if (!teamId) {
+    throw new functions.https.HttpsError("not-found", "No team found for this account");
+  }
+  const teamRef  = db.collection("teams").doc(teamId);
+  const teamData = (await teamRef.get()).data() ?? {};
+  if (teamData.ownerId !== ownerUid) {
+    throw new functions.https.HttpsError("permission-denied", "Only the team owner can change roles");
+  }
+  if (!(teamData.memberIds ?? []).includes(targetUid)) {
+    throw new functions.https.HttpsError("not-found", "That person is not a member of your team");
+  }
+
+  await teamRef.set({ [`memberInfo.${targetUid}.role`]: role }, { merge: true });
+  return { success: true };
 });
 
 // A member removes themselves from their team.
