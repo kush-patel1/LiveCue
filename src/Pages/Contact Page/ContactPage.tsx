@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Hooks/usePageTitle";
 import "./ContactPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
+import { clickable } from "../../utils/clickable";
 import { db, collection, addDoc, auth } from "../../Backend/firebase";
 
 function ContactPage() {
@@ -58,9 +59,9 @@ function ContactPage() {
       <nav className="lp-nav">
         <img className="lp-nav-logo" src={logo} alt="LiveCue" onClick={() => navigate("/")} />
         <ul className="lp-nav-links">
-          <li><span onClick={() => navigate("/")}>Home</span></li>
-          <li><span onClick={() => navigate("/pricing")}>Pricing</span></li>
-          <li><span onClick={() => navigate("/")}>Features</span></li>
+          <li><span {...clickable(() => navigate("/"))}>Home</span></li>
+          <li><span {...clickable(() => navigate("/pricing"))}>Pricing</span></li>
+          <li><span {...clickable(() => navigate("/"))}>Features</span></li>
         </ul>
         <div className="lp-nav-cta">
           <button className="btn-nav-login" onClick={() => navigate("/login")}>Log in</button>
@@ -144,21 +145,21 @@ function ContactPage() {
               <form onSubmit={handleSubmit} className="cp-form">
                 <div className="cp-form-row">
                   <div className="cp-field">
-                    <label>First Name</label>
-                    <input required name="firstName" placeholder="First name" value={form.firstName} onChange={handleChange} />
+                    <label htmlFor="cf-firstName">First Name</label>
+                    <input id="cf-firstName" required name="firstName" placeholder="First name" value={form.firstName} onChange={handleChange} />
                   </div>
                   <div className="cp-field">
-                    <label>Last Name</label>
-                    <input required name="lastName" placeholder="Last name" value={form.lastName} onChange={handleChange} />
+                    <label htmlFor="cf-lastName">Last Name</label>
+                    <input id="cf-lastName" required name="lastName" placeholder="Last name" value={form.lastName} onChange={handleChange} />
                   </div>
                 </div>
                 <div className="cp-field">
-                  <label>Email</label>
-                  <input required type="email" name="email" placeholder="you@example.com" value={form.email} onChange={handleChange} />
+                  <label htmlFor="cf-email">Email</label>
+                  <input id="cf-email" required type="email" name="email" placeholder="you@example.com" value={form.email} onChange={handleChange} />
                 </div>
                 <div className="cp-field">
-                  <label>Event Type</label>
-                  <select name="eventType" value={form.eventType} onChange={handleChange}>
+                  <label htmlFor="cf-eventType">Event Type</label>
+                  <select id="cf-eventType" name="eventType" value={form.eventType} onChange={handleChange}>
                     <option value="">Select your event type...</option>
                     <option value="worship">House of Worship</option>
                     <option value="wedding">Wedding</option>
@@ -172,12 +173,12 @@ function ContactPage() {
                   </select>
                 </div>
                 <div className="cp-field">
-                  <label>Subject</label>
-                  <input required name="subject" placeholder="What's this about?" value={form.subject} onChange={handleChange} />
+                  <label htmlFor="cf-subject">Subject</label>
+                  <input id="cf-subject" required name="subject" placeholder="What's this about?" value={form.subject} onChange={handleChange} />
                 </div>
                 <div className="cp-field">
-                  <label>Message</label>
-                  <textarea required name="message" rows={5} placeholder="Tell us about your event and how we can help..." value={form.message} onChange={handleChange} />
+                  <label htmlFor="cf-message">Message</label>
+                  <textarea id="cf-message" required name="message" rows={5} placeholder="Tell us about your event and how we can help..." value={form.message} onChange={handleChange} />
                 </div>
                 {error && <p className="cp-form-error">{error}</p>}
                 <button className="btn-cp-submit" type="submit" disabled={loading}>
@@ -201,21 +202,21 @@ function ContactPage() {
             <div className="lp-footer-col">
               <h4>Product</h4>
               <ul>
-                <li><span onClick={() => navigate("/")}>Features</span></li>
-                <li><span onClick={() => navigate("/pricing")}>Pricing</span></li>
+                <li><span {...clickable(() => navigate("/"))}>Features</span></li>
+                <li><span {...clickable(() => navigate("/pricing"))}>Pricing</span></li>
               </ul>
             </div>
             <div className="lp-footer-col">
               <h4>Company</h4>
               <ul>
-                <li><span onClick={() => navigate("/contact")}>Contact</span></li>
+                <li><span {...clickable(() => navigate("/contact"))}>Contact</span></li>
               </ul>
             </div>
             <div className="lp-footer-col">
               <h4>Account</h4>
               <ul>
-                <li><span onClick={() => navigate("/login")}>Log In</span></li>
-                <li><span onClick={() => navigate("/signup")}>Sign Up</span></li>
+                <li><span {...clickable(() => navigate("/login"))}>Log In</span></li>
+                <li><span {...clickable(() => navigate("/signup"))}>Sign Up</span></li>
               </ul>
             </div>
           </div>

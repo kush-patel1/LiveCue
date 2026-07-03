@@ -46,6 +46,8 @@ function App() {
       <ErrorBoundary>
       <HashRouter>
         <ScrollToTop />
+        <a href="#main-content" className="skip-link">Skip to content</a>
+        <main id="main-content" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
@@ -70,6 +72,7 @@ function App() {
           <Route path="/admin/reset-billing" element={<AdminReset />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </main>
       </HashRouter>
       </ErrorBoundary>
     </ThemeProvider>

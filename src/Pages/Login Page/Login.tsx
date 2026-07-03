@@ -99,8 +99,9 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className="auth-field">
-            <label className="auth-label">Email</label>
+            <label className="auth-label" htmlFor="login-email">Email</label>
             <input
+              id="login-email"
               className={`auth-input${emailError ? ' auth-input--error' : ''}`}
               type="email"
               placeholder="you@example.com"
@@ -112,8 +113,9 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
           </div>
 
           <div className="auth-field">
-            <label className="auth-label">Password</label>
+            <label className="auth-label" htmlFor="login-password">Password</label>
             <input
+              id="login-password"
               className={`auth-input${passwordError ? ' auth-input--error' : ''}`}
               type="password"
               placeholder="••••••••"

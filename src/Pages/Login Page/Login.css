@@ -173,3 +173,8 @@
   color: var(--teal-light, #9ec3ce);
   margin-bottom: 16px;
 }
+
+/* a11y contrast (WCAG AA) */
+.auth-sub, .auth-footer { color: #a29e9a !important; }
+.auth-link { color: #8fb4c0 !important; }
+.auth-submit { background: #3a6470 !important; }

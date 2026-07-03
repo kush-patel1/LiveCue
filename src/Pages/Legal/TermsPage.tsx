@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Hooks/usePageTitle";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
+import { clickable } from "../../utils/clickable";
 import "./Legal.css";
 
 function TermsPage() {
@@ -11,9 +12,9 @@ function TermsPage() {
       <nav className="legal-nav">
         <img className="legal-nav-logo" src={logo} alt="LiveCue" onClick={() => navigate("/")} />
         <div className="legal-nav-links">
-          <span onClick={() => navigate("/pricing")}>Pricing</span>
-          <span onClick={() => navigate("/privacy")}>Privacy</span>
-          <span onClick={() => navigate("/contact")}>Contact</span>
+          <span {...clickable(() => navigate("/pricing"))}>Pricing</span>
+          <span {...clickable(() => navigate("/privacy"))}>Privacy</span>
+          <span {...clickable(() => navigate("/contact"))}>Contact</span>
         </div>
       </nav>
 
@@ -28,7 +29,7 @@ function TermsPage() {
           applications, and all related products, features, and services (collectively,
           the "Service"). By accessing or using the Service, creating an account, or
           clicking to accept these Terms, you agree to be bound by these Terms and by our{" "}
-          <span className="legal-inline-link" onClick={() => navigate("/privacy")}>Privacy Policy</span>,
+          <span className="legal-inline-link" {...clickable(() => navigate("/privacy"))}>Privacy Policy</span>,
           which is incorporated by reference. <strong>If you do not agree to these Terms,
           you must not access or use the Service.</strong>
         </p>
@@ -228,7 +229,7 @@ function TermsPage() {
         <h2>20. Contact</h2>
         <p>
           Questions about these Terms? Reach us via our{" "}
-          <span className="legal-inline-link" onClick={() => navigate("/contact")}>contact page</span>.
+          <span className="legal-inline-link" {...clickable(() => navigate("/contact"))}>contact page</span>.
         </p>
 
         <div className="legal-note">
