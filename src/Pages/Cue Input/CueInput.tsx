@@ -388,6 +388,19 @@ function CueInput({ projects }: CueInputProps) {
     catch (err) { console.error('Error deleting version:', err); }
   };
 
+  // Escape closes whichever drawer/modal is open (keyboard accessibility).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (commentsCueId) setCommentsCueId(null);
+      else if (showHistory) setShowHistory(false);
+      else if (showFieldModal) setShowFieldModal(false);
+      else if (deleteCueId) setDeleteCueId(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [commentsCueId, showHistory, showFieldModal, deleteCueId]);
+
   const debouncedUpdate = useRef(
     debounce(async (cue: Cue) => {
       try {
@@ -610,7 +623,7 @@ function CueInput({ projects }: CueInputProps) {
           </div>
         </div>
         <div className="ci-topbar-right">
-          <span className={`ci-save-status ci-save-${saveStatus}`}>
+          <span className={`ci-save-status ci-save-${saveStatus}`} role="status" aria-live="polite">
             {saveStatus === 'saving' && '● Saving…'}
             {saveStatus === 'saved'  && '✓ Saved'}
             {saveStatus === 'error'  && '⚠ Error saving'}
@@ -760,7 +773,7 @@ function CueInput({ projects }: CueInputProps) {
         return (
           <>
             <div className="ci-cmt-overlay" onClick={() => setCommentsCueId(null)} />
-            <div className="ci-cmt-drawer">
+            <div className="ci-cmt-drawer" role="dialog" aria-modal="true" aria-label="Cue comments">
               <div className="ci-cmt-head">
                 <div>
                   <div className="ci-cmt-label">COMMENTS</div>
@@ -787,6 +800,8 @@ function CueInput({ projects }: CueInputProps) {
                 <textarea
                   className="ci-cmt-input"
                   placeholder="Add a comment…"
+                  aria-label="Add a comment"
+                  autoFocus
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addComment(); } }}
@@ -803,7 +818,7 @@ function CueInput({ projects }: CueInputProps) {
       {showHistory && (
         <>
           <div className="ci-cmt-overlay" onClick={() => setShowHistory(false)} />
-          <div className="ci-cmt-drawer">
+          <div className="ci-cmt-drawer" role="dialog" aria-modal="true" aria-label="Revision history">
             <div className="ci-cmt-head">
               <div>
                 <div className="ci-cmt-label">REVISION HISTORY</div>

@@ -223,7 +223,7 @@ Rules:
               Upload an Excel or CSV file — AI will map your columns to cue fields automatically
             </p>
           </div>
-          <button className="ai-import-close" onClick={onClose}>✕</button>
+          <button className="ai-import-close" onClick={onClose} aria-label="Close import">✕</button>
         </div>
 
         {/* Error */}

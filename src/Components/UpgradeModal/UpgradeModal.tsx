@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import "./UpgradeModal.css";
 import { Plan } from "../../Config/planLimits";
+import { useDialog } from "../../Hooks/useDialog";
 
 export type UpgradeFeature =
   | "projects"
@@ -76,10 +77,11 @@ export function UpgradeModal({ feature, onClose, currentPlan = "free" }: Upgrade
   const navigate = useNavigate();
   const { title, body, upgradeTo } = getCopy(feature, currentPlan);
   const isTeamUpgrade = upgradeTo === "team";
+  const ref = useDialog(onClose);
 
   return (
     <div className="um-overlay" onClick={onClose}>
-      <div className={`um-card ${isTeamUpgrade ? "um-card--team" : ""}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`um-card ${isTeamUpgrade ? "um-card--team" : ""}`} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} ref={ref} onClick={(e) => e.stopPropagation()}>
         <div className={`um-icon ${isTeamUpgrade ? "um-icon--team" : ""}`}>
           {isTeamUpgrade ? (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
