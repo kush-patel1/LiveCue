@@ -446,7 +446,13 @@ function AdminPage({ projects }: AdminPageProps) {
                   <button className="adm-copy-btn" onClick={copyUrl}>
                     {urlCopied ? '✓ COPIED' : 'COPY LINK'}
                   </button>
-                  <p className="adm-share-hint">Anyone with this link can view the live cue sheet.</p>
+                  <button
+                    className="adm-copy-btn adm-timer-btn"
+                    onClick={() => window.open(`#/timer/${projectId}`, '_blank')}
+                  >
+                    ⏱ OPEN SPEAKER TIMER
+                  </button>
+                  <p className="adm-share-hint">Anyone with these links can view the live cue sheet or speaker timer.</p>
                 </>
               ) : (
                 <p className="adm-share-hint">Sharing is off — only you and your team can view this sheet.</p>
