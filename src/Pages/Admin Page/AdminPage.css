@@ -1048,3 +1048,32 @@
   transition: background 0.15s, border-color 0.15s;
 }
 .adm-print-btn:hover { background: rgba(120, 130, 135, 0.12); border-color: rgba(120,130,135,0.6); }
+
+/* ─── Responsive: stack console + runway on tablet portrait & phones ─── */
+@media (max-width: 900px) {
+  .adm-topbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 14px;
+    row-gap: 6px;
+  }
+  .adm-topbar-left  { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+  .adm-topbar-right { flex: 0 0 auto; }
+  .adm-topbar-center { order: 3; flex-basis: 100%; display: flex; justify-content: center; }
+  .adm-topbar-date  { display: none; }
+
+  .adm-body {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .adm-console {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--cr-border);
+    overflow: visible;
+  }
+  .adm-runway-wrap { overflow: visible; }
+  .adm-runway { padding-bottom: 20px; }
+  .adm-card { width: 84vw; max-width: 340px; }
+}

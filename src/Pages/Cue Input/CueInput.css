@@ -884,3 +884,20 @@
 .inter-medium   { font-family: 'Inter', sans-serif; font-weight: 500; }
 .inter-semibold { font-family: 'Inter', sans-serif; font-weight: 600; }
 .inter-bold     { font-family: 'Inter', sans-serif; font-weight: 700; }
+
+/* ─── Responsive: editor topbar wraps on tablet & phone ─── */
+@media (max-width: 768px) {
+  .ci-topbar {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    row-gap: 8px;
+  }
+  .ci-topbar-left  { flex: 1 1 100%; }
+  .ci-topbar-right {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+  .ci-btn-ghost, .ci-btn-live { font-size: 12px; padding: 7px 12px; }
+}

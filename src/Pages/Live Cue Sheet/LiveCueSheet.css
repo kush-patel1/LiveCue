@@ -483,3 +483,27 @@
   color: rgba(248, 81, 73, 0.6);
   font-variant-numeric: tabular-nums;
 }
+
+/* ─── Responsive: phones & small tablets ─── */
+@media (max-width: 640px) {
+  .lcs-header {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 14px;
+    row-gap: 4px;
+  }
+  .lcs-logo   { order: 1; height: 22px; }
+  .lcs-clock  { order: 2; font-size: 14px; }
+  .lcs-header-center {
+    order: 3;
+    flex-basis: 100%;
+    align-items: flex-start;
+  }
+  .lcs-project-title { font-size: 15px; max-width: 100%; }
+
+  .lcs-status-bar { padding: 8px 14px; font-size: 12px; }
+
+  .lcs-scroll-track { padding: 12px 14px 16px; gap: 12px; scroll-snap-type: x mandatory; }
+  .lcs-card       { width: 84vw; max-width: 320px; scroll-snap-align: center; }
+  .lcs-card--live { width: 88vw; max-width: 340px; }
+}
