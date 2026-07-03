@@ -15,4 +15,5 @@ export interface Project {
   teamId?: string;          // set when project belongs to a team
   fields: CustomField[];
   shareEnabled?: boolean;   // true = live cue sheet link is publicly viewable
+  autoTiming?: boolean;     // true = editing a cue's end shifts downstream start times
 }

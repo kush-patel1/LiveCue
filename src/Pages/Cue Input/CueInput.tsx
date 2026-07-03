@@ -77,18 +77,20 @@ function SortableFieldHeader({ field, onRemove }: {
   );
 }
 
-/*function cascadeTimes(cues: Cue[]): Cue[] {
+// Auto-timing: after the cue at startIndex changes, shift every downstream cue
+// so each starts when the previous ends, preserving each cue's own duration.
+function cascadeFrom(cues: Cue[], startIndex: number): Cue[] {
   const result = [...cues];
-  for (let i = 1; i < result.length; i++) {
+  for (let i = Math.max(1, startIndex + 1); i < result.length; i++) {
     const prev = result[i - 1];
     const curr = result[i];
-    const duration = new Date(curr.endTime).getTime() - new Date(curr.startTime).getTime();
-    const newStart = new Date(prev.endTime);
-    const newEnd = new Date(newStart.getTime() + Math.max(duration, 0));
-    result[i] = { ...curr, startTime: newStart.toISOString(), endTime: newEnd.toISOString() };
+    const duration = Math.max(0, new Date(curr.endTime).getTime() - new Date(curr.startTime).getTime());
+    const newStart = prev.endTime;
+    const newEnd = new Date(new Date(newStart).getTime() + duration).toISOString();
+    result[i] = { ...curr, startTime: newStart, endTime: newEnd };
   }
   return result;
-}*/
+}
 
 function SortableCueRow({
   cue, index, fields, isLast, dragEnabled, onInputChange, onTimeChange, onDelete, onOpenComments, commentCount,
@@ -221,6 +223,7 @@ function CueInput({ projects }: CueInputProps) {
   const [comments, setComments] = useState<CueComment[]>([]);
   const [commentsCueId, setCommentsCueId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
+  const [autoTiming, setAutoTiming] = useState(false);
   usePageTitle(project ? project.title : "Cue Editor");
   const [fields, setFields] = useState<CustomField[]>(DEFAULT_FIELDS);
   const [showFieldModal, setShowFieldModal] = useState(false);
@@ -252,8 +255,17 @@ function CueInput({ projects }: CueInputProps) {
     if (found) {
       setProject(found);
       setFields(found.fields?.length ? found.fields : DEFAULT_FIELDS);
+      setAutoTiming(found.autoTiming ?? false);
     }
   }, [projectId, projects]);
+
+  const toggleAutoTiming = async () => {
+    if (!canEdit || !projectId) return;
+    const next = !autoTiming;
+    setAutoTiming(next);
+    try { await updateDoc(doc(db, 'projects', projectId), { autoTiming: next }); }
+    catch { setAutoTiming(!next); }
+  };
 
   // Real-time cues — live multi-user sync. A cue the local user is mid-edit on
   // (in pendingRef) keeps its local value so remote updates don't overwrite
@@ -375,17 +387,32 @@ function CueInput({ projects }: CueInputProps) {
     if (!canEdit) return;
     if (!timeStr) return;
     setSaveStatus('saving');
-    const updated = [...cues];
+    let updated = [...cues];
     updated[index] = { ...updated[index], [field]: fromTimeInput(timeStr, updated[index][field]) };
-    // Keep the next cue's start time in sync with this cue's end time
-    if (field === 'endTime' && index + 1 < updated.length) {
+
+    // Which downstream cues need persisting (their times shifted).
+    let downstream: Cue[] = [];
+    if (field === 'endTime' && autoTiming) {
+      // Cascade: shift every following cue to stay back-to-back.
+      updated = cascadeFrom(updated, index);
+      downstream = updated.slice(index + 1);
+    } else if (field === 'endTime' && index + 1 < updated.length) {
+      // Single-step: only the immediate next cue's start follows this end.
       updated[index + 1] = { ...updated[index + 1], startTime: updated[index].endTime };
-      pendingRef.current.add(updated[index + 1].id);
-      debouncedUpdate(updated[index + 1]);
+      downstream = [updated[index + 1]];
     }
+
     setCues(updated);
     pendingRef.current.add(updated[index].id);
     debouncedUpdate(updated[index]);
+    // Downstream cues are written directly — the shared debounce would collapse
+    // multiple calls into a single last-wins write.
+    downstream.forEach((c) => {
+      pendingRef.current.add(c.id);
+      updateDoc(doc(db, 'cues', c.id), { startTime: c.startTime, endTime: c.endTime })
+        .catch((err) => console.error('Error cascading cue time:', err))
+        .finally(() => pendingRef.current.delete(c.id));
+    });
     if (index === 0 && field === 'startTime') syncProjectMeta(updated);
   };
 
@@ -539,6 +566,11 @@ function CueInput({ projects }: CueInputProps) {
           <span className="ci-count-badge">{cues.length} cue{cues.length !== 1 ? 's' : ''}</span>
           <button className="ci-btn-ghost" onClick={() => canUseCustomFields() ? setShowFieldModal(true) : setUpgradeFeature('customFields')}>⚙ Fields</button>
           <button className="ci-btn-ghost" onClick={() => canUseAIImport(0) ? setShowAIImport(true) : setUpgradeFeature('aiImport')}>📥 Import</button>
+          <button
+            className={`ci-btn-ghost${autoTiming ? ' ci-btn-ghost--on' : ''}`}
+            onClick={toggleAutoTiming}
+            title="When on, changing a cue's end time shifts all later cues to stay back-to-back"
+          >⟳ Auto-time: {autoTiming ? 'On' : 'Off'}</button>
           <button className="ci-btn-ghost" onClick={() => window.print()}>🖨 Print / PDF</button>
           <button className="ci-btn-ghost" onClick={() => project && exportCuesToCsv(project.title, cues, fields)}>⬇ CSV</button>
           <button className="ci-btn-live" onClick={() => navigate(`/AdminPage/${projectId}`)}>⊙ Go Live</button>

@@ -39,6 +39,7 @@ function DemoEditor() {
   const [fields] = useState<CustomField[]>(DEMO_FIELDS);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [deleteCueId, setDeleteCueId] = useState<string | null>(null);
+  const [autoTiming, setAutoTiming] = useState(false);
   const idSeq = useRef(100);
 
   // Flash a "saved" state so it feels live — but nothing leaves the browser.
@@ -61,8 +62,14 @@ function DemoEditor() {
     flashSaved();
     setCues((prev) => {
       const updated = prev.map((c, i) => i === index ? { ...c, [field]: fromTimeInput(timeStr, c[field]) } : c);
-      // Keep the next cue's start aligned to this cue's end (same as production).
-      if (field === "endTime" && index + 1 < updated.length) {
+      if (field === "endTime" && autoTiming) {
+        // Cascade: shift every following cue to stay back-to-back.
+        for (let i = index + 1; i < updated.length; i++) {
+          const duration = Math.max(0, new Date(updated[i].endTime).getTime() - new Date(updated[i].startTime).getTime());
+          const start = updated[i - 1].endTime;
+          updated[i] = { ...updated[i], startTime: start, endTime: new Date(new Date(start).getTime() + duration).toISOString() };
+        }
+      } else if (field === "endTime" && index + 1 < updated.length) {
         updated[index + 1] = { ...updated[index + 1], startTime: updated[index].endTime };
       }
       return updated;
@@ -111,6 +118,11 @@ function DemoEditor() {
               {saveStatus === "saved" && "✓ Saved (demo — not persisted)"}
             </span>
             <span className="ci-count-badge">{cues.length} cue{cues.length !== 1 ? "s" : ""}</span>
+            <button
+              className={`ci-btn-ghost${autoTiming ? ' ci-btn-ghost--on' : ''}`}
+              onClick={() => setAutoTiming((v) => !v)}
+              title="When on, changing a cue's end time shifts all later cues"
+            >⟳ Auto-time: {autoTiming ? 'On' : 'Off'}</button>
             <button className="ci-btn-ghost" onClick={() => exportCuesToCsv(DEMO_TITLE, cues, fields)}>⬇ CSV</button>
             <button className="ci-btn-live" onClick={() => navigate("/demo/admin")}>⊙ Go Live</button>
           </div>

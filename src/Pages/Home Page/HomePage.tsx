@@ -243,6 +243,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
             cueAmount: data.cueAmount ?? cues.length,
             owner: data.owner,
             fields: data.fields || DEFAULT_FIELDS,
+            autoTiming: data.autoTiming ?? false,
           });
         }
         setProjects(list);
