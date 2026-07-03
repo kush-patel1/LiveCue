@@ -197,7 +197,7 @@ function SortableCueRow({
       ))}
 
       <div className="ci-col-del">
-        <button className="ci-del-btn" onClick={() => onDelete(cue.id)} title="Delete cue">✕</button>
+        <button className="ci-del-btn" onClick={() => onDelete(cue.id)} title="Delete cue" aria-label={`Delete cue ${cue.cueNumber}`}>✕</button>
       </div>
     </div>
   );

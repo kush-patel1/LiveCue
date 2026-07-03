@@ -27,6 +27,7 @@ import { ErrorBoundary } from "./Components/ErrorBoundary/ErrorBoundary";
 import { ThemeProvider } from "./ThemeContext";
 import './App.css';
 import './theme.css';
+import './a11y.css';
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation();

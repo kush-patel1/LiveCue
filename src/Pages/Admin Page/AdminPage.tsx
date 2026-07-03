@@ -300,7 +300,7 @@ function AdminPage({ projects }: AdminPageProps) {
         </div>
 
         <div className="adm-topbar-right">
-          <button className="adm-print-btn" onClick={() => window.print()} title="Print or save as PDF">🖨</button>
+          <button className="adm-print-btn" onClick={() => window.print()} title="Print or save as PDF" aria-label="Print or save as PDF">🖨</button>
           {globalDrift !== null && (
             <span className={`adm-drift-badge adm-drift--${globalDrift === 0 ? 'ok' : globalDrift > 0 ? 'late' : 'early'}`}>
               {globalDrift === 0 ? '✓ ON TIME' : globalDrift > 0 ? `▲ +${globalDrift}m` : `▼ ${Math.abs(globalDrift)}m`}
@@ -431,6 +431,11 @@ function AdminPage({ projects }: AdminPageProps) {
                 <span
                   className={`adm-share-toggle${shareEnabled ? ' adm-share-toggle--on' : ''}`}
                   onClick={toggleShare}
+                  role="switch"
+                  aria-checked={shareEnabled}
+                  aria-label="Public live link"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleShare(); } }}
                 >
                   <span className="adm-share-toggle-knob" />
                 </span>
@@ -486,7 +491,7 @@ function AdminPage({ projects }: AdminPageProps) {
                         {drift === 0 ? '✓' : drift > 0 ? `+${drift}m` : `${drift}m`}
                       </span>
                     )}
-                    <button className="adm-card-edit-btn" onClick={() => openEditor(cue)} title="Edit cue">✏</button>
+                    <button className="adm-card-edit-btn" onClick={() => openEditor(cue)} title="Edit cue" aria-label={`Edit cue ${cue.cueNumber}`}>✏</button>
                   </div>
 
                   {/* Times */}
@@ -539,7 +544,7 @@ function AdminPage({ projects }: AdminPageProps) {
                 <span className="adm-drawer-label">EDITING CUE {editingCue.cueNumber}</span>
                 <h2 className="adm-drawer-title">{editingCue.title}</h2>
               </div>
-              <button className="adm-drawer-close" onClick={() => setEditingCue(null)}>✕</button>
+              <button className="adm-drawer-close" onClick={() => setEditingCue(null)} aria-label="Close editor">✕</button>
             </div>
 
             <div className="adm-drawer-body">
