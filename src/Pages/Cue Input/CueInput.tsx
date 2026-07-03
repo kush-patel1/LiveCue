@@ -13,7 +13,7 @@ import { exportCuesToCsv } from '../../utils/exportCsv';
 import { usePlan } from '../../Hooks/usePlan';
 import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/UpgradeModal';
 import dayjs from 'dayjs';
-import { db, collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from '../../Backend/firebase';
+import { db, collection, addDoc, query, where, doc, updateDoc, deleteDoc, onSnapshot } from '../../Backend/firebase';
 import { debounce } from 'lodash';
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent,
@@ -229,28 +229,33 @@ function CueInput({ projects }: CueInputProps) {
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
+  // Cue IDs the local user is actively editing — protected from being clobbered
+  // by incoming real-time updates from collaborators (see the cues listener).
+  const pendingRef = useRef<Set<string>>(new Set());
+
+  // Project metadata (title, fields)
   useEffect(() => {
-    if (projectId) {
-      fetchCues(projectId);
-      const found = projects.find((p) => p.firebaseID === projectId);
-      if (found) {
-        setProject(found);
-        setFields(found.fields?.length ? found.fields : DEFAULT_FIELDS);
-      }
+    if (!projectId) return;
+    const found = projects.find((p) => p.firebaseID === projectId);
+    if (found) {
+      setProject(found);
+      setFields(found.fields?.length ? found.fields : DEFAULT_FIELDS);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, projects]);
 
-  const fetchCues = async (pid: string) => {
-    try {
-      const q = query(collection(db, 'cues'), where('projectRef', '==', pid));
-      const snap = await getDocs(q);
-      const fetched: Cue[] = snap.docs.map((d) => {
+  // Real-time cues — live multi-user sync. A cue the local user is mid-edit on
+  // (in pendingRef) keeps its local value so remote updates don't overwrite
+  // in-progress typing; every other cue reflects the latest from Firestore.
+  useEffect(() => {
+    if (!projectId) return;
+    const q = query(collection(db, 'cues'), where('projectRef', '==', projectId));
+    const unsub = onSnapshot(q, (snap) => {
+      const remote: Cue[] = snap.docs.map((d) => {
         const data = d.data();
         const fieldValues: Record<string, string> = data.fieldValues || {};
         if (!data.fieldValues) {
-          const legacyKeys = ['presenter', 'location', 'avMedia', 'audioSource', 'sideScreens', 'centerScreen', 'lighting', 'ambientLights', 'notes'];
-          legacyKeys.forEach((k) => { if (data[k]) fieldValues[k] = data[k]; });
+          ['presenter', 'location', 'avMedia', 'audioSource', 'sideScreens', 'centerScreen', 'lighting', 'ambientLights', 'notes']
+            .forEach((k) => { if (data[k]) fieldValues[k] = data[k]; });
         }
         return {
           id: d.id,
@@ -261,20 +266,19 @@ function CueInput({ projects }: CueInputProps) {
           projectRef: data.projectRef,
           isLive: data.isLive ?? false,
           fieldValues,
-        };
+        } as Cue;
+      }).sort((a, b) => a.cueNumber - b.cueNumber);
+
+      setCues((prev) => {
+        const prevById = new Map(prev.map((c) => [c.id, c]));
+        return remote.map((r) =>
+          pendingRef.current.has(r.id) && prevById.has(r.id) ? prevById.get(r.id)! : r
+        );
       });
-      fetched.sort((a, b) => a.cueNumber - b.cueNumber);
-      const withLive = fetched.map((c, i) => ({ ...c, isLive: i === 0 }));
-      setCues(withLive);
-      withLive.forEach(async (c) => {
-        await updateDoc(doc(db, 'cues', c.id), { isLive: c.isLive });
-      });
-    } catch (err) {
-      console.error('Error fetching cues:', err);
-    } finally {
       setLoading(false);
-    }
-  };
+    }, (err) => { console.error('Error syncing cues:', err); setLoading(false); });
+    return unsub;
+  }, [projectId]);
 
   const debouncedUpdate = useRef(
     debounce(async (cue: Cue) => {
@@ -290,6 +294,9 @@ function CueInput({ projects }: CueInputProps) {
       } catch (err) {
         console.error('Error updating cue:', err);
         setSaveStatusRef.current('error');
+      } finally {
+        // Local edit persisted — let remote updates for this cue through again.
+        pendingRef.current.delete(cue.id);
       }
     }, 800)
   ).current;
@@ -316,6 +323,7 @@ function CueInput({ projects }: CueInputProps) {
       updated[index] = { ...updated[index], fieldValues: { ...updated[index].fieldValues, [fieldId]: value } };
     }
     setCues(updated);
+    pendingRef.current.add(updated[index].id);
     debouncedUpdate(updated[index]);
   };
 
@@ -328,9 +336,11 @@ function CueInput({ projects }: CueInputProps) {
     // Keep the next cue's start time in sync with this cue's end time
     if (field === 'endTime' && index + 1 < updated.length) {
       updated[index + 1] = { ...updated[index + 1], startTime: updated[index].endTime };
+      pendingRef.current.add(updated[index + 1].id);
       debouncedUpdate(updated[index + 1]);
     }
     setCues(updated);
+    pendingRef.current.add(updated[index].id);
     debouncedUpdate(updated[index]);
     if (index === 0 && field === 'startTime') syncProjectMeta(updated);
   };
