@@ -1,2 +1,21 @@
 /* SignUp shares all auth-* styles from Login.css */
 /* Only add overrides here if needed */
+
+/* ── Terms agreement checkbox ── */
+.auth-agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9fb4bc;
+  cursor: pointer;
+}
+.auth-agree-box {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  accent-color: #578493;
+  cursor: pointer;
+}

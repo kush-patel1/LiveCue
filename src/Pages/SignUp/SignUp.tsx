@@ -19,6 +19,8 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [agreeError, setAgreeError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -27,9 +29,14 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
     e.preventDefault();
     setEmailError("");
     setPasswordError("");
+    setAgreeError("");
 
     if (password.length < 7) {
       setPasswordError("Password must be at least 7 characters");
+      return;
+    }
+    if (!agreed) {
+      setAgreeError("Please accept the Terms of Service and Privacy Policy to continue");
       return;
     }
 
@@ -39,8 +46,12 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
       const userRef = doc(db, "users", credential.user.uid);
       // Never store the password — Firebase Auth owns it. Plan fields are
       // written server-side only (webhook / applyGrant); new users are free
-      // by default in usePlan when no plan field exists.
-      await setDoc(userRef, { firstName, lastName, email });
+      // by default in usePlan when no plan field exists. Record consent to the
+      // legal agreements for enforceability.
+      await setDoc(userRef, {
+        firstName, lastName, email,
+        acceptedTermsAt: new Date().toISOString(),
+      });
       await applyGrantIfExists(credential.user.uid, email);
       // Auto-join a team if this email was invited
       await claimMyInvite();
@@ -122,6 +133,24 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
               autoComplete="new-password"
             />
             {passwordError && <span className="auth-error">{passwordError}</span>}
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-agree">
+              <input
+                type="checkbox"
+                className="auth-agree-box"
+                checked={agreed}
+                onChange={e => { setAgreed(e.target.checked); setAgreeError(""); }}
+              />
+              <span>
+                I agree to the{" "}
+                <Link to="/terms" target="_blank" rel="noopener noreferrer" className="auth-link">Terms of Service</Link>
+                {" "}and{" "}
+                <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="auth-link">Privacy Policy</Link>.
+              </span>
+            </label>
+            {agreeError && <span className="auth-error">{agreeError}</span>}
           </div>
 
           <button className="auth-submit" type="submit">Create account</button>
