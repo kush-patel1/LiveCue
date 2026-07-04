@@ -251,7 +251,7 @@
 }
 
 .ci-spine-time {
-  color: rgba(87, 132, 147, 0.65);
+  color: #7fa8b5;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -984,3 +984,8 @@
 }
 .ci-ver-restore:hover { background: rgba(87,132,147,0.28); }
 .ci-ver-restore:disabled { opacity: 0.5; cursor: default; }
+
+/* a11y contrast: lighten teal input/badge text, darken Go-Live bg */
+.ci-time-input, .ci-duration-input { color: #7fa8b5; }
+.ci-count-badge { color: #8fb3bf !important; }
+.ci-btn-live { background: #3a6470 !important; }

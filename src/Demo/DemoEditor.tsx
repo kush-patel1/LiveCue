@@ -19,15 +19,15 @@ const fromTimeInput = (timeStr: string, existingISO: string): string => {
   return dayjs(existingISO).hour(h).minute(m).second(0).millisecond(0).toISOString();
 };
 
-function AutoTextarea({ value, onChange, placeholder, className }: {
-  value: string; onChange: (v: string) => void; placeholder?: string; className?: string;
+function AutoTextarea({ value, onChange, placeholder, className, ariaLabel }: {
+  value: string; onChange: (v: string) => void; placeholder?: string; className?: string; ariaLabel?: string;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useLayoutEffect(() => {
     if (ref.current) { ref.current.style.height = "auto"; ref.current.style.height = ref.current.scrollHeight + "px"; }
   }, [value]);
   return (
-    <textarea ref={ref} className={className} placeholder={placeholder} value={value} rows={1}
+    <textarea ref={ref} className={className} placeholder={placeholder} aria-label={ariaLabel} value={value} rows={1}
       onChange={(e) => onChange(e.target.value)} />
   );
 }
@@ -159,21 +159,22 @@ function DemoEditor() {
 
                   <div className="ci-col-title">
                     <div className="ci-num">{cue.cueNumber}</div>
-                    <AutoTextarea className="ci-title-input" placeholder="Untitled cue" value={cue.title}
+                    <AutoTextarea className="ci-title-input" placeholder="Untitled cue" ariaLabel={`Cue ${cue.cueNumber} title`} value={cue.title}
                       onChange={(v) => handleInputChange(index, "title", v)} />
                   </div>
 
                   <div className="ci-col-field">
-                    <input className="ci-time-input" type="time" value={toTimeInput(cue.startTime)}
+                    <input className="ci-time-input" type="time" aria-label={`Cue ${cue.cueNumber} start time`} value={toTimeInput(cue.startTime)}
                       onChange={(e) => handleTimeChange(index, "startTime", e.target.value)} />
                   </div>
                   <div className="ci-col-field">
-                    <input className="ci-time-input" type="time" value={toTimeInput(cue.endTime)}
+                    <input className="ci-time-input" type="time" aria-label={`Cue ${cue.cueNumber} end time`} value={toTimeInput(cue.endTime)}
                       onChange={(e) => handleTimeChange(index, "endTime", e.target.value)} />
                   </div>
 
                   <div className="ci-col-duration">
                     <input key={`${cue.id}-dur-${durationMinutes}`} className="ci-duration-input" type="number" min="0"
+                      aria-label={`Cue ${cue.cueNumber} duration in minutes`}
                       defaultValue={durationMinutes}
                       onBlur={(e) => { const m = parseInt(e.target.value, 10); if (!isNaN(m) && m >= 0) handleTimeChange(index, "endTime", dayjs(cue.startTime).add(m, "minute").format("HH:mm")); }}
                       onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />
@@ -182,7 +183,7 @@ function DemoEditor() {
 
                   {fields.map((field) => (
                     <div key={field.id} className="ci-col-field">
-                      <AutoTextarea className="ci-field-input" placeholder="—" value={cue.fieldValues[field.id] || ""}
+                      <AutoTextarea className="ci-field-input" placeholder="—" ariaLabel={`${field.label} for cue ${cue.cueNumber}`} value={cue.fieldValues[field.id] || ""}
                         onChange={(v) => handleInputChange(index, field.id, v)} />
                     </div>
                   ))}

@@ -14,8 +14,8 @@
   --cr-teal-glow: rgba(87,132,147,0.25);
   --cr-teal-dim:  rgba(87,132,147,0.12);
   --cr-text:      #c8d4da;
-  --cr-text-dim:  #4a5a64;
-  --cr-text-faint:#2a3840;
+  --cr-text-dim:  #8896a0;
+  --cr-text-faint:#78868f;
   --cr-green:     #39d353;
   --cr-red:       #f85149;
   --cr-amber:     #d29922;
@@ -1079,3 +1079,6 @@
 }
 
 .adm-timer-btn { margin-top: 8px; }
+
+/* a11y contrast: lighten teal accent text */
+.adm-next-label, .adm-next-countdown { color: #8fb3bf !important; }

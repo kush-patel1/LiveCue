@@ -37,8 +37,8 @@ const fromTimeInput = (timeStr: string, existingISO: string): string => {
   return dayjs(existingISO).hour(h).minute(m).second(0).millisecond(0).toISOString();
 };
 
-function AutoTextarea({ value, onChange, placeholder, className }: {
-  value: string; onChange: (v: string) => void; placeholder?: string; className?: string;
+function AutoTextarea({ value, onChange, placeholder, className, ariaLabel }: {
+  value: string; onChange: (v: string) => void; placeholder?: string; className?: string; ariaLabel?: string;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useLayoutEffect(() => {
@@ -52,6 +52,7 @@ function AutoTextarea({ value, onChange, placeholder, className }: {
       ref={ref}
       className={className}
       placeholder={placeholder}
+      aria-label={ariaLabel}
       value={value}
       rows={1}
       onChange={(e) => onChange(e.target.value)}
@@ -136,6 +137,7 @@ function SortableCueRow({
         <AutoTextarea
           className="ci-title-input"
           placeholder="Untitled cue"
+          ariaLabel={`Cue ${cue.cueNumber} title`}
           value={cue.title}
           onChange={(v) => onInputChange(index, 'title', v)}
         />
@@ -146,6 +148,7 @@ function SortableCueRow({
         <input
           className="ci-time-input"
           type="time"
+          aria-label={`Cue ${cue.cueNumber} start time`}
           value={toTimeInput(cue.startTime)}
           onChange={(e) => onTimeChange(index, 'startTime', e.target.value)}
         />
@@ -156,6 +159,7 @@ function SortableCueRow({
         <input
           className="ci-time-input"
           type="time"
+          aria-label={`Cue ${cue.cueNumber} end time`}
           value={toTimeInput(cue.endTime)}
           onChange={(e) => onTimeChange(index, 'endTime', e.target.value)}
         />
@@ -168,6 +172,7 @@ function SortableCueRow({
           className="ci-duration-input"
           type="number"
           min="0"
+          aria-label={`Cue ${cue.cueNumber} duration in minutes`}
           defaultValue={durationMinutes}
           onBlur={(e) => {
             const m = parseInt(e.target.value, 10);
@@ -186,6 +191,7 @@ function SortableCueRow({
             <input
               className="ci-time-input"
               type="time"
+              aria-label={`${field.label} for cue ${cue.cueNumber}`}
               value={cue.fieldValues[field.id] ? toTimeInput(cue.fieldValues[field.id]) : ''}
               onChange={(e) => {
                 if (e.target.value)
@@ -196,6 +202,7 @@ function SortableCueRow({
             <AutoTextarea
               className="ci-field-input"
               placeholder="—"
+              ariaLabel={`${field.label} for cue ${cue.cueNumber}`}
               value={cue.fieldValues[field.id] || ''}
               onChange={(v) => onInputChange(index, field.id, v)}
             />

@@ -162,7 +162,7 @@
 .lcs-card--past {
   background: var(--bg-card);
   border: 0.5px solid var(--border-subtle);
-  opacity: 0.42;
+  opacity: 0.62;
 }
 
 .lcs-card--live {
@@ -184,7 +184,7 @@
 .lcs-card--future {
   background: var(--bg-card);
   border: 0.5px solid var(--border-subtle);
-  opacity: 0.6;
+  opacity: 0.72;
 }
 
 /* ── Card header ── */
@@ -507,3 +507,9 @@
   .lcs-card       { width: 84vw; max-width: 320px; scroll-snap-align: center; }
   .lcs-card--live { width: 88vw; max-width: 340px; }
 }
+
+/* a11y contrast: lighten teal accents + raise faded-card opacity */
+.lcs-status-tag { color: #8fb3bf !important; }
+.lcs-card--live .lcs-f-label, .lcs-dur-badge { color: #8fb3bf !important; }
+.lcs-card--past { opacity: 0.8 !important; }
+.lcs-card--future { opacity: 0.92 !important; }

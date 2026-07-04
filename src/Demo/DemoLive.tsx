@@ -107,7 +107,7 @@ function DemoLive() {
           </div>
         )}
 
-        <div className="lcs-scroll-track" ref={scrollRef}>
+        <div className="lcs-scroll-track" ref={scrollRef} tabIndex={0} role="region" aria-label="Cue sheet — scroll horizontally to view cues">
           {sorted.map((cue, index) => {
             const variant = cardVariant(index);
             return (
