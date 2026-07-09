@@ -82,8 +82,9 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className="auth-field-row">
             <div className="auth-field">
-              <label className="auth-label">First name</label>
+              <label className="auth-label" htmlFor="su-first">First name</label>
               <input
+                id="su-first"
                 className="auth-input"
                 type="text"
                 placeholder="First"
@@ -94,8 +95,9 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
               />
             </div>
             <div className="auth-field">
-              <label className="auth-label">Last name</label>
+              <label className="auth-label" htmlFor="su-last">Last name</label>
               <input
+                id="su-last"
                 className="auth-input"
                 type="text"
                 placeholder="Last"
@@ -108,8 +110,9 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
           </div>
 
           <div className="auth-field">
-            <label className="auth-label">Email</label>
+            <label className="auth-label" htmlFor="su-email">Email</label>
             <input
+              id="su-email"
               className={`auth-input${emailError ? ' auth-input--error' : ''}`}
               type="email"
               placeholder="you@example.com"
@@ -122,8 +125,9 @@ export function SignUp({ setUser }: SignUpPageProps): React.JSX.Element {
           </div>
 
           <div className="auth-field">
-            <label className="auth-label">Password</label>
+            <label className="auth-label" htmlFor="su-password">Password</label>
             <input
+              id="su-password"
               className={`auth-input${passwordError ? ' auth-input--error' : ''}`}
               type="password"
               placeholder="Min. 7 characters"

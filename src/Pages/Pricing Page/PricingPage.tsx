@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Hooks/usePageTitle";
 import "./PricingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
+import { clickable } from "../../utils/clickable";
 import { auth } from "../../Backend/firebase";
 import { usePlan } from "../../Hooks/usePlan";
 import { buildCheckoutUrl, paymentsEnabled, PlanPriceKey } from "../../Config/stripeLinks";
@@ -75,9 +76,9 @@ function PricingPage() {
       <nav className="lp-nav">
         <img className="lp-nav-logo" src={logo} alt="LiveCue" onClick={() => navigate("/")} />
         <ul className="lp-nav-links">
-          <li><span onClick={() => navigate("/")}>Home</span></li>
-          <li><span onClick={() => navigate("/contact")}>Contact</span></li>
-          <li><span onClick={() => navigate("/")}>Features</span></li>
+          <li><span {...clickable(() => navigate("/"))}>Home</span></li>
+          <li><span {...clickable(() => navigate("/contact"))}>Contact</span></li>
+          <li><span {...clickable(() => navigate("/"))}>Features</span></li>
         </ul>
         <div className="lp-nav-cta">
           <button className="btn-nav-login" onClick={() => navigate("/login")}>Log in</button>
@@ -255,21 +256,21 @@ function PricingPage() {
             <div className="lp-footer-col">
               <h4>Product</h4>
               <ul>
-                <li><span onClick={() => navigate("/")}>Features</span></li>
-                <li><span onClick={() => navigate("/pricing")}>Pricing</span></li>
+                <li><span {...clickable(() => navigate("/"))}>Features</span></li>
+                <li><span {...clickable(() => navigate("/pricing"))}>Pricing</span></li>
               </ul>
             </div>
             <div className="lp-footer-col">
               <h4>Company</h4>
               <ul>
-                <li><span onClick={() => navigate("/contact")}>Contact</span></li>
+                <li><span {...clickable(() => navigate("/contact"))}>Contact</span></li>
               </ul>
             </div>
             <div className="lp-footer-col">
               <h4>Account</h4>
               <ul>
-                <li><span onClick={() => navigate("/login")}>Log In</span></li>
-                <li><span onClick={() => navigate("/signup")}>Sign Up</span></li>
+                <li><span {...clickable(() => navigate("/login"))}>Log In</span></li>
+                <li><span {...clickable(() => navigate("/signup"))}>Sign Up</span></li>
               </ul>
             </div>
           </div>

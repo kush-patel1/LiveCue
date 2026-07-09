@@ -437,3 +437,6 @@
   .lp-footer-top { grid-template-columns: 1fr; }
   .pp-cta-card { padding: 40px 28px; }
 }
+
+/* a11y contrast */
+.pp-badge { background: #2f4a54 !important; }

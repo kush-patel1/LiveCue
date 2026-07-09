@@ -38,6 +38,17 @@ const SECTIONS = [
       </svg>
     ),
   },
+  {
+    to: "/demo/timer",
+    title: "Speaker Timer",
+    desc: "A big countdown for the stage — green, amber, then red when a segment runs over, with messages to the speaker.",
+    cta: "Open speaker timer",
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="13" r="8" /><path d="M12 13V9M9 2h6" />
+      </svg>
+    ),
+  },
 ];
 
 function DemoHub() {

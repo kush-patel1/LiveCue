@@ -14,8 +14,8 @@
   --cr-teal-glow: rgba(87,132,147,0.25);
   --cr-teal-dim:  rgba(87,132,147,0.12);
   --cr-text:      #c8d4da;
-  --cr-text-dim:  #4a5a64;
-  --cr-text-faint:#2a3840;
+  --cr-text-dim:  #8896a0;
+  --cr-text-faint:#78868f;
   --cr-green:     #39d353;
   --cr-red:       #f85149;
   --cr-amber:     #d29922;
@@ -1048,3 +1048,37 @@
   transition: background 0.15s, border-color 0.15s;
 }
 .adm-print-btn:hover { background: rgba(120, 130, 135, 0.12); border-color: rgba(120,130,135,0.6); }
+
+/* ─── Responsive: stack console + runway on tablet portrait & phones ─── */
+@media (max-width: 900px) {
+  .adm-topbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 14px;
+    row-gap: 6px;
+  }
+  .adm-topbar-left  { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+  .adm-topbar-right { flex: 0 0 auto; }
+  .adm-topbar-center { order: 3; flex-basis: 100%; display: flex; justify-content: center; }
+  .adm-topbar-date  { display: none; }
+
+  .adm-body {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .adm-console {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--cr-border);
+    overflow: visible;
+  }
+  .adm-runway-wrap { overflow: visible; }
+  .adm-runway { padding-bottom: 20px; }
+  .adm-card { width: 84vw; max-width: 340px; }
+}
+
+.adm-timer-btn { margin-top: 8px; }
+
+/* a11y contrast: lighten teal accent text */
+.adm-next-label, .adm-next-countdown { color: #8fb3bf !important; }

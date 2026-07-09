@@ -82,6 +82,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
   const [showWelcome, setShowWelcome] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
   const projectToDelete = projects.find(p => p.firebaseID === deleteProjectId);
 
   const [newProjectTitle, setNewProjectTitle] = useState('');
@@ -138,6 +139,45 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
     setNewProjectDate('');
     setNewProjectStartTime('');
     setNewProjectEndTime('');
+  };
+
+  const handleDuplicateProject = async (project: Project) => {
+    if (!user) return;
+    if (!canCreateProject(projects.length)) { setUpgradeFeature('projects'); return; }
+    setDuplicatingId(project.firebaseID);
+    try {
+      const sourceCues = await fetchCues(project.firebaseID);
+      const docRef = await addDoc(collection(db, 'projects'), {
+        projectID: getNextProjectID(),
+        title: `${project.title} (Copy)`,
+        date: project.date,
+        startTime: project.startTime,
+        endTime: project.endTime,
+        duration: project.duration,
+        cueAmount: sourceCues.length,
+        owner: user.id,
+        ...(teamId ? { teamId } : {}),
+        fields: project.fields || DEFAULT_FIELDS,
+        shareEnabled: true,
+      });
+      // Copy every cue to the new project — fresh IDs, never live.
+      await Promise.all(sourceCues.map((c) =>
+        addDoc(collection(db, 'cues'), {
+          cueNumber: c.cueNumber,
+          title: c.title,
+          startTime: c.startTime,
+          endTime: c.endTime,
+          projectRef: docRef.id,
+          isLive: false,
+          fieldValues: c.fieldValues || {},
+        })
+      ));
+    } catch (err) {
+      console.error('Error duplicating project:', err);
+      alert('Could not duplicate the project. Please try again.');
+    } finally {
+      setDuplicatingId(null);
+    }
   };
 
   function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser | null): User | null {
@@ -203,6 +243,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
             cueAmount: data.cueAmount ?? cues.length,
             owner: data.owner,
             fields: data.fields || DEFAULT_FIELDS,
+            autoTiming: data.autoTiming ?? false,
           });
         }
         setProjects(list);
@@ -360,6 +401,12 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
                     {project.owner === user?.id && (
                       <>
                         <div className="hp-act-divider" />
+                        <button
+                          className="hp-act hp-act-dup"
+                          title="Duplicate"
+                          disabled={duplicatingId === project.firebaseID}
+                          onClick={() => handleDuplicateProject(project)}
+                        >{duplicatingId === project.firebaseID ? '…' : '⧉'}</button>
                         <button className="hp-act hp-act-del" title="Delete" onClick={() => setDeleteProjectId(project.firebaseID)}>⌫</button>
                       </>
                     )}

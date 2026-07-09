@@ -35,6 +35,24 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/projects/$(projectId)).data.get('shareEnabled', true) == true;
     }
 
+    // The caller's role on a team: 'owner' or the memberInfo role (defaults to
+    // 'editor' for members who joined before roles existed).
+    function teamRole(teamId) {
+      let team = get(/databases/$(database)/documents/teams/$(teamId)).data;
+      return team.ownerId == request.auth.uid
+        ? 'owner'
+        : team.get('memberInfo', {}).get(request.auth.uid, {}).get('role', 'editor');
+    }
+
+    // The caller's role on a project: 'owner' for the project owner, the team
+    // role for team members, otherwise 'none'.
+    function projectRole(projectId) {
+      let p = get(/databases/$(database)/documents/projects/$(projectId)).data;
+      return p.owner == request.auth.uid
+        ? 'owner'
+        : (p.teamId != null ? teamRole(p.teamId) : 'none');
+    }
+
     // The only fields a client may write to its own user doc. Everything else
     // (plan, billing, teamId) is admin-SDK-only. Constraining the whole doc to
     // this set also blocks arbitrary/oversized junk from being stored.
@@ -96,13 +114,21 @@ service cloud.firestore {
     // update/delete: validate against the cue's existing projectRef.
     // read: public for cues of a shared project (the live view — no login), or
     //       owner/team. update/delete/create stay owner-only.
+    // Role-gated writes: owner/editor may edit everything; operator may only
+    // toggle a cue live (isLive/actualStartTime) to run the show; viewer is
+    // read-only.
     match /cues/{docId} {
       allow read: if projectIsPublic(resource.data.projectRef)
         || (request.auth != null && ownsProject(resource.data.projectRef));
-      allow update, delete: if request.auth != null
-        && ownsProject(resource.data.projectRef);
       allow create: if request.auth != null
-        && ownsProject(request.resource.data.projectRef);
+        && projectRole(request.resource.data.projectRef) in ['owner', 'editor'];
+      allow delete: if request.auth != null
+        && projectRole(resource.data.projectRef) in ['owner', 'editor'];
+      allow update: if request.auth != null && (
+        projectRole(resource.data.projectRef) in ['owner', 'editor']
+        || (projectRole(resource.data.projectRef) == 'operator'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isLive', 'actualStartTime']))
+      );
     }
 
     // Projects:
@@ -111,16 +137,49 @@ service cloud.firestore {
     // list: never public — only the owner/team can enumerate projects, so no one
     //       can scan the collection even though single shared docs are readable.
     // create: the new doc must be owned by the caller.
+    // Saved versions of a cue sheet (revision history). Owner/editor only.
+    match /snapshots/{docId} {
+      allow read: if request.auth != null && ownsProject(resource.data.projectRef);
+      allow create: if request.auth != null
+        && projectRole(request.resource.data.projectRef) in ['owner', 'editor'];
+      allow delete: if request.auth != null
+        && projectRole(resource.data.projectRef) in ['owner', 'editor'];
+      allow update: if false;
+    }
+
+    // Per-cue comments (crew notes). Any project member can read and post;
+    // authors and editors/owners can delete. Not public.
+    match /comments/{docId} {
+      allow read: if request.auth != null && ownsProject(resource.data.projectRef);
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && projectRole(request.resource.data.projectRef) != 'none'
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 2000;
+      allow delete: if request.auth != null
+        && (resource.data.uid == request.auth.uid
+            || projectRole(resource.data.projectRef) in ['owner', 'editor']);
+      allow update: if false;
+    }
+
     match /projects/{docId} {
       allow get: if projectIsPublic(docId)
         || (request.auth != null
             && (resource.data.owner == request.auth.uid
                 || (resource.data.teamId != null && isTeamMember(resource.data.teamId))));
-      allow list, update, delete: if request.auth != null
+      allow list: if request.auth != null
         && (resource.data.owner == request.auth.uid
             || (resource.data.teamId != null && isTeamMember(resource.data.teamId)));
       allow create: if request.auth != null
         && request.resource.data.owner == request.auth.uid;
+      allow delete: if request.auth != null && projectRole(docId) in ['owner', 'editor'];
+      // owner/editor edit any field; operator may only send/clear broadcasts.
+      allow update: if request.auth != null && (
+        projectRole(docId) in ['owner', 'editor']
+        || (projectRole(docId) == 'operator'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['broadcastMessage', 'broadcastAt']))
+      );
     }
   }
 }

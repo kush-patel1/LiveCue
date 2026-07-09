@@ -1,6 +1,9 @@
+export type TeamRole = "editor" | "operator" | "viewer";
+
 export interface TeamMemberInfo {
   email: string;
   displayName: string;
+  role?: TeamRole; // defaults to "editor" for members joined before roles existed
 }
 
 export interface Team {

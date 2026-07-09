@@ -840,3 +840,14 @@
 .lp-footer-legal { display: inline-flex; gap: 18px; }
 .lp-footer-legal span { cursor: pointer; transition: color 0.15s; }
 .lp-footer-legal span:hover { color: #d7e0e4; text-decoration: underline; }
+
+/* ── Accessibility: raise muted text + badge to meet WCAG AA (4.5:1) ── */
+.lp-stat-label { color: rgba(255, 255, 255, 0.66); }
+.lp-section-header .lp-body { color: rgba(255, 255, 255, 0.64); }
+.lp-pricing-note { color: rgba(255, 255, 255, 0.66); }
+.lp-footer-brand p { color: rgba(255, 255, 255, 0.7) !important; }
+.lp-footer-col h4 { color: rgba(255, 255, 255, 0.7) !important; }
+.lp-footer-col ul span { color: rgba(255, 255, 255, 0.7) !important; }
+.lp-footer-bottom span { color: rgba(255, 255, 255, 0.7) !important; }
+.lp-footer-legal span { color: rgba(255, 255, 255, 0.7) !important; }
+.lp-price-badge { background: #2f4a54; }

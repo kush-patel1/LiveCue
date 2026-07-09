@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Hooks/usePageTitle";
 import "./LandingPage.css";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
+import { clickable } from "../../utils/clickable";
 
 
 const scrollTo = (id: string) => {
@@ -125,11 +126,11 @@ function LandingPage() {
           onClick={() => navigate("/")}
         />
         <ul className="lp-nav-links">
-          <li><span onClick={() => scrollTo("how-it-works")}>How It Works</span></li>
-          <li><span onClick={() => scrollTo("use-cases")}>Use Cases</span></li>
-          <li><span onClick={() => scrollTo("features")}>Features</span></li>
-          <li><span onClick={() => scrollTo("pricing")}>Pricing</span></li>
-          <li><span onClick={() => navigate("/contact")}>Contact</span></li>
+          <li><span {...clickable(() => scrollTo("how-it-works"))}>How It Works</span></li>
+          <li><span {...clickable(() => scrollTo("use-cases"))}>Use Cases</span></li>
+          <li><span {...clickable(() => scrollTo("features"))}>Features</span></li>
+          <li><span {...clickable(() => scrollTo("pricing"))}>Pricing</span></li>
+          <li><span {...clickable(() => navigate("/contact"))}>Contact</span></li>
         </ul>
         <div className="lp-nav-cta">
           <button className="btn-nav-login" onClick={() => navigate("/login")}>Log in</button>
@@ -308,7 +309,7 @@ function LandingPage() {
         </div>
         <p className="lp-pricing-note">
           Need a custom plan?{" "}
-          <span onClick={() => navigate("/contact")}>Contact us</span>
+          <span {...clickable(() => navigate("/contact"))}>Contact us</span>
         </p>
       </section>
 
@@ -339,22 +340,22 @@ function LandingPage() {
             <div className="lp-footer-col">
               <h4>Product</h4>
               <ul>
-                <li><span onClick={() => scrollTo("features")}>Features</span></li>
-                <li><span onClick={() => scrollTo("pricing")}>Pricing</span></li>
-                <li><span onClick={() => navigate("/demo")}>Demo</span></li>
+                <li><span {...clickable(() => scrollTo("features"))}>Features</span></li>
+                <li><span {...clickable(() => scrollTo("pricing"))}>Pricing</span></li>
+                <li><span {...clickable(() => navigate("/demo"))}>Demo</span></li>
               </ul>
             </div>
             <div className="lp-footer-col">
               <h4>Company</h4>
               <ul>
-                <li><span onClick={() => navigate("/contact")}>Contact</span></li>
+                <li><span {...clickable(() => navigate("/contact"))}>Contact</span></li>
               </ul>
             </div>
             <div className="lp-footer-col">
               <h4>Account</h4>
               <ul>
-                <li><span onClick={() => navigate("/login")}>Log In</span></li>
-                <li><span onClick={() => navigate("/signup")}>Sign Up</span></li>
+                <li><span {...clickable(() => navigate("/login"))}>Log In</span></li>
+                <li><span {...clickable(() => navigate("/signup"))}>Sign Up</span></li>
               </ul>
             </div>
           </div>
@@ -362,9 +363,9 @@ function LandingPage() {
           <div className="lp-footer-bottom">
             <span>© {new Date().getFullYear()} LiveCue. All rights reserved.</span>
             <span className="lp-footer-legal">
-              <span onClick={() => navigate("/terms")}>Terms</span>
-              <span onClick={() => navigate("/privacy")}>Privacy</span>
-              <span onClick={() => navigate("/contact")}>Contact</span>
+              <span {...clickable(() => navigate("/terms"))}>Terms</span>
+              <span {...clickable(() => navigate("/privacy"))}>Privacy</span>
+              <span {...clickable(() => navigate("/contact"))}>Contact</span>
             </span>
           </div>
         </div>

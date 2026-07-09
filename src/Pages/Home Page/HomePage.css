@@ -654,3 +654,7 @@
 .inter-medium   { font-family: 'Inter', sans-serif; font-weight: 500; }
 .inter-semibold { font-family: 'Inter', sans-serif; font-weight: 600; }
 .inter-bold     { font-family: 'Inter', sans-serif; font-weight: 700; }
+
+.hp-act-dup { color: var(--text-muted); }
+.hp-act-dup:hover { color: var(--text-primary); background: var(--bg-hover); }
+.hp-act:disabled { opacity: 0.5; cursor: default; }

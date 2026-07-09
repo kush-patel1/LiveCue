@@ -3,6 +3,8 @@ import { db, doc } from "../Backend/firebase";
 import { getDoc } from "firebase/firestore";
 import { Plan, PLAN_LIMITS } from "../Config/planLimits";
 
+export type TeamRole = "owner" | "editor" | "operator" | "viewer";
+
 export interface BillingInfo {
   /** ISO date the current billing period ends (renewal or expiry date) */
   planExpiry: string | null;
@@ -21,6 +23,10 @@ interface PlanState extends BillingInfo {
   hasStripeSubscription: boolean;
   teamId: string | null;
   isTeamOwner: boolean;
+  /** Caller's role on their team. "owner" for owners and solo (non-team) users. */
+  teamRole: TeamRole;
+  /** Can edit cue sheets (owner/editor). */
+  canEdit: boolean;
   canCreateProject: (currentCount: number) => boolean;
   canAddCue: (currentCount: number) => boolean;
   canUseCustomFields: () => boolean;
@@ -64,7 +70,23 @@ export function usePlan(uid: string | null | undefined): PlanState {
     sessionStorage.getItem(TEAM_OWNER_CACHE_KEY) === "1"
   );
   const [billing, setBilling] = useState<BillingInfo>(EMPTY_BILLING);
+  const [teamRole, setTeamRole] = useState<TeamRole>("owner");
   const [loading, setLoading] = useState(!sessionStorage.getItem(PLAN_CACHE_KEY));
+
+  // Resolve the caller's team role. Owners and solo users are "owner" (full
+  // access); members read their role from the team's memberInfo map.
+  useEffect(() => {
+    let active = true;
+    if (!uid || !teamId || isTeamOwner) { setTeamRole("owner"); return; }
+    getDoc(doc(db, "teams", teamId))
+      .then((snap) => {
+        if (!active) return;
+        const info = snap.data()?.memberInfo?.[uid];
+        setTeamRole((info?.role as TeamRole) ?? "editor");
+      })
+      .catch(() => { if (active) setTeamRole("editor"); });
+    return () => { active = false; };
+  }, [uid, teamId, isTeamOwner]);
 
   useEffect(() => {
     if (!uid) {
@@ -140,6 +162,8 @@ export function usePlan(uid: string | null | undefined): PlanState {
     hasStripeSubscription,
     teamId,
     isTeamOwner,
+    teamRole,
+    canEdit: teamRole === "owner" || teamRole === "editor",
     ...billing,
     canCreateProject: (count) => limits.maxProjects === -1 || count < limits.maxProjects,
     canAddCue:        (count) => limits.maxCues === -1 || count < limits.maxCues,

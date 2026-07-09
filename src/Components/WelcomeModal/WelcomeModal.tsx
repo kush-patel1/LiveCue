@@ -1,4 +1,5 @@
 import { Plan } from "../../Config/planLimits";
+import { useDialog } from "../../Hooks/useDialog";
 import "./WelcomeModal.css";
 
 interface WelcomeModalProps {
@@ -29,9 +30,10 @@ const STEPS = [
 /** First-run welcome shown once to a new user on their dashboard. */
 export function WelcomeModal({ plan, firstName, onCreateProject, onClose }: WelcomeModalProps) {
   const planLabel = plan === "team" ? "Team" : plan === "pro" ? "Pro" : null;
+  const ref = useDialog(onClose);
   return (
-    <div className="wm-overlay" role="dialog" aria-modal="true" aria-labelledby="wm-title" onClick={onClose}>
-      <div className="wm-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="wm-overlay" onClick={onClose}>
+      <div className="wm-modal" role="dialog" aria-modal="true" aria-labelledby="wm-title" tabIndex={-1} ref={ref} onClick={(e) => e.stopPropagation()}>
         <button className="wm-close" aria-label="Close" onClick={onClose}>✕</button>
 
         {planLabel && <div className="wm-plan-badge">{planLabel} plan active</div>}

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Hooks/usePageTitle";
 import logo from "../../Assets/Logo/LIVECUE-Logo.png";
+import { clickable } from "../../utils/clickable";
 import "./Legal.css";
 
 function PrivacyPage() {
@@ -11,9 +12,9 @@ function PrivacyPage() {
       <nav className="legal-nav">
         <img className="legal-nav-logo" src={logo} alt="LiveCue" onClick={() => navigate("/")} />
         <div className="legal-nav-links">
-          <span onClick={() => navigate("/pricing")}>Pricing</span>
-          <span onClick={() => navigate("/terms")}>Terms</span>
-          <span onClick={() => navigate("/contact")}>Contact</span>
+          <span {...clickable(() => navigate("/pricing"))}>Pricing</span>
+          <span {...clickable(() => navigate("/terms"))}>Terms</span>
+          <span {...clickable(() => navigate("/contact"))}>Contact</span>
         </div>
       </nav>
 
@@ -33,7 +34,7 @@ function PrivacyPage() {
         <p>
           LiveCue is the controller responsible for the personal information described in
           this Policy. For any privacy questions or requests, contact us via our{" "}
-          <span className="legal-inline-link" onClick={() => navigate("/contact")}>contact page</span>.
+          <span className="legal-inline-link" {...clickable(() => navigate("/contact"))}>contact page</span>.
         </p>
 
         <h2>2. Information we collect</h2>
@@ -146,7 +147,7 @@ function PrivacyPage() {
           regarding your personal information: to access, correct, update, or delete it; to
           port it; to object to or restrict certain processing; and to withdraw consent. To
           exercise these rights, contact us via our{" "}
-          <span className="legal-inline-link" onClick={() => navigate("/contact")}>contact page</span>.
+          <span className="legal-inline-link" {...clickable(() => navigate("/contact"))}>contact page</span>.
           We will respond as required by law. You may also access and update much of your
           account information directly in your settings, and you can delete your account at
           any time.
@@ -187,7 +188,7 @@ function PrivacyPage() {
         <h2>16. Contact</h2>
         <p>
           To ask a question or exercise a privacy right, reach us via our{" "}
-          <span className="legal-inline-link" onClick={() => navigate("/contact")}>contact page</span>.
+          <span className="legal-inline-link" {...clickable(() => navigate("/contact"))}>contact page</span>.
         </p>
 
         <div className="legal-note">

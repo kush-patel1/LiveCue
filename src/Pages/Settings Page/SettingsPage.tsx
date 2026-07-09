@@ -14,7 +14,7 @@ import { getDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { usePlan } from '../../Hooks/usePlan';
 import { redirectToCustomerPortal } from '../../Services/StripeService/stripeService';
-import { inviteTeamMember, removeTeamMember, leaveTeam } from '../../Services/TeamService/teamService';
+import { inviteTeamMember, removeTeamMember, leaveTeam, setMemberRole } from '../../Services/TeamService/teamService';
 import { PLAN_LIMITS } from '../../Config/planLimits';
 import { Team } from '../../Interfaces/Team/Team';
 
@@ -154,6 +154,16 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
       flash(e.message || 'Failed to remove member.', false);
     } finally {
       setRemovingId(null);
+    }
+  };
+
+  const handleSetRole = async (uid: string, role: 'editor' | 'operator' | 'viewer') => {
+    try {
+      await setMemberRole(uid, role);
+      await reloadTeam();
+      flash('Role updated.');
+    } catch (e: any) {
+      flash(e.message || 'Failed to update role.', false);
     }
   };
 
@@ -492,6 +502,17 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                                 {info?.email && info.email !== name ? info.email : 'Member'}
                               </span>
                             </div>
+                            <select
+                              className="sp-role-select"
+                              value={info?.role ?? 'editor'}
+                              disabled={removingId === uid}
+                              onChange={(e) => handleSetRole(uid, e.target.value as 'editor' | 'operator' | 'viewer')}
+                              title="Member role"
+                            >
+                              <option value="editor">Editor</option>
+                              <option value="operator">Operator</option>
+                              <option value="viewer">Viewer</option>
+                            </select>
                             <button
                               className="sp-team-remove"
                               onClick={() => handleRemoveMember(uid)}
@@ -559,6 +580,12 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                     ) : (
                       <div className="sp-team-full">All seats are allocated. Remove a member or revoke an invite to free one up.</div>
                     )}
+
+                    <p className="sp-role-legend">
+                      <strong>Editor</strong> — full access to build and edit cue sheets.<br />
+                      <strong>Operator</strong> — can run the live show (advance cues, broadcast) but not edit.<br />
+                      <strong>Viewer</strong> — read-only.
+                    </p>
                   </>
                 )}
               </div>

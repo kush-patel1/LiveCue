@@ -101,3 +101,6 @@
   font-weight: 600;
 }
 .demo-hub-link:hover { opacity: 0.85; }
+
+/* a11y contrast */
+.demo-hub-note { color: rgba(255, 255, 255, 0.66) !important; }
