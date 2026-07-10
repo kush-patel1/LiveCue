@@ -195,12 +195,8 @@ function PricingPage() {
                 <li key={f} className="pp-feat pp-feat--yes"><span className="pp-feat-icon pp-feat-icon--yes">{CHECK}</span>{f}</li>
               ))}
             </ul>
-            <button
-              className={`pp-card-btn pp-card-btn--teal${live ? "" : " pp-card-btn--coming-soon"}`}
-              disabled={!live || (hasStripeSubscription && currentPlan === "team")}
-              onClick={() => handleCheckout(plan.team.priceKey as PlanPriceKey)}
-            >
-              {paidBtnLabel("team")}
+            <button className="pp-card-btn pp-card-btn--teal pp-card-btn--coming-soon" disabled>
+              Coming soon
             </button>
           </div>
 

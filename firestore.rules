@@ -163,6 +163,16 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // Folders group projects (e.g. one per client/couple). Owner or team member
+    // may read/write; create must be owned by the caller.
+    match /folders/{docId} {
+      allow read, update, delete: if request.auth != null
+        && (resource.data.owner == request.auth.uid
+            || (resource.data.teamId != null && isTeamMember(resource.data.teamId)));
+      allow create: if request.auth != null
+        && request.resource.data.owner == request.auth.uid;
+    }
+
     match /projects/{docId} {
       allow get: if projectIsPublic(docId)
         || (request.auth != null

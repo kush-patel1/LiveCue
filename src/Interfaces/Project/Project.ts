@@ -16,4 +16,5 @@ export interface Project {
   fields: CustomField[];
   shareEnabled?: boolean;   // true = live cue sheet link is publicly viewable
   autoTiming?: boolean;     // true = editing a cue's end shifts downstream start times
+  folderId?: string | null; // folder this project lives in (null/absent = unfiled)
 }

@@ -15,6 +15,7 @@ import { DEFAULT_FIELDS } from '../../Interfaces/CustomField/CustomField';
 import { usePlan } from '../../Hooks/usePlan';
 import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/UpgradeModal';
 import { WelcomeModal } from '../../Components/WelcomeModal/WelcomeModal';
+import { Folder } from '../../Interfaces/Folder/Folder';
 
 interface HomePageProps {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
@@ -90,6 +91,12 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [showFolderModal, setShowFolderModal] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [moveProjectId, setMoveProjectId] = useState<string | null>(null);
+  const [deleteFolderId, setDeleteFolderId] = useState<string | null>(null);
   const projectToDelete = projects.find(p => p.firebaseID === deleteProjectId);
 
   const [newProjectTitle, setNewProjectTitle] = useState('');
@@ -131,6 +138,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
       ...(teamId ? { teamId } : {}),
       fields: DEFAULT_FIELDS,
       shareEnabled: true, // live cue sheet link is viewable by anyone with it
+      folderId: currentFolderId, // create inside the folder currently being viewed
     };
 
     try {
@@ -166,6 +174,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
         ...(teamId ? { teamId } : {}),
         fields: project.fields || DEFAULT_FIELDS,
         shareEnabled: true,
+        folderId: project.folderId ?? null,
       });
       // Copy every cue to the new project — fresh IDs, never live.
       await Promise.all(sourceCues.map((c) =>
@@ -185,6 +194,52 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
     } finally {
       setDuplicatingId(null);
     }
+  };
+
+  // ── Folders ──────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!user?.id) return;
+    const q = (isTeamMember && teamId)
+      ? query(collection(db, 'folders'), where('teamId', '==', teamId))
+      : query(collection(db, 'folders'), where('owner', '==', user.id));
+    return onSnapshot(q, (snap) => {
+      setFolders(snap.docs
+        .map((d) => ({ id: d.id, ...d.data() } as Folder))
+        .sort((a, b) => a.name.localeCompare(b.name)));
+    }, () => {});
+  }, [user?.id, teamId, isTeamMember]);
+
+  const createFolder = async () => {
+    const name = newFolderName.trim();
+    if (!name || !user) return;
+    try {
+      await addDoc(collection(db, 'folders'), {
+        name, owner: user.id, ...(teamId ? { teamId } : {}), createdAt: new Date().toISOString(),
+      });
+      setNewFolderName('');
+      setShowFolderModal(false);
+    } catch (err) { console.error('Error creating folder:', err); }
+  };
+
+  const moveProjectToFolder = async (projectId: string, folderId: string | null) => {
+    try {
+      await updateDoc(doc(db, 'projects', projectId), { folderId });
+      setMoveProjectId(null);
+    } catch (err) { console.error('Error moving project:', err); }
+  };
+
+  const handleDeleteFolder = async () => {
+    if (!deleteFolderId) return;
+    try {
+      // Move any projects in this folder back to unfiled, then delete the folder.
+      await Promise.all(
+        projects.filter((p) => p.folderId === deleteFolderId)
+          .map((p) => updateDoc(doc(db, 'projects', p.firebaseID), { folderId: null }))
+      );
+      await deleteDoc(doc(db, 'folders', deleteFolderId));
+      if (currentFolderId === deleteFolderId) setCurrentFolderId(null);
+    } catch (err) { console.error('Error deleting folder:', err); }
+    finally { setDeleteFolderId(null); }
   };
 
   function mapFirebaseUserToAppUser(firebaseUser: FirebaseUser | null): User | null {
@@ -251,6 +306,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
             owner: data.owner,
             fields: data.fields || DEFAULT_FIELDS,
             autoTiming: data.autoTiming ?? false,
+            folderId: data.folderId ?? null,
           });
         }
         setProjects(list);
@@ -287,6 +343,9 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
     .map(w => w[0].toUpperCase())
     .join('') || (user?.email?.[0].toUpperCase() ?? '?');
   const sorted = [...projects].sort((a, b) => b.date.getTime() - a.date.getTime());
+  const currentFolder = folders.find(f => f.id === currentFolderId) || null;
+  const projectCountIn = (fid: string | null) => projects.filter(p => (p.folderId ?? null) === fid).length;
+  const visibleProjects = sorted.filter(p => (p.folderId ?? null) === currentFolderId);
   const nextProject = nextUpcomingProject(projects);
   const nextDays = nextProject ? daysUntil(nextProject.date) : null;
   const thisMonth = upcomingThisMonth(projects);
@@ -359,14 +418,8 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
           </div>
         </div>
 
-        {/* Project list */}
-        <div className="hp-section-header">
-          <span className="hp-section-title">{isTeamMember ? 'Team projects' : 'Your projects'}</span>
-          <span className="hp-section-count">{projects.length} total</span>
-        </div>
-
         {/* Seats nudge for Pro users */}
-        {plan === 'pro' && (
+        {plan === 'pro' && !currentFolderId && (
           <div className="hp-team-nudge" onClick={() => setUpgradeFeature('seats')}>
             <span className="hp-team-nudge-icon">👥</span>
             <span className="hp-team-nudge-text">Want to collaborate? <strong>Upgrade to Team</strong> for 5 shared seats.</span>
@@ -374,13 +427,60 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
           </div>
         )}
 
+        {/* Folders — only at the top level */}
+        {!currentFolderId && (
+          <>
+            <div className="hp-section-header">
+              <span className="hp-section-title">Folders</span>
+              <button className="hp-newfolder-btn" onClick={() => setShowFolderModal(true)}>+ New folder</button>
+            </div>
+            {folders.length === 0 ? (
+              <div className="hp-folders-empty">No folders yet. Create one to group events — for example, a folder per client or couple.</div>
+            ) : (
+              <div className="hp-folders">
+                {folders.map(f => (
+                  <div key={f.id} className="hp-folder" onClick={() => setCurrentFolderId(f.id)}>
+                    <div className="hp-folder-icon">📁</div>
+                    <div className="hp-folder-info">
+                      <div className="hp-folder-name">{f.name}</div>
+                      <div className="hp-folder-count">{projectCountIn(f.id)} event{projectCountIn(f.id) !== 1 ? 's' : ''}</div>
+                    </div>
+                    <button
+                      className="hp-folder-del"
+                      title="Delete folder"
+                      aria-label={`Delete folder ${f.name}`}
+                      onClick={(e) => { e.stopPropagation(); setDeleteFolderId(f.id); }}
+                    >⌫</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Project list */}
+        <div className="hp-section-header">
+          {currentFolderId ? (
+            <span className="hp-breadcrumb">
+              <button className="hp-crumb" onClick={() => setCurrentFolderId(null)}>All projects</button>
+              <span className="hp-crumb-sep">/</span>
+              <span className="hp-crumb-current">{currentFolder?.name ?? 'Folder'}</span>
+            </span>
+          ) : (
+            <span className="hp-section-title">{isTeamMember ? 'Team projects' : 'Your projects'}</span>
+          )}
+          <span className="hp-section-count">{visibleProjects.length} {currentFolderId ? 'in folder' : 'unfiled'}</span>
+        </div>
+
         <div className="hp-list">
-          {sorted.length === 0 && (
+          {visibleProjects.length === 0 && (
             <div className="hp-empty">
-              No projects yet. Click <strong>+ New Project</strong> to get started.
+              {currentFolderId
+                ? <>This folder is empty. Click <strong>+ New Project</strong> to add an event here.</>
+                : <>No projects here. Click <strong>+ New Project</strong> to get started.</>}
             </div>
           )}
-          {sorted.map(project => {
+          {visibleProjects.map(project => {
             const status = getStatusLabel(project.date);
             const days = daysUntil(project.date);
             const durationH = project.duration.getHours();
@@ -408,6 +508,12 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
                     {project.owner === user?.id && (
                       <>
                         <div className="hp-act-divider" />
+                        <button
+                          className="hp-act hp-act-move"
+                          title="Move to folder"
+                          aria-label="Move to folder"
+                          onClick={() => setMoveProjectId(project.firebaseID)}
+                        >🗂</button>
                         <button
                           className="hp-act hp-act-dup"
                           title="Duplicate"
@@ -483,6 +589,80 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button className="confirm-btn-cancel" onClick={() => setDeleteProjectId(null)}>Cancel</button>
               <button className="confirm-btn-delete" onClick={handleDeleteProject}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── New folder modal ── */}
+      {showFolderModal && (
+        <div className="confirm-overlay" onClick={() => setShowFolderModal(false)}>
+          <div className="confirm-modal hp-form-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="inter-bold" style={{ color: '#fff6ee', marginBottom: 16 }}>New Folder</h3>
+            <input
+              className="hp-form-input"
+              placeholder="e.g. Sharma–Patel Wedding"
+              value={newFolderName}
+              autoFocus
+              onChange={e => setNewFolderName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') createFolder(); }}
+            />
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+              <button className="confirm-btn-cancel" onClick={() => setShowFolderModal(false)}>Cancel</button>
+              <button className="hp-btn-create" onClick={createFolder} disabled={!newFolderName.trim()}>Create Folder</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Move to folder modal ── */}
+      {moveProjectId && (
+        <div className="confirm-overlay" onClick={() => setMoveProjectId(null)}>
+          <div className="confirm-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="inter-bold" style={{ color: '#fff6ee', marginBottom: 6 }}>Move to folder</h3>
+            <p className="inter-regular" style={{ color: 'rgba(255,246,238,0.6)', fontSize: 14, marginBottom: 16 }}>
+              Choose where this event should live.
+            </p>
+            <div className="hp-move-list">
+              <button
+                className={`hp-move-opt${(projects.find(p => p.firebaseID === moveProjectId)?.folderId ?? null) === null ? ' active' : ''}`}
+                onClick={() => moveProjectToFolder(moveProjectId, null)}
+              >
+                <span>🗂 No folder</span>
+                {(projects.find(p => p.firebaseID === moveProjectId)?.folderId ?? null) === null && <span>✓</span>}
+              </button>
+              {folders.map(f => {
+                const inThis = projects.find(p => p.firebaseID === moveProjectId)?.folderId === f.id;
+                return (
+                  <button key={f.id} className={`hp-move-opt${inThis ? ' active' : ''}`} onClick={() => moveProjectToFolder(moveProjectId, f.id)}>
+                    <span>📁 {f.name}</span>
+                    {inThis && <span>✓</span>}
+                  </button>
+                );
+              })}
+              {folders.length === 0 && (
+                <div className="hp-move-empty">No folders yet — create one from the dashboard first.</div>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 18 }}>
+              <button className="confirm-btn-cancel" onClick={() => setMoveProjectId(null)}>Done</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete folder confirm ── */}
+      {deleteFolderId && (
+        <div className="confirm-overlay" onClick={() => setDeleteFolderId(null)}>
+          <div className="confirm-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="inter-bold" style={{ color: '#fff6ee', marginBottom: 10 }}>Delete Folder?</h3>
+            <p className="inter-regular" style={{ color: 'rgba(255,246,238,0.6)', fontSize: 14, marginBottom: 24 }}>
+              Deleting <strong style={{ color: '#fff6ee' }}>"{folders.find(f => f.id === deleteFolderId)?.name}"</strong> keeps its events —
+              they'll move back to unfiled. Only the folder is removed.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button className="confirm-btn-cancel" onClick={() => setDeleteFolderId(null)}>Cancel</button>
+              <button className="confirm-btn-delete" onClick={handleDeleteFolder}>Delete Folder</button>
             </div>
           </div>
         </div>
