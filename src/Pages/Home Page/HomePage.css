@@ -674,7 +674,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 12px;
-  margin-bottom: 26px;
+  padding: 0 28px;
+  margin-bottom: 8px;
 }
 .hp-folder {
   display: flex; align-items: center; gap: 12px;
@@ -685,7 +686,7 @@
   transition: background 0.15s, border-color 0.15s, transform 0.12s;
 }
 .hp-folder:hover { background: rgba(127,168,181,0.08); border-color: rgba(127,168,181,0.4); transform: translateY(-1px); }
-.hp-folder-icon { font-size: 22px; flex-shrink: 0; }
+.hp-folder-icon { flex-shrink: 0; color: var(--teal-light, #7fa8b5); display: flex; }
 .hp-folder-info { flex: 1; min-width: 0; }
 .hp-folder-name { font-size: 14.5px; font-weight: 600; color: var(--text-primary, #fff6ee); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hp-folder-count { font-size: 12px; color: var(--text-muted, #8a8f98); margin-top: 1px; }
@@ -694,7 +695,7 @@
   font-size: 14px; cursor: pointer; padding: 4px 6px; border-radius: 6px; flex-shrink: 0;
 }
 .hp-folder-del:hover { color: #e08080; background: rgba(147,87,87,0.12); }
-.hp-folders-empty { font-size: 13px; color: var(--text-muted, #8a8f98); margin-bottom: 24px; }
+.hp-folders-empty { font-size: 13px; color: var(--text-muted, #8a8f98); padding: 0 28px; margin-bottom: 4px; }
 
 .hp-breadcrumb { display: inline-flex; align-items: center; gap: 8px; }
 .hp-crumb { background: none; border: none; color: var(--teal-light, #7fa8b5); font-size: 15px; font-weight: 600; cursor: pointer; padding: 0; }
@@ -715,3 +716,11 @@
 .hp-move-opt:hover { background: rgba(127,168,181,0.14); }
 .hp-move-opt.active { border-color: rgba(127,168,181,0.5); color: var(--teal-light, #7fa8b5); }
 .hp-move-empty { font-size: 13px; color: var(--text-muted, #8a8f98); padding: 6px 2px; }
+
+/* Inline icon alignment */
+.hp-meta-item { display: inline-flex; align-items: center; gap: 6px; }
+.hp-meta-item svg { color: var(--text-faint, #7e8b91); }
+.hp-move-label { display: inline-flex; align-items: center; gap: 9px; }
+.hp-move-opt svg { flex-shrink: 0; }
+.hp-act svg { display: block; }
+.hp-sb-icon { display: inline-flex; align-items: center; }

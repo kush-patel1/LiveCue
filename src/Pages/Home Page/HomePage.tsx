@@ -16,6 +16,7 @@ import { usePlan } from '../../Hooks/usePlan';
 import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/UpgradeModal';
 import { WelcomeModal } from '../../Components/WelcomeModal/WelcomeModal';
 import { Folder } from '../../Interfaces/Folder/Folder';
+import { IconFolder, IconMove, IconClock, IconEdit, IconBroadcast, IconCopy, IconTrash, IconGrid, IconSettings, IconCheck } from '../../Components/Icons/Icons';
 
 interface HomePageProps {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
@@ -359,10 +360,10 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
         </div>
         <nav className="hp-sb-nav">
           <div className="hp-sb-item active">
-            <span className="hp-sb-icon">⊞</span>Projects
+            <span className="hp-sb-icon"><IconGrid size={17} /></span>Projects
           </div>
           <div className="hp-sb-item" onClick={() => navigate('/settings')}>
-            <span className="hp-sb-icon">⚙</span>Settings
+            <span className="hp-sb-icon"><IconSettings size={17} /></span>Settings
           </div>
         </nav>
         <div className="hp-sb-footer">
@@ -418,15 +419,6 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
           </div>
         </div>
 
-        {/* Seats nudge for Pro users */}
-        {plan === 'pro' && !currentFolderId && (
-          <div className="hp-team-nudge" onClick={() => setUpgradeFeature('seats')}>
-            <span className="hp-team-nudge-icon">👥</span>
-            <span className="hp-team-nudge-text">Want to collaborate? <strong>Upgrade to Team</strong> for 5 shared seats.</span>
-            <span className="hp-team-nudge-arrow">→</span>
-          </div>
-        )}
-
         {/* Folders — only at the top level */}
         {!currentFolderId && (
           <>
@@ -440,7 +432,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
               <div className="hp-folders">
                 {folders.map(f => (
                   <div key={f.id} className="hp-folder" onClick={() => setCurrentFolderId(f.id)}>
-                    <div className="hp-folder-icon">📁</div>
+                    <div className="hp-folder-icon"><IconFolder size={20} /></div>
                     <div className="hp-folder-info">
                       <div className="hp-folder-name">{f.name}</div>
                       <div className="hp-folder-count">{projectCountIn(f.id)} event{projectCountIn(f.id) !== 1 ? 's' : ''}</div>
@@ -450,7 +442,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
                       title="Delete folder"
                       aria-label={`Delete folder ${f.name}`}
                       onClick={(e) => { e.stopPropagation(); setDeleteFolderId(f.id); }}
-                    >⌫</button>
+                    ><IconTrash size={15} /></button>
                   </div>
                 ))}
               </div>
@@ -503,8 +495,8 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
                     </div>
                   </div>
                   <div className="hp-card-actions">
-                    <button className="hp-act hp-act-edit" title="Edit" onClick={() => navigate(`/CueInput/${project.firebaseID}`)}>✎</button>
-                    <button className="hp-act hp-act-live" title="Go Live" onClick={() => navigate(`/AdminPage/${project.firebaseID}`)}>⊙</button>
+                    <button className="hp-act hp-act-edit" title="Edit" aria-label="Edit" onClick={() => navigate(`/CueInput/${project.firebaseID}`)}><IconEdit size={16} /></button>
+                    <button className="hp-act hp-act-live" title="Go Live" aria-label="Go live" onClick={() => navigate(`/AdminPage/${project.firebaseID}`)}><IconBroadcast size={16} /></button>
                     {project.owner === user?.id && (
                       <>
                         <div className="hp-act-divider" />
@@ -513,14 +505,15 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
                           title="Move to folder"
                           aria-label="Move to folder"
                           onClick={() => setMoveProjectId(project.firebaseID)}
-                        >🗂</button>
+                        ><IconMove size={16} /></button>
                         <button
                           className="hp-act hp-act-dup"
                           title="Duplicate"
+                          aria-label="Duplicate"
                           disabled={duplicatingId === project.firebaseID}
                           onClick={() => handleDuplicateProject(project)}
-                        >{duplicatingId === project.firebaseID ? '…' : '⧉'}</button>
-                        <button className="hp-act hp-act-del" title="Delete" onClick={() => setDeleteProjectId(project.firebaseID)}>⌫</button>
+                        >{duplicatingId === project.firebaseID ? '…' : <IconCopy size={16} />}</button>
+                        <button className="hp-act hp-act-del" title="Delete" aria-label="Delete" onClick={() => setDeleteProjectId(project.firebaseID)}><IconTrash size={16} /></button>
                       </>
                     )}
                   </div>
@@ -529,7 +522,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
                 {/* Meta row */}
                 <div className="hp-card-meta">
                   <span className="hp-meta-item">
-                    🕐 {project.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })} – {project.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                    <IconClock size={14} /> {project.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })} – {project.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                   </span>
                   <span className="hp-meta-item">⏱ {durationStr}</span>
                   <span className="hp-meta-item">☰ {project.cueAmount ?? project.cues.length} cue{(project.cueAmount ?? project.cues.length) !== 1 ? 's' : ''}</span>
@@ -628,15 +621,15 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
                 className={`hp-move-opt${(projects.find(p => p.firebaseID === moveProjectId)?.folderId ?? null) === null ? ' active' : ''}`}
                 onClick={() => moveProjectToFolder(moveProjectId, null)}
               >
-                <span>🗂 No folder</span>
-                {(projects.find(p => p.firebaseID === moveProjectId)?.folderId ?? null) === null && <span>✓</span>}
+                <span className="hp-move-label"><IconMove size={16} /> No folder</span>
+                {(projects.find(p => p.firebaseID === moveProjectId)?.folderId ?? null) === null && <IconCheck size={16} />}
               </button>
               {folders.map(f => {
                 const inThis = projects.find(p => p.firebaseID === moveProjectId)?.folderId === f.id;
                 return (
                   <button key={f.id} className={`hp-move-opt${inThis ? ' active' : ''}`} onClick={() => moveProjectToFolder(moveProjectId, f.id)}>
-                    <span>📁 {f.name}</span>
-                    {inThis && <span>✓</span>}
+                    <span className="hp-move-label"><IconFolder size={16} /> {f.name}</span>
+                    {inThis && <IconCheck size={16} />}
                   </button>
                 );
               })}
