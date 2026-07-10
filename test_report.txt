@@ -100,7 +100,7 @@ All files                         |       0 |        0 |       0 |       0 |
   AIImportModal.tsx               |       0 |        0 |       0 |       0 | 24-334            
   CueInput.tsx                    |       0 |        0 |       0 |       0 | 30-854            
  src/Pages/Home Page              |       0 |        0 |       0 |       0 |                   
-  HomePage.tsx                    |       0 |        0 |       0 |       0 | 26-526            
+  HomePage.tsx                    |       0 |        0 |       0 |       0 | 27-533            
  src/Pages/Landing Page           |       0 |      100 |       0 |       0 |                   
   LandingPage.tsx                 |       0 |      100 |       0 |       0 | 8-368             
  src/Pages/Legal                  |       0 |      100 |       0 |       0 |                   
@@ -136,5 +136,5 @@ All files                         |       0 |        0 |       0 |       0 |
 Test Suites: 1 failed, 1 total
 Tests:       0 total
 Snapshots:   0 total
-Time:        4.943 s
+Time:        4.76 s
 Ran all test suites.
