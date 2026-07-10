@@ -57,7 +57,7 @@ service cloud.firestore {
     // (plan, billing, teamId) is admin-SDK-only. Constraining the whole doc to
     // this set also blocks arbitrary/oversized junk from being stored.
     function isProfileOnly(keys) {
-      return keys.hasOnly(['firstName', 'lastName', 'email', 'acceptedTermsAt']);
+      return keys.hasOnly(['firstName', 'lastName', 'email', 'acceptedTermsAt', 'welcomedAt']);
     }
 
     // Users can read their own document and write profile fields only.

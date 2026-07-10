@@ -5,7 +5,8 @@ import { LoadingScreen } from '../../Components/LoadingScreen/LoadingScreen';
 import './HomePage.css';
 import logo from '../../Assets/Logo/LIVECUE-Logo.png';
 import { Project } from '../../Interfaces/Project/Project';
-import { db, collection, addDoc, getDocs, query, where, auth, doc, deleteDoc, onSnapshot } from '../../Backend/firebase';
+import { db, collection, addDoc, getDocs, query, where, auth, doc, deleteDoc, onSnapshot, updateDoc } from '../../Backend/firebase';
+import { getDoc } from 'firebase/firestore';
 import { User } from '../../Interfaces/User/User';
 import { User as FirebaseUser, signOut } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -64,19 +65,25 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
   const { plan, canCreateProject, teamId, isTeamOwner } = usePlan(user?.id);
   const isTeamMember = !!teamId && !isTeamOwner;
 
-  // First-run welcome — shown once per user (keyed by uid in localStorage).
+  // First-run welcome — shown exactly once per account, ever. The flag lives on
+  // the user's Firestore doc (not localStorage, which is per-browser), and is
+  // written the moment the modal is shown so it never reappears — even across
+  // devices or if the user navigates away without closing it.
   useEffect(() => {
     const uid = auth.currentUser?.uid;
     if (!uid) return;
-    const key = `livecue_welcomed_${uid}`;
-    if (!localStorage.getItem(key)) setShowWelcome(true);
+    let active = true;
+    getDoc(doc(db, 'users', uid))
+      .then((snap) => {
+        if (!active || !snap.exists() || snap.data()?.welcomedAt) return;
+        setShowWelcome(true);
+        updateDoc(doc(db, 'users', uid), { welcomedAt: new Date().toISOString() }).catch(() => {});
+      })
+      .catch(() => {});
+    return () => { active = false; };
   }, [user?.id]);
 
-  const dismissWelcome = () => {
-    const uid = auth.currentUser?.uid;
-    if (uid) localStorage.setItem(`livecue_welcomed_${uid}`, '1');
-    setShowWelcome(false);
-  };
+  const dismissWelcome = () => setShowWelcome(false);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
