@@ -11,12 +11,12 @@ import { User } from '../../Interfaces/User/User';
 import { User as FirebaseUser, signOut } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Cue } from '../../Interfaces/Cue/Cue';
-import { DEFAULT_FIELDS } from '../../Interfaces/CustomField/CustomField';
+import { DEFAULT_FIELDS, getUserDefaultFields } from '../../Interfaces/CustomField/CustomField';
 import { usePlan } from '../../Hooks/usePlan';
 import { UpgradeModal, UpgradeFeature } from '../../Components/UpgradeModal/UpgradeModal';
 import { WelcomeModal } from '../../Components/WelcomeModal/WelcomeModal';
 import { Folder } from '../../Interfaces/Folder/Folder';
-import { IconFolder, IconMove, IconClock, IconEdit, IconBroadcast, IconCopy, IconTrash, IconGrid, IconSettings, IconCheck } from '../../Components/Icons/Icons';
+import { IconFolder, IconMove, IconClock, IconEdit, IconBroadcast, IconCopy, IconTrash, IconGrid, IconSettings, IconCheck, IconTimer, IconSliders } from '../../Components/Icons/Icons';
 
 interface HomePageProps {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
@@ -137,7 +137,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
       cueAmount: 0,
       owner: user.id,
       ...(teamId ? { teamId } : {}),
-      fields: DEFAULT_FIELDS,
+      fields: getUserDefaultFields(), // user's configured default cue fields
       shareEnabled: true, // live cue sheet link is viewable by anyone with it
       folderId: currentFolderId, // create inside the folder currently being viewed
     };
@@ -524,9 +524,9 @@ const HomePage: React.FC<HomePageProps> = ({ user, projects, setProjects, setUse
                   <span className="hp-meta-item">
                     <IconClock size={14} /> {project.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })} – {project.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                   </span>
-                  <span className="hp-meta-item">⏱ {durationStr}</span>
-                  <span className="hp-meta-item">☰ {project.cueAmount ?? project.cues.length} cue{(project.cueAmount ?? project.cues.length) !== 1 ? 's' : ''}</span>
-                  <span className="hp-meta-item">⊟ {(project.fields || DEFAULT_FIELDS).length} fields</span>
+                  <span className="hp-meta-item"><IconTimer size={14} /> {durationStr}</span>
+                  <span className="hp-meta-item"><IconGrid size={14} /> {project.cueAmount ?? project.cues.length} cue{(project.cueAmount ?? project.cues.length) !== 1 ? 's' : ''}</span>
+                  <span className="hp-meta-item"><IconSliders size={14} /> {(project.fields || DEFAULT_FIELDS).length} fields</span>
                 </div>
 
                 <div className="hp-card-divider" />

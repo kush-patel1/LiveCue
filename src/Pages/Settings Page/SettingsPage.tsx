@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { IconSettings, IconMoon, IconSun } from '../../Components/Icons/Icons';
+import { IconSettings, IconMoon, IconSun, IconTrash, IconGrid } from '../../Components/Icons/Icons';
+import { CustomField, DEFAULT_FIELDS, getUserDefaultFields, saveUserDefaultFields } from '../../Interfaces/CustomField/CustomField';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../Hooks/usePageTitle';
 import './SettingsPage.css';
 import logo from '../../Assets/Logo/LIVECUE-Logo.png';
-import { useTheme } from '../../ThemeContext';
 import { Project } from '../../Interfaces/Project/Project';
 import {
   auth, db, collection, getDocs, query, where, deleteDoc, doc,
@@ -29,7 +29,6 @@ type ReauthAction = 'email' | 'password' | 'delete-account' | null;
 function SettingsPage({ projects, setProjects }: SettingsPageProps) {
   usePageTitle("Settings");
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
   const currentUser = auth.currentUser;
   const {
     plan, loading: planLoading, hasStripeSubscription, teamId, isTeamOwner,
@@ -74,6 +73,29 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
   // ── Project defaults ───────────────────────────────────────────────────────
   const [defaultStart, setDefaultStart] = useState(() => localStorage.getItem('lc_default_start') || '09:00');
   const [defaultEnd,   setDefaultEnd]   = useState(() => localStorage.getItem('lc_default_end')   || '17:00');
+
+  // Default cue fields: which columns every new cue sheet starts with.
+  const [defaultFields, setDefaultFields] = useState<CustomField[]>(() => getUserDefaultFields());
+  const [newFieldLabel, setNewFieldLabel] = useState('');
+
+  const renameDefaultField = (id: string, label: string) =>
+    setDefaultFields(prev => prev.map(f => f.id === id ? { ...f, label } : f));
+  const removeDefaultField = (id: string) =>
+    setDefaultFields(prev => prev.filter(f => f.id !== id));
+  const addDefaultField = () => {
+    const label = newFieldLabel.trim();
+    if (!label) return;
+    setDefaultFields(prev => [...prev, { id: `field_${Date.now()}`, label, type: 'text' }]);
+    setNewFieldLabel('');
+  };
+  const resetDefaultFields = () => setDefaultFields(DEFAULT_FIELDS);
+  const handleSaveDefaultFields = () => {
+    const cleaned = defaultFields.map(f => ({ ...f, label: f.label.trim() })).filter(f => f.label);
+    if (cleaned.length === 0) { flash('Add at least one field before saving.', false); return; }
+    saveUserDefaultFields(cleaned);
+    setDefaultFields(cleaned);
+    flash('Default cue fields saved. New cue sheets will start with these.');
+  };
 
   // ── Reauthentication modal ─────────────────────────────────────────────────
   const [reauthAction, setReauthAction] = useState<ReauthAction>(null);
@@ -293,7 +315,7 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
         </div>
         <nav className="hp-sb-nav">
           <div className="hp-sb-item" onClick={() => navigate('/HomePage')}>
-            <span className="hp-sb-icon">⊞</span>Projects
+            <span className="hp-sb-icon"><IconGrid size={17} /></span>Projects
           </div>
           <div className="hp-sb-item active">
             <span className="hp-sb-icon"><IconSettings size={17} /></span>Settings
@@ -693,16 +715,14 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
             <div className="sp-row">
               <div className="sp-row-info">
                 <div className="sp-row-title">Theme</div>
-                <div className="sp-row-desc">Switch between dark and light mode</div>
+                <div className="sp-row-desc">Light mode is coming soon — the app runs in dark mode for now.</div>
               </div>
               <div className="sp-theme-toggle">
-                <button className={`sp-theme-btn ${theme === 'dark' ? 'active' : ''}`}
-                  onClick={() => theme !== 'dark' && toggleTheme()}>
+                <button className="sp-theme-btn active" disabled>
                   <IconMoon size={15} /> Dark
                 </button>
-                <button className={`sp-theme-btn ${theme === 'light' ? 'active' : ''}`}
-                  onClick={() => theme !== 'light' && toggleTheme()}>
-                  <IconSun size={15} /> Light
+                <button className="sp-theme-btn sp-theme-btn--soon" disabled title="Coming soon">
+                  <IconSun size={15} /> Light · soon
                 </button>
               </div>
             </div>
@@ -727,6 +747,56 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
                 </div>
               </div>
               <button className="sp-btn-save" onClick={handleSaveDefaults}>Save Defaults</button>
+            </div>
+
+            <div className="sp-card">
+              <div className="sp-card-title">Default Cue Fields</div>
+              <div className="sp-card-desc">
+                The columns every new cue sheet starts with. Set them once so you don't have to
+                delete the standard fields and re-add your own each time.
+              </div>
+
+              <div className="sp-fields-list">
+                {defaultFields.map((f) => (
+                  <div className="sp-field-row" key={f.id}>
+                    <input
+                      className="sp-input sp-field-input"
+                      value={f.label}
+                      aria-label="Field name"
+                      onChange={(e) => renameDefaultField(f.id, e.target.value)}
+                    />
+                    <button
+                      className="sp-field-remove"
+                      onClick={() => removeDefaultField(f.id)}
+                      title="Remove field"
+                      aria-label={`Remove ${f.label || 'field'}`}
+                    >
+                      <IconTrash size={15} />
+                    </button>
+                  </div>
+                ))}
+                {defaultFields.length === 0 && (
+                  <div className="sp-card-desc">No fields yet — add at least one below.</div>
+                )}
+              </div>
+
+              <div className="sp-field-add">
+                <input
+                  className="sp-input"
+                  placeholder="Add a field (e.g. Camera, Mic)…"
+                  value={newFieldLabel}
+                  onChange={(e) => setNewFieldLabel(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addDefaultField(); } }}
+                />
+                <button className="sp-btn-secondary" onClick={addDefaultField} disabled={!newFieldLabel.trim()}>
+                  Add field
+                </button>
+              </div>
+
+              <div className="sp-field-actions">
+                <button className="sp-btn-save" onClick={handleSaveDefaultFields}>Save Cue Fields</button>
+                <button className="sp-btn-text" onClick={resetDefaultFields}>Reset to standard</button>
+              </div>
             </div>
           </div>
 

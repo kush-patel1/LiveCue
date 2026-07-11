@@ -243,7 +243,7 @@ function CueInput({ projects }: CueInputProps) {
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
 
   const uid = (JSON.parse(sessionStorage.getItem('CURRENT_USER') || 'null'))?.id ?? null;
-  const { plan, canAddCue, canUseCustomFields, canDragReorder, canUseAIImport, canEdit, teamRole } = usePlan(uid);
+  const { plan, canAddCue, canUseCustomFields, canDragReorder, canEdit, teamRole } = usePlan(uid);
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState<'text' | 'time'>('text');
   const [deleteCueId, setDeleteCueId] = useState<string | null>(null);
@@ -638,7 +638,7 @@ function CueInput({ projects }: CueInputProps) {
           </span>
           <span className="ci-count-badge">{cues.length} cue{cues.length !== 1 ? 's' : ''}</span>
           <button className="ci-btn-ghost" onClick={() => canUseCustomFields() ? setShowFieldModal(true) : setUpgradeFeature('customFields')}><IconSettings size={15} /> Fields</button>
-          <button className="ci-btn-ghost" onClick={() => canUseAIImport(0) ? setShowAIImport(true) : setUpgradeFeature('aiImport')}><IconUpload size={15} /> Import</button>
+          <button className="ci-btn-ghost" disabled title="Spreadsheet import is temporarily disabled while we improve it"><IconUpload size={15} /> Import · soon</button>
           <button
             className={`ci-btn-ghost${autoTiming ? ' ci-btn-ghost--on' : ''}`}
             onClick={toggleAutoTiming}

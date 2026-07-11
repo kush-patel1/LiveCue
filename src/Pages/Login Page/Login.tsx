@@ -50,7 +50,7 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
       if (error.code === "auth/invalid-email") {
         setEmailError("That doesn't look like a valid email");
       } else {
-        setResetMsg(`If an account exists for ${email}, a reset link is on its way.`);
+        setResetMsg(`If an account exists for ${email}, a reset link is on its way. Check your inbox and spam folder.`);
       }
     } finally {
       setResetSending(false);
@@ -78,10 +78,17 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
     } catch (error: any) {
       setLoading(false);
       const code = error.code;
-      if (code === "auth/user-not-found" || code === "auth/invalid-credential") {
-        setEmailError("No account found with this email");
-      } else if (code === "auth/wrong-password") {
-        setPasswordError("Incorrect password");
+      // Firebase returns auth/invalid-credential for both a wrong password and a
+      // non-existent account (email-enumeration protection), so use one neutral
+      // message rather than revealing which field was wrong.
+      if (
+        code === "auth/invalid-credential" ||
+        code === "auth/wrong-password" ||
+        code === "auth/user-not-found"
+      ) {
+        setPasswordError("Incorrect email or password");
+      } else if (code === "auth/too-many-requests") {
+        setPasswordError("Too many attempts. Try again later or reset your password.");
       } else {
         setEmailError(error.message);
       }

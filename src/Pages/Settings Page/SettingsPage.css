@@ -567,3 +567,36 @@
 
 /* Inline SVG icons in theme toggle */
 .sp-theme-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* ── Default cue fields editor ─────────────────────────────────────────── */
+.sp-fields-list { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+.sp-field-row { display: flex; align-items: center; gap: 8px; }
+.sp-field-input { flex: 1; }
+.sp-field-remove {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex-shrink: 0;
+  background: var(--bg-input); border: 1px solid var(--border-input);
+  border-radius: 8px; color: var(--text-muted); cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.sp-field-remove:hover { color: #e5736b; border-color: #e5736b; }
+.sp-field-add { display: flex; gap: 8px; margin-bottom: 14px; }
+.sp-field-add .sp-input { flex: 1; }
+.sp-field-actions { display: flex; align-items: center; gap: 14px; }
+.sp-btn-secondary {
+  padding: 9px 16px; background: var(--bg-input);
+  border: 1px solid var(--border-input); border-radius: 8px;
+  color: var(--text-primary); font-weight: 600; cursor: pointer;
+  transition: border-color .15s;
+}
+.sp-btn-secondary:hover:not(:disabled) { border-color: var(--teal); }
+.sp-btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+.sp-btn-text {
+  background: none; border: none; color: var(--text-muted);
+  font-weight: 600; cursor: pointer; padding: 6px 2px;
+}
+.sp-btn-text:hover { color: var(--text-primary); }
+
+/* Disabled theme toggle (light mode coming soon) */
+.sp-theme-btn:disabled { cursor: not-allowed; }
+.sp-theme-btn--soon { opacity: 0.5; }
