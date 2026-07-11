@@ -6,6 +6,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import { auth } from "../../Backend/firebase";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { claimMyInvite } from "../../Services/TeamService/teamService";
 import { User as FirebaseUser } from "firebase/auth";
@@ -43,7 +44,13 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
     }
     setResetSending(true);
     try {
-      await sendPasswordResetEmail(auth, email);
+      // Prefer the branded email (Cloud Function). If it isn't deployed/configured
+      // yet, fall back to Firebase's built-in reset email so this always works.
+      try {
+        await httpsCallable(getFunctions(), "sendPasswordResetBranded")({ email });
+      } catch {
+        await sendPasswordResetEmail(auth, email);
+      }
       // Neutral wording avoids leaking whether an account exists.
       setResetMsg(`If an account exists for ${email}, a reset link is on its way. Check your inbox and spam folder.`);
     } catch (error: any) {
