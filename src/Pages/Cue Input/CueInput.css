@@ -1003,3 +1003,73 @@
 .ci-btn-live svg,
 .ci-readonly-banner svg,
 .ci-cmt-send svg { flex-shrink: 0; }
+
+/* ── Import wizard (deterministic mapping) ─────────────────────────────── */
+.imp-upload-alt { display: flex; gap: 10px; padding: 14px 24px 20px; }
+.imp-paste-block { display: flex; flex-direction: column; gap: 10px; padding: 0 24px 20px; }
+.imp-paste-input {
+  width: 100%; resize: vertical; min-height: 110px;
+  background: var(--bg-input); border: 1px solid var(--border-input);
+  border-radius: 10px; padding: 12px; color: var(--text-primary);
+  font-size: 13px; font-family: inherit;
+}
+.imp-paste-input:focus { outline: none; border-color: var(--teal); }
+.imp-paste-block .ai-btn-primary { align-self: flex-end; }
+
+.imp-map-status { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.imp-warn-chip {
+  display: inline-block; margin-left: 10px; padding: 3px 10px;
+  background: rgba(226, 168, 92, 0.14); color: #e2a85c;
+  border: 1px solid rgba(226, 168, 92, 0.3); border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+}
+.imp-map-table td { vertical-align: middle; }
+.imp-col-header { font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+.imp-col-unnamed { color: var(--text-muted); font-style: italic; font-weight: 400; }
+.imp-col-samples { color: var(--text-muted); font-size: 12px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.imp-col-target { display: flex; gap: 8px; align-items: center; }
+.imp-target-select {
+  background: var(--bg-input); border: 1px solid var(--border-input);
+  border-radius: 8px; padding: 7px 10px; color: var(--text-primary);
+  font-size: 13px; cursor: pointer; min-width: 150px;
+}
+.imp-target-select:focus { outline: none; border-color: var(--teal); }
+.imp-newfield-input {
+  background: var(--bg-input); border: 1px solid var(--border-input);
+  border-radius: 8px; padding: 7px 10px; color: var(--text-primary);
+  font-size: 13px; width: 140px;
+}
+.imp-newfield-input:focus { outline: none; border-color: var(--teal); }
+.imp-row-skipped td { opacity: 0.45; }
+.imp-row-issue td { background: rgba(224, 128, 128, 0.06); }
+.imp-cell-bad { border-color: rgba(224, 128, 128, 0.55) !important; }
+
+/* Inline SVG icon alignment in import modal buttons */
+.ai-import-close,
+.ai-btn-secondary,
+.ai-btn-primary,
+.ai-delete-row-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+
+/* Import wizard — step 1: confirm cue fields */
+.imp-fields-step { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 14px; }
+.imp-fields-desc { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; max-width: 560px; }
+.imp-fields-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
+.imp-field-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-input); border: 1px solid var(--border-input);
+  border-radius: 8px; padding: 8px 12px; max-width: 420px;
+}
+.imp-field-label { flex: 1; font-size: 14px; color: var(--text-primary); font-weight: 500; }
+.imp-field-remove {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; flex-shrink: 0;
+  background: none; border: none; border-radius: 6px;
+  color: var(--text-muted); cursor: pointer;
+  transition: color .15s, background .15s;
+}
+.imp-field-remove:hover { color: #e08080; background: rgba(224, 128, 128, 0.1); }
+.imp-fields-empty { margin: 0; font-size: 13px; color: var(--text-muted); font-style: italic; }
+.imp-field-add { display: flex; gap: 8px; align-items: center; }
+.imp-field-add-input { width: 260px; }
+.imp-fields-note { margin: 0; font-size: 12px; color: #e2a85c; }
+.imp-fields-actions { display: flex; justify-content: flex-end; }

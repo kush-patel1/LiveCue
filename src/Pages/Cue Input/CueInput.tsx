@@ -8,7 +8,7 @@ import logo from '../../Assets/Logo/LIVECUE-Logo.png';
 import { Project } from '../../Interfaces/Project/Project';
 import { Cue } from '../../Interfaces/Cue/Cue';
 import { CustomField, DEFAULT_FIELDS } from '../../Interfaces/CustomField/CustomField';
-import { AIImportModal, toDateTimeString, ParsedCue } from './AIImportModal';
+import { ImportWizard, toDateTimeString, ParsedCue } from './ImportWizard';
 import { PrintableCueSheet } from '../../Components/PrintableCueSheet/PrintableCueSheet';
 import { exportCuesToCsv } from '../../utils/exportCsv';
 import { usePlan } from '../../Hooks/usePlan';
@@ -243,7 +243,7 @@ function CueInput({ projects }: CueInputProps) {
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
 
   const uid = (JSON.parse(sessionStorage.getItem('CURRENT_USER') || 'null'))?.id ?? null;
-  const { plan, canAddCue, canUseCustomFields, canDragReorder, canEdit, teamRole } = usePlan(uid);
+  const { plan, canAddCue, canUseCustomFields, canDragReorder, canUseAIImport, canEdit, teamRole } = usePlan(uid);
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState<'text' | 'time'>('text');
   const [deleteCueId, setDeleteCueId] = useState<string | null>(null);
@@ -588,12 +588,12 @@ function CueInput({ projects }: CueInputProps) {
     finally { setDeleteCueId(null); }
   };
 
-  const handleAIImport = async (parsedCues: ParsedCue[], newFields: CustomField[]) => {
+  const handleAIImport = async (parsedCues: ParsedCue[], newFields: CustomField[], removedFieldIds: string[] = []) => {
     if (!projectId || !project) return;
     const startCueNumber = cues.length + 1;
     const projectDate = project.date instanceof Date ? project.date : new Date(project.date);
-    if (newFields.length > 0) {
-      const updatedFields = [...fields, ...newFields];
+    if (newFields.length > 0 || removedFieldIds.length > 0) {
+      const updatedFields = [...fields.filter((f) => !removedFieldIds.includes(f.id)), ...newFields];
       setFields(updatedFields);
       await persistFields(updatedFields);
     }
@@ -638,7 +638,7 @@ function CueInput({ projects }: CueInputProps) {
           </span>
           <span className="ci-count-badge">{cues.length} cue{cues.length !== 1 ? 's' : ''}</span>
           <button className="ci-btn-ghost" onClick={() => canUseCustomFields() ? setShowFieldModal(true) : setUpgradeFeature('customFields')}><IconSettings size={15} /> Fields</button>
-          <button className="ci-btn-ghost" disabled title="Spreadsheet import is temporarily disabled while we improve it"><IconUpload size={15} /> Import · soon</button>
+          <button className="ci-btn-ghost" onClick={() => canUseAIImport(0) ? setShowAIImport(true) : setUpgradeFeature('aiImport')}><IconUpload size={15} /> Import</button>
           <button
             className={`ci-btn-ghost${autoTiming ? ' ci-btn-ghost--on' : ''}`}
             onClick={toggleAutoTiming}
@@ -727,9 +727,9 @@ function CueInput({ projects }: CueInputProps) {
         </div>
       )}
 
-      {/* ── AI Import modal ── */}
+      {/* ── Import wizard ── */}
       {showAIImport && project && (
-        <AIImportModal
+        <ImportWizard
           projectId={projectId!}
           projectDate={project.date instanceof Date ? project.date : new Date(project.date)}
           fields={fields}
