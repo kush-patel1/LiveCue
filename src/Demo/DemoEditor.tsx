@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import { IconRefresh, IconDownload, IconBroadcast } from "../Components/Icons/Icons";
 import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "../Hooks/usePageTitle";
 import { DemoBanner } from "./DemoBanner";
@@ -122,9 +123,9 @@ function DemoEditor() {
               className={`ci-btn-ghost${autoTiming ? ' ci-btn-ghost--on' : ''}`}
               onClick={() => setAutoTiming((v) => !v)}
               title="When on, changing a cue's end time shifts all later cues"
-            >⟳ Auto-time: {autoTiming ? 'On' : 'Off'}</button>
-            <button className="ci-btn-ghost" onClick={() => exportCuesToCsv(DEMO_TITLE, cues, fields)}>⬇ CSV</button>
-            <button className="ci-btn-live" onClick={() => navigate("/demo/admin")}>⊙ Go Live</button>
+            ><IconRefresh size={15} /> Auto-time: {autoTiming ? 'On' : 'Off'}</button>
+            <button className="ci-btn-ghost" onClick={() => exportCuesToCsv(DEMO_TITLE, cues, fields)}><IconDownload size={15} /> CSV</button>
+            <button className="ci-btn-live" onClick={() => navigate("/demo/admin")}><IconBroadcast size={15} /> Go Live</button>
           </div>
         </header>
 

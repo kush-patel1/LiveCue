@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { IconMegaphone } from "../Icons/Icons";
 import { Cue } from "../../Interfaces/Cue/Cue";
 import "./TimerDisplay.css";
 
@@ -92,7 +93,7 @@ export function TimerDisplay({ projectTitle, cues, broadcast }: TimerDisplayProp
 
       {broadcastActive && (
         <div className="td-broadcast">
-          <span className="td-broadcast-icon">📢</span>
+          <span className="td-broadcast-icon"><IconMegaphone size={18} /></span>
           {broadcastActive.message}
         </div>
       )}

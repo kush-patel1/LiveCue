@@ -564,3 +564,6 @@
   color: var(--text-muted, #8a97a0);
 }
 .sp-role-legend strong { color: var(--text-secondary, #c3ced3); }
+
+/* Inline SVG icons in theme toggle */
+.sp-theme-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }

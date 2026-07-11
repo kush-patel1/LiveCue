@@ -1,0 +1,5 @@
+
+/* Inline SVG icons */
+.ai-import-close,
+.ai-btn-secondary,
+.ai-delete-row-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }

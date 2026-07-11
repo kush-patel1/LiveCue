@@ -64,3 +64,68 @@ export const IconSettings = (p: P) => base(<>
 </>, p);
 
 export const IconCheck = (p: P) => base(<polyline points="20 6 9 17 4 12" />, p);
+
+export const IconX = (p: P) => base(<><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>, p);
+
+export const IconPrinter = (p: P) => base(<>
+  <path d="M6 9V3h12v6" /><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" />
+  <rect x="6" y="14" width="12" height="7" rx="1" />
+</>, p);
+
+export const IconDownload = (p: P) => base(<>
+  <path d="M12 3v12" /><path d="M7 11l5 4 5-4" /><path d="M4 20h16" />
+</>, p);
+
+export const IconUpload = (p: P) => base(<>
+  <path d="M12 20V8" /><path d="M7 12l5-4 5 4" /><path d="M4 20h16" opacity="0" /><path d="M20 16v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3" />
+</>, p);
+
+export const IconMessage = (p: P) => base(
+  <path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z" />, p);
+
+export const IconHistory = (p: P) => base(<>
+  <path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /><path d="M12 8v4l3 2" />
+</>, p);
+
+export const IconRefresh = (p: P) => base(<>
+  <path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 3v6h-6" />
+</>, p);
+
+export const IconSave = (p: P) => base(<>
+  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+  <polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" />
+</>, p);
+
+export const IconMegaphone = (p: P) => base(<>
+  <path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z" />
+  <path d="M15 8a4 4 0 0 1 0 8" />
+</>, p);
+
+export const IconPlay = (p: P) => base(<polygon points="6 4 20 12 6 20 6 4" />, p);
+export const IconPause = (p: P) => base(<><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></>, p);
+export const IconTimer = (p: P) => base(<><line x1="10" y1="2" x2="14" y2="2" /><circle cx="12" cy="14" r="8" /><line x1="12" y1="14" x2="12" y2="10" /></>, p);
+
+export const IconMoon = (p: P) => base(<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />, p);
+export const IconSun = (p: P) => base(<>
+  <circle cx="12" cy="12" r="4" />
+  <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+</>, p);
+
+export const IconEye = (p: P) => base(<>
+  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" />
+</>, p);
+
+export const IconChevronLeft = (p: P) => base(<polyline points="15 6 9 12 15 18" />, p);
+export const IconChevronRight = (p: P) => base(<polyline points="9 6 15 12 9 18" />, p);
+
+export const IconUsers = (p: P) => base(<>
+  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+  <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+</>, p);
+
+export const IconSliders = (p: P) => base(<>
+  <line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" />
+  <line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" />
+  <line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" />
+  <line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" />
+</>, p);

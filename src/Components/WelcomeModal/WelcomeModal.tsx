@@ -1,5 +1,6 @@
 import { Plan } from "../../Config/planLimits";
 import { useDialog } from "../../Hooks/useDialog";
+import { IconX } from "../Icons/Icons";
 import "./WelcomeModal.css";
 
 interface WelcomeModalProps {
@@ -34,7 +35,7 @@ export function WelcomeModal({ plan, firstName, onCreateProject, onClose }: Welc
   return (
     <div className="wm-overlay" onClick={onClose}>
       <div className="wm-modal" role="dialog" aria-modal="true" aria-labelledby="wm-title" tabIndex={-1} ref={ref} onClick={(e) => e.stopPropagation()}>
-        <button className="wm-close" aria-label="Close" onClick={onClose}>✕</button>
+        <button className="wm-close" aria-label="Close" onClick={onClose}><IconX size={18} /></button>
 
         {planLabel && <div className="wm-plan-badge">{planLabel} plan active</div>}
         <h2 className="wm-title" id="wm-title">

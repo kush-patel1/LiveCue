@@ -1082,3 +1082,18 @@
 
 /* a11y contrast: lighten teal accent text */
 .adm-next-label, .adm-next-countdown { color: #8fb3bf !important; }
+
+/* Inline SVG icons in buttons — align with text, no emoji baseline drift */
+.adm-print-btn,
+.adm-card-edit-btn,
+.adm-drawer-close,
+.adm-transport-btn--play { display: inline-flex; align-items: center; justify-content: center; }
+.adm-cue-nav-btn,
+.adm-broadcast-send,
+.adm-timer-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.adm-print-btn svg,
+.adm-cue-nav-btn svg,
+.adm-broadcast-send svg,
+.adm-timer-btn svg,
+.adm-card-edit-btn svg,
+.adm-drawer-close svg { flex-shrink: 0; }

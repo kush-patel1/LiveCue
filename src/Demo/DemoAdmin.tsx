@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { IconPlay, IconPause, IconChevronLeft, IconChevronRight, IconMegaphone, IconEdit, IconX } from "../Components/Icons/Icons";
 import { useNavigate } from "react-router-dom";
 import { usePageTitle } from "../Hooks/usePageTitle";
 import { DemoBanner } from "./DemoBanner";
@@ -198,7 +199,7 @@ function DemoAdmin() {
                 ) : (
                   <div className="adm-transport-row">
                     <button className="adm-transport-btn" onClick={() => adjustTime(-10)}>−10s</button>
-                    <button className={`adm-transport-btn adm-transport-btn--play ${isRunning ? "adm-transport-btn--pause" : ""}`} onClick={togglePause}>{isRunning ? "⏸" : "▶"}</button>
+                    <button className={`adm-transport-btn adm-transport-btn--play ${isRunning ? "adm-transport-btn--pause" : ""}`} onClick={togglePause}>{isRunning ? <IconPause size={18} /> : <IconPlay size={18} />}</button>
                     <button className="adm-transport-btn" onClick={() => adjustTime(10)}>+10s</button>
                   </div>
                 )}
@@ -209,8 +210,8 @@ function DemoAdmin() {
               <div className="adm-module-label">CUE CONTROL</div>
               <div className="adm-module-body">
                 <div className="adm-cue-nav-row">
-                  <button className="adm-cue-nav-btn" onClick={handlePrevCue} disabled={liveIdx <= 0}>← PREV</button>
-                  <button className="adm-cue-nav-btn adm-cue-nav-btn--next" onClick={handleNextCue} disabled={liveIdx >= sorted.length - 1}>NEXT →</button>
+                  <button className="adm-cue-nav-btn" onClick={handlePrevCue} disabled={liveIdx <= 0}><IconChevronLeft size={15} /> PREV</button>
+                  <button className="adm-cue-nav-btn adm-cue-nav-btn--next" onClick={handleNextCue} disabled={liveIdx >= sorted.length - 1}>NEXT <IconChevronRight size={15} /></button>
                 </div>
                 {liveCue && (
                   <div className="adm-live-readout">
@@ -237,7 +238,7 @@ function DemoAdmin() {
                   onChange={(e) => setBroadcastInput(e.target.value)} rows={3}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendBroadcast(); } }} />
                 <div className="adm-broadcast-actions">
-                  <button className="adm-broadcast-send" onClick={sendBroadcast} disabled={!broadcastInput.trim()}>{broadcastSent ? "✓ Sent" : "📢 Send"}</button>
+                  <button className="adm-broadcast-send" onClick={sendBroadcast} disabled={!broadcastInput.trim()}>{broadcastSent ? "✓ Sent" : <><IconMegaphone size={15} /> Send</>}</button>
                   <button className="adm-broadcast-clear" onClick={clearBroadcast}>Clear</button>
                 </div>
                 <p className="adm-broadcast-hint">Demo — messages aren't actually sent</p>
@@ -277,7 +278,7 @@ function DemoAdmin() {
                           {drift === 0 ? "✓" : drift > 0 ? `+${drift}m` : `${drift}m`}
                         </span>
                       )}
-                      <button className="adm-card-edit-btn" onClick={() => openEditor(cue)} title="Edit cue">✏</button>
+                      <button className="adm-card-edit-btn" onClick={() => openEditor(cue)} title="Edit cue"><IconEdit size={15} /></button>
                     </div>
                     <div className="adm-card-times">
                       <span className="adm-mono adm-time-val">{fmtTime(cue.startTime)}</span>
@@ -311,7 +312,7 @@ function DemoAdmin() {
                   <span className="adm-drawer-label">EDITING CUE {editingCue.cueNumber}</span>
                   <h2 className="adm-drawer-title">{editingCue.title}</h2>
                 </div>
-                <button className="adm-drawer-close" onClick={() => setEditingCue(null)}>✕</button>
+                <button className="adm-drawer-close" onClick={() => setEditingCue(null)}><IconX size={18} /></button>
               </div>
               <div className="adm-drawer-body">
                 <div className="adm-editor-field">

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { IconSettings, IconMoon, IconSun } from '../../Components/Icons/Icons';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../Hooks/usePageTitle';
 import './SettingsPage.css';
@@ -295,7 +296,7 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
             <span className="hp-sb-icon">⊞</span>Projects
           </div>
           <div className="hp-sb-item active">
-            <span className="hp-sb-icon">⚙</span>Settings
+            <span className="hp-sb-icon"><IconSettings size={17} /></span>Settings
           </div>
         </nav>
         <div className="hp-sb-footer">
@@ -697,11 +698,11 @@ function SettingsPage({ projects, setProjects }: SettingsPageProps) {
               <div className="sp-theme-toggle">
                 <button className={`sp-theme-btn ${theme === 'dark' ? 'active' : ''}`}
                   onClick={() => theme !== 'dark' && toggleTheme()}>
-                  🌙 Dark
+                  <IconMoon size={15} /> Dark
                 </button>
                 <button className={`sp-theme-btn ${theme === 'light' ? 'active' : ''}`}
                   onClick={() => theme !== 'light' && toggleTheme()}>
-                  ☀️ Light
+                  <IconSun size={15} /> Light
                 </button>
               </div>
             </div>
