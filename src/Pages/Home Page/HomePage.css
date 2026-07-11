@@ -724,3 +724,11 @@
 .hp-move-opt svg { flex-shrink: 0; }
 .hp-act svg { display: block; }
 .hp-sb-icon { display: inline-flex; align-items: center; }
+
+/* ── Icon alignment (inline SVGs) ── */
+.hp-sb-icon { display: inline-flex; align-items: center; }
+.hp-meta-item { display: inline-flex; align-items: center; gap: 5px; }
+.hp-meta-item svg { flex-shrink: 0; }
+.hp-act { display: inline-flex; align-items: center; justify-content: center; }
+.hp-folder-del { display: inline-flex; align-items: center; justify-content: center; }
+.hp-move-label { display: inline-flex; align-items: center; gap: 8px; }
