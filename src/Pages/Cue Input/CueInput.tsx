@@ -588,12 +588,12 @@ function CueInput({ projects }: CueInputProps) {
     finally { setDeleteCueId(null); }
   };
 
-  const handleAIImport = async (parsedCues: ParsedCue[], newFields: CustomField[]) => {
+  const handleAIImport = async (parsedCues: ParsedCue[], newFields: CustomField[], removedFieldIds: string[] = []) => {
     if (!projectId || !project) return;
     const startCueNumber = cues.length + 1;
     const projectDate = project.date instanceof Date ? project.date : new Date(project.date);
-    if (newFields.length > 0) {
-      const updatedFields = [...fields, ...newFields];
+    if (newFields.length > 0 || removedFieldIds.length > 0) {
+      const updatedFields = [...fields.filter((f) => !removedFieldIds.includes(f.id)), ...newFields];
       setFields(updatedFields);
       await persistFields(updatedFields);
     }

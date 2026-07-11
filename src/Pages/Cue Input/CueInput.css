@@ -1049,3 +1049,27 @@
 .ai-btn-secondary,
 .ai-btn-primary,
 .ai-delete-row-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+
+/* Import wizard — step 1: confirm cue fields */
+.imp-fields-step { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 14px; }
+.imp-fields-desc { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; max-width: 560px; }
+.imp-fields-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
+.imp-field-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-input); border: 1px solid var(--border-input);
+  border-radius: 8px; padding: 8px 12px; max-width: 420px;
+}
+.imp-field-label { flex: 1; font-size: 14px; color: var(--text-primary); font-weight: 500; }
+.imp-field-remove {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; flex-shrink: 0;
+  background: none; border: none; border-radius: 6px;
+  color: var(--text-muted); cursor: pointer;
+  transition: color .15s, background .15s;
+}
+.imp-field-remove:hover { color: #e08080; background: rgba(224, 128, 128, 0.1); }
+.imp-fields-empty { margin: 0; font-size: 13px; color: var(--text-muted); font-style: italic; }
+.imp-field-add { display: flex; gap: 8px; align-items: center; }
+.imp-field-add-input { width: 260px; }
+.imp-fields-note { margin: 0; font-size: 12px; color: #e2a85c; }
+.imp-fields-actions { display: flex; justify-content: flex-end; }
