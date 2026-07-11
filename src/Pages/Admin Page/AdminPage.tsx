@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { IconPrinter, IconPlay, IconPause, IconChevronLeft, IconChevronRight, IconMegaphone, IconTimer, IconEdit, IconX } from "../../Components/Icons/Icons";
 import { usePageTitle } from "../../Hooks/usePageTitle";
 import { useNavigate, useParams } from "react-router-dom";
 import "./AdminPage.css";
 import { Project } from "../../Interfaces/Project/Project";
 import { Cue } from "../../Interfaces/Cue/Cue";
 import { CustomField, DEFAULT_FIELDS } from "../../Interfaces/CustomField/CustomField";
-import { db, collection, getDocs, query, where, updateDoc, doc, onSnapshot } from "../../Backend/firebase";
+import { db, collection, getDocs, query, where, updateDoc, doc, onSnapshot, writeBatch } from "../../Backend/firebase";
 import { LoadingScreen } from "../../Components/LoadingScreen/LoadingScreen";
 import { PrintableCueSheet } from "../../Components/PrintableCueSheet/PrintableCueSheet";
 
@@ -18,9 +19,28 @@ function todSecs(iso: string): number {
   return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
 }
 
-function getDriftMinutes(cue: Cue): number | null {
+function cueDurationSecs(cue: Cue): number {
+  return Math.max(0, todSecs(cue.endTime) - todSecs(cue.startTime));
+}
+
+// Drift measured against the cue's own planned DURATION (not the scheduled
+// clock time): how long the cue actually ran vs how long it was allotted.
+// Positive = ran long (behind), negative = wrapped early (ahead), null until
+// the cue has started. A cue actually ends when the next cue goes live; the
+// still-live cue is measured against "now" and reads on-time until it overruns.
+function driftMinutes(sorted: Cue[], index: number, nowMs: number): number | null {
+  const cue = sorted[index];
   if (!cue.actualStartTime) return null;
-  return Math.round((todSecs(cue.actualStartTime) - todSecs(cue.startTime)) / 60);
+  const startMs = new Date(cue.actualStartTime).getTime();
+  let endMs: number | null = null;
+  for (let j = index + 1; j < sorted.length; j++) {
+    const later = sorted[j].actualStartTime;
+    if (later) { endMs = new Date(later).getTime(); break; }
+  }
+  const actualSecs = ((endMs ?? nowMs) - startMs) / 1000;
+  const planned = cueDurationSecs(cue);
+  if (cue.isLive && actualSecs < planned) return 0; // on track — no overrun yet
+  return Math.round((actualSecs - planned) / 60);
 }
 
 function mapCue(data: any, id: string): Cue {
@@ -165,14 +185,20 @@ function AdminPage({ projects }: AdminPageProps) {
   const liveIdx = sorted.findIndex(c => c.isLive);
   const liveCue = liveIdx >= 0 ? sorted[liveIdx] : null;
   const nextCue = liveIdx >= 0 ? sorted[liveIdx + 1] : sorted[0];
-  const globalDrift = liveCue ? getDriftMinutes(liveCue) : null;
+  const globalDrift = liveIdx >= 0 ? driftMinutes(sorted, liveIdx, now.getTime()) : null;
 
   const ns = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
   const nextCueSecs = nextCue ? todSecs(nextCue.startTime) - ns : null;
 
-  const liveElapsedSecs = liveCue ? ns - todSecs(liveCue.startTime) : null;
-  const liveDurationSecs = liveCue ? todSecs(liveCue.endTime) - todSecs(liveCue.startTime) : null;
+  // Elapsed on the live cue measured from when it actually started (not the
+  // scheduled clock), so the progress bar tracks real time-in-cue.
+  const liveElapsedSecs = liveCue
+    ? (liveCue.actualStartTime
+        ? Math.max(0, (now.getTime() - new Date(liveCue.actualStartTime).getTime()) / 1000)
+        : 0)
+    : null;
+  const liveDurationSecs = liveCue ? cueDurationSecs(liveCue) : null;
   const liveProgressPct = (liveElapsedSecs != null && liveDurationSecs && liveDurationSecs > 0)
     ? Math.min(100, Math.max(0, (liveElapsedSecs / liveDurationSecs) * 100))
     : 0;
@@ -188,17 +214,23 @@ function AdminPage({ projects }: AdminPageProps) {
   const togglePause = () => setIsRunning(p => !p);
   const adjustTime = (s: number) => setElapsedTime(p => Math.max(0, p + s));
 
+  // Flip both cues in a single atomic batch so the real-time listener never
+  // observes an in-between state with no live cue (which flashed "No cue live").
   const handleNextCue = async () => {
     if (liveIdx === -1 || liveIdx >= sorted.length - 1) return;
     const next = sorted[liveIdx + 1];
-    await updateDoc(doc(db, 'cues', sorted[liveIdx].id), { isLive: false });
-    await updateDoc(doc(db, 'cues', next.id), { isLive: true, actualStartTime: new Date().toISOString() });
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'cues', sorted[liveIdx].id), { isLive: false });
+    batch.update(doc(db, 'cues', next.id), { isLive: true, actualStartTime: new Date().toISOString() });
+    await batch.commit();
   };
 
   const handlePrevCue = async () => {
     if (liveIdx <= 0) return;
-    await updateDoc(doc(db, 'cues', sorted[liveIdx].id), { isLive: false });
-    await updateDoc(doc(db, 'cues', sorted[liveIdx - 1].id), { isLive: true });
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'cues', sorted[liveIdx].id), { isLive: false });
+    batch.update(doc(db, 'cues', sorted[liveIdx - 1].id), { isLive: true });
+    await batch.commit();
   };
 
   const openEditor = (cue: Cue) => {
@@ -300,7 +332,7 @@ function AdminPage({ projects }: AdminPageProps) {
         </div>
 
         <div className="adm-topbar-right">
-          <button className="adm-print-btn" onClick={() => window.print()} title="Print or save as PDF" aria-label="Print or save as PDF">🖨</button>
+          <button className="adm-print-btn" onClick={() => window.print()} title="Print or save as PDF" aria-label="Print or save as PDF"><IconPrinter size={17} /></button>
           {globalDrift !== null && (
             <span className={`adm-drift-badge adm-drift--${globalDrift === 0 ? 'ok' : globalDrift > 0 ? 'late' : 'early'}`}>
               {globalDrift === 0 ? '✓ ON TIME' : globalDrift > 0 ? `▲ +${globalDrift}m` : `▼ ${Math.abs(globalDrift)}m`}
@@ -348,7 +380,7 @@ function AdminPage({ projects }: AdminPageProps) {
                 <div className="adm-transport-row">
                   <button className="adm-transport-btn" onClick={() => adjustTime(-10)}>−10s</button>
                   <button className={`adm-transport-btn adm-transport-btn--play ${isRunning ? 'adm-transport-btn--pause' : ''}`} onClick={togglePause}>
-                    {isRunning ? '⏸' : '▶'}
+                    {isRunning ? <IconPause size={18} /> : <IconPlay size={18} />}
                   </button>
                   <button className="adm-transport-btn" onClick={() => adjustTime(10)}>+10s</button>
                 </div>
@@ -362,10 +394,10 @@ function AdminPage({ projects }: AdminPageProps) {
             <div className="adm-module-body">
               <div className="adm-cue-nav-row">
                 <button className="adm-cue-nav-btn" onClick={handlePrevCue} disabled={liveIdx <= 0}>
-                  ← PREV
+                  <IconChevronLeft size={15} /> PREV
                 </button>
                 <button className="adm-cue-nav-btn adm-cue-nav-btn--next" onClick={handleNextCue} disabled={liveIdx >= sorted.length - 1}>
-                  NEXT →
+                  NEXT <IconChevronRight size={15} />
                 </button>
               </div>
 
@@ -410,7 +442,7 @@ function AdminPage({ projects }: AdminPageProps) {
               />
               <div className="adm-broadcast-actions">
                 <button className="adm-broadcast-send" onClick={sendBroadcast} disabled={!broadcastInput.trim()}>
-                  {broadcastSent ? '✓ Sent' : '📢 Send'}
+                  {broadcastSent ? '✓ Sent' : <><IconMegaphone size={15} /> Send</>}
                 </button>
                 <button className="adm-broadcast-clear" onClick={clearBroadcast}>
                   Clear
@@ -450,7 +482,7 @@ function AdminPage({ projects }: AdminPageProps) {
                     className="adm-copy-btn adm-timer-btn"
                     onClick={() => window.open(`#/timer/${projectId}`, '_blank')}
                   >
-                    ⏱ OPEN SPEAKER TIMER
+                    <IconTimer size={15} /> OPEN SPEAKER TIMER
                   </button>
                   <p className="adm-share-hint">Anyone with these links can view the live cue sheet or speaker timer.</p>
                 </>
@@ -474,7 +506,7 @@ function AdminPage({ projects }: AdminPageProps) {
           <div className="adm-runway" ref={scrollRef}>
             {sorted.map((cue, index) => {
               const variant = cardVariant(index);
-              const drift = getDriftMinutes(cue);
+              const drift = driftMinutes(sorted, index, now.getTime());
               return (
                 <div
                   key={cue.id}
@@ -497,7 +529,7 @@ function AdminPage({ projects }: AdminPageProps) {
                         {drift === 0 ? '✓' : drift > 0 ? `+${drift}m` : `${drift}m`}
                       </span>
                     )}
-                    <button className="adm-card-edit-btn" onClick={() => openEditor(cue)} title="Edit cue" aria-label={`Edit cue ${cue.cueNumber}`}>✏</button>
+                    <button className="adm-card-edit-btn" onClick={() => openEditor(cue)} title="Edit cue" aria-label={`Edit cue ${cue.cueNumber}`}><IconEdit size={15} /></button>
                   </div>
 
                   {/* Times */}
@@ -550,7 +582,7 @@ function AdminPage({ projects }: AdminPageProps) {
                 <span className="adm-drawer-label">EDITING CUE {editingCue.cueNumber}</span>
                 <h2 className="adm-drawer-title">{editingCue.title}</h2>
               </div>
-              <button className="adm-drawer-close" onClick={() => setEditingCue(null)} aria-label="Close editor">✕</button>
+              <button className="adm-drawer-close" onClick={() => setEditingCue(null)} aria-label="Close editor"><IconX size={18} /></button>
             </div>
 
             <div className="adm-drawer-body">

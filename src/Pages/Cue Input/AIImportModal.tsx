@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { IconX, IconUpload, IconChevronLeft, IconCheck } from '../../Components/Icons/Icons';
 import * as XLSX from 'xlsx';
 import { CustomField } from '../../Interfaces/CustomField/CustomField';
 
@@ -223,7 +224,7 @@ Rules:
               Upload an Excel or CSV file — AI will map your columns to cue fields automatically
             </p>
           </div>
-          <button className="ai-import-close" onClick={onClose} aria-label="Close import">✕</button>
+          <button className="ai-import-close" onClick={onClose} aria-label="Close import"><IconX size={18} /></button>
         </div>
 
         {/* Error */}
@@ -238,7 +239,7 @@ Rules:
             onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); }}
             onClick={() => fileInputRef.current?.click()}
           >
-            <div className="ai-drop-icon">📊</div>
+            <div className="ai-drop-icon"><IconUpload size={40} /></div>
             <p className="inter-semibold" style={{ fontSize: 16, color: '#fff6ee', marginBottom: 6 }}>
               Drop your file here or click to browse
             </p>
@@ -283,7 +284,7 @@ Rules:
                 )}
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
-                <button className="ai-btn-secondary" onClick={() => setStage('upload')}>← Re-upload</button>
+                <button className="ai-btn-secondary" onClick={() => setStage('upload')}><IconChevronLeft size={14} /> Re-upload</button>
                 <button className="ai-btn-primary" onClick={handleConfirmImport}>
                   Import {parsedCues.length} Cue{parsedCues.length !== 1 ? 's' : ''}
                 </button>
@@ -313,7 +314,7 @@ Rules:
                   {parsedCues.map((cue, i) => (
                     <tr key={i}>
                       <td>
-                        <button className="ai-delete-row-btn" title="Delete row" onClick={() => handleDeleteRow(i)}>✕</button>
+                        <button className="ai-delete-row-btn" title="Delete row" onClick={() => handleDeleteRow(i)}><IconX size={14} /></button>
                       </td>
                       <td style={{ color: 'rgba(255,246,238,0.35)', fontSize: 12 }}>{existingCueCount + i + 1}</td>
                       <td>
@@ -360,7 +361,7 @@ Rules:
         {/* ── Done stage ── */}
         {stage === 'done' && (
           <div className="ai-done-state">
-            <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
+            <div style={{ marginBottom: 12, color: '#4ea88c' }}><IconCheck size={48} /></div>
             <p className="inter-bold" style={{ fontSize: 18, color: '#fff6ee', marginBottom: 8 }}>
               {parsedCues.length} cues imported!
             </p>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { IconMegaphone, IconX, IconSettings } from "../../Components/Icons/Icons";
 import { usePageTitle } from "../../Hooks/usePageTitle";
 import { LoadingScreen } from "../../Components/LoadingScreen/LoadingScreen";
 import { useNavigate, useParams } from "react-router-dom";
@@ -245,7 +246,7 @@ function LiveCueSheet({ projects }: LiveCueSheetProps) {
         return (
           <div className="lcs-broadcast">
             <div className="lcs-broadcast-progress" style={{ width: `${pct}%` }} />
-            <span className="lcs-broadcast-icon">📢</span>
+            <span className="lcs-broadcast-icon"><IconMegaphone size={16} /></span>
             <span className="lcs-broadcast-msg">{broadcast.message}</span>
             <span className="lcs-broadcast-timer">{countdown}</span>
           </div>
@@ -303,7 +304,7 @@ function LiveCueSheet({ projects }: LiveCueSheetProps) {
 
       {/* ── Field visibility FAB ── */}
       <button className="lcs-fab" onClick={() => setShowFieldPanel(p => !p)}>
-        {showFieldPanel ? '✕ Close' : '⚙ Fields'}
+        showFieldPanel ? <><IconX size={15} /> Close</> : <><IconSettings size={15} /> Fields</>
       </button>
 
       {/* ── Field panel ── */}

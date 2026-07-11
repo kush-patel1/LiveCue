@@ -14,7 +14,8 @@ function DemoTimer() {
     // Make cue 1 live and ending 3.5 minutes from now so the timer counts down.
     const end = new Date(now.getTime() + 3.5 * 60000);
     const start = new Date(now.getTime() - 5 * 60000);
-    base[0] = { ...base[0], isLive: true, startTime: start.toISOString(), endTime: end.toISOString() };
+    // actualStartTime = when it "went live" so the duration countdown ticks.
+    base[0] = { ...base[0], isLive: true, startTime: start.toISOString(), endTime: end.toISOString(), actualStartTime: start.toISOString() };
     return base.map((c, i) => (i === 0 ? c : { ...c, isLive: false }));
   });
 

@@ -513,3 +513,7 @@
 .lcs-card--live .lcs-f-label, .lcs-dur-badge { color: #8fb3bf !important; }
 .lcs-card--past { opacity: 0.8 !important; }
 .lcs-card--future { opacity: 0.92 !important; }
+
+/* Inline SVG icons */
+.lcs-fab { display: inline-flex; align-items: center; gap: 6px; }
+.lcs-broadcast-icon { display: inline-flex; align-items: center; }

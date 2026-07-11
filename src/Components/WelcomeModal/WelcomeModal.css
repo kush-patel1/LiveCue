@@ -84,3 +84,6 @@
   padding: 13px 20px; font-size: 14px; cursor: pointer;
 }
 .wm-btn-ghost:hover { background: rgba(127, 168, 181, 0.1); }
+
+/* Close icon alignment */
+.wm-close { display: inline-flex; align-items: center; justify-content: center; }

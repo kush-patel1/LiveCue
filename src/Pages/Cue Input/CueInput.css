@@ -989,3 +989,17 @@
 .ci-time-input, .ci-duration-input { color: #7fa8b5; }
 .ci-count-badge { color: #8fb3bf !important; }
 .ci-btn-live { background: #3a6470 !important; }
+
+/* Inline SVG icons in toolbar/action buttons */
+.ci-btn-ghost,
+.ci-btn-live,
+.ci-readonly-banner,
+.ci-cmt-send { display: inline-flex; align-items: center; gap: 6px; }
+.ci-cmt-btn,
+.ci-del-btn,
+.ci-cmt-close,
+.ci-cmt-del { display: inline-flex; align-items: center; justify-content: center; }
+.ci-btn-ghost svg,
+.ci-btn-live svg,
+.ci-readonly-banner svg,
+.ci-cmt-send svg { flex-shrink: 0; }

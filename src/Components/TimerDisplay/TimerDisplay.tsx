@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { IconMegaphone } from "../Icons/Icons";
 import { Cue } from "../../Interfaces/Cue/Cue";
 import "./TimerDisplay.css";
 
@@ -13,9 +14,6 @@ const AMBER_THRESHOLD_SECS = 120; // last 2 minutes turn amber
 
 function todSecs(iso: string): number {
   const d = new Date(iso);
-  return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
-}
-function nowSecs(d: Date): number {
   return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
 }
 function fmtClock(secs: number): string {
@@ -46,8 +44,16 @@ export function TimerDisplay({ projectTitle, cues, broadcast }: TimerDisplayProp
   const liveCue = liveIndex >= 0 ? sorted[liveIndex] : null;
   const nextCue = liveIndex >= 0 ? sorted[liveIndex + 1] : sorted[0];
 
-  const ns = nowSecs(now);
-  const remaining = liveCue ? todSecs(liveCue.endTime) - ns : null;
+  // Count down the cue's own duration from when it actually went live, so a
+  // 25-minute cue starts at 25:00 and ticks down — independent of wall-clock
+  // schedule. Falls back to the full duration until the cue has an actual start.
+  const durationSecs = liveCue
+    ? Math.max(0, todSecs(liveCue.endTime) - todSecs(liveCue.startTime))
+    : null;
+  const elapsedSecs = liveCue?.actualStartTime
+    ? (now.getTime() - new Date(liveCue.actualStartTime).getTime()) / 1000
+    : 0;
+  const remaining = durationSecs != null ? durationSecs - elapsedSecs : null;
 
   let state: "green" | "amber" | "red" | "idle" = "idle";
   if (remaining !== null) {
@@ -92,7 +98,7 @@ export function TimerDisplay({ projectTitle, cues, broadcast }: TimerDisplayProp
 
       {broadcastActive && (
         <div className="td-broadcast">
-          <span className="td-broadcast-icon">📢</span>
+          <span className="td-broadcast-icon"><IconMegaphone size={18} /></span>
           {broadcastActive.message}
         </div>
       )}

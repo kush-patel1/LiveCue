@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { IconMessage, IconX, IconSettings, IconUpload, IconPrinter, IconDownload, IconHistory, IconSave, IconEye, IconRefresh, IconBroadcast } from '../../Components/Icons/Icons';
 import { usePageTitle } from '../../Hooks/usePageTitle';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LoadingScreen } from '../../Components/LoadingScreen/LoadingScreen';
@@ -216,8 +217,8 @@ function SortableCueRow({
           onClick={() => onOpenComments(cue.id)}
           title="Comments"
           aria-label={`Comments on cue ${cue.cueNumber}`}
-        >💬{commentCount > 0 ? <span className="ci-cmt-count">{commentCount}</span> : null}</button>
-        <button className="ci-del-btn" onClick={() => onDelete(cue.id)} title="Delete cue" aria-label={`Delete cue ${cue.cueNumber}`}>✕</button>
+        ><IconMessage size={15} />{commentCount > 0 ? <span className="ci-cmt-count">{commentCount}</span> : null}</button>
+        <button className="ci-del-btn" onClick={() => onDelete(cue.id)} title="Delete cue" aria-label={`Delete cue ${cue.cueNumber}`}><IconX size={15} /></button>
       </div>
     </div>
   );
@@ -242,7 +243,7 @@ function CueInput({ projects }: CueInputProps) {
   const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
 
   const uid = (JSON.parse(sessionStorage.getItem('CURRENT_USER') || 'null'))?.id ?? null;
-  const { plan, canAddCue, canUseCustomFields, canDragReorder, canUseAIImport, canEdit, teamRole } = usePlan(uid);
+  const { plan, canAddCue, canUseCustomFields, canDragReorder, canEdit, teamRole } = usePlan(uid);
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState<'text' | 'time'>('text');
   const [deleteCueId, setDeleteCueId] = useState<string | null>(null);
@@ -636,23 +637,23 @@ function CueInput({ projects }: CueInputProps) {
             {saveStatus === 'error'  && '⚠ Error saving'}
           </span>
           <span className="ci-count-badge">{cues.length} cue{cues.length !== 1 ? 's' : ''}</span>
-          <button className="ci-btn-ghost" onClick={() => canUseCustomFields() ? setShowFieldModal(true) : setUpgradeFeature('customFields')}>⚙ Fields</button>
-          <button className="ci-btn-ghost" onClick={() => canUseAIImport(0) ? setShowAIImport(true) : setUpgradeFeature('aiImport')}>📥 Import</button>
+          <button className="ci-btn-ghost" onClick={() => canUseCustomFields() ? setShowFieldModal(true) : setUpgradeFeature('customFields')}><IconSettings size={15} /> Fields</button>
+          <button className="ci-btn-ghost" disabled title="Spreadsheet import is temporarily disabled while we improve it"><IconUpload size={15} /> Import · soon</button>
           <button
             className={`ci-btn-ghost${autoTiming ? ' ci-btn-ghost--on' : ''}`}
             onClick={toggleAutoTiming}
             title="When on, changing a cue's end time shifts all later cues to stay back-to-back"
-          >⟳ Auto-time: {autoTiming ? 'On' : 'Off'}</button>
-          <button className="ci-btn-ghost" onClick={() => window.print()}>🖨 Print / PDF</button>
-          <button className="ci-btn-ghost" onClick={() => project && exportCuesToCsv(project.title, cues, fields)}>⬇ CSV</button>
-          <button className="ci-btn-ghost" onClick={() => setShowHistory(true)}>🕘 History</button>
-          <button className="ci-btn-live" onClick={() => navigate(`/AdminPage/${projectId}`)}>⊙ Go Live</button>
+          ><IconRefresh size={15} /> Auto-time: {autoTiming ? 'On' : 'Off'}</button>
+          <button className="ci-btn-ghost" onClick={() => window.print()}><IconPrinter size={15} /> Print / PDF</button>
+          <button className="ci-btn-ghost" onClick={() => project && exportCuesToCsv(project.title, cues, fields)}><IconDownload size={15} /> CSV</button>
+          <button className="ci-btn-ghost" onClick={() => setShowHistory(true)}><IconHistory size={15} /> History</button>
+          <button className="ci-btn-live" onClick={() => navigate(`/AdminPage/${projectId}`)}><IconBroadcast size={15} /> Go Live</button>
         </div>
       </header>
 
       {!canEdit && (
         <div className="ci-readonly-banner">
-          👁 View only — your role ({teamRole}) can't edit this cue sheet.
+          <IconEye size={15} /> View only — your role ({teamRole}) can't edit this cue sheet.
           {teamRole === 'operator' && ' You can run the show from Go Live.'}
         </div>
       )}
@@ -786,7 +787,7 @@ function CueInput({ projects }: CueInputProps) {
                   <div className="ci-cmt-label">COMMENTS</div>
                   <div className="ci-cmt-title">{cue ? `${cue.cueNumber}. ${cue.title || 'Untitled'}` : ''}</div>
                 </div>
-                <button className="ci-cmt-close" onClick={() => setCommentsCueId(null)} aria-label="Close comments">✕</button>
+                <button className="ci-cmt-close" onClick={() => setCommentsCueId(null)} aria-label="Close comments"><IconX size={16} /></button>
               </div>
               <div className="ci-cmt-list">
                 {thread.length === 0 && <div className="ci-cmt-empty">No comments yet. Start the conversation.</div>}
@@ -796,7 +797,7 @@ function CueInput({ projects }: CueInputProps) {
                       <span className="ci-cmt-author">{c.authorName}</span>
                       <span className="ci-cmt-time">{new Date(c.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
                       {auth.currentUser?.uid === c.uid && (
-                        <button className="ci-cmt-del" onClick={() => deleteComment(c.id)} aria-label="Delete comment">✕</button>
+                        <button className="ci-cmt-del" onClick={() => deleteComment(c.id)} aria-label="Delete comment"><IconX size={13} /></button>
                       )}
                     </div>
                     <div className="ci-cmt-text">{c.text}</div>
@@ -831,11 +832,11 @@ function CueInput({ projects }: CueInputProps) {
                 <div className="ci-cmt-label">REVISION HISTORY</div>
                 <div className="ci-cmt-title">Saved versions</div>
               </div>
-              <button className="ci-cmt-close" onClick={() => setShowHistory(false)} aria-label="Close history">✕</button>
+              <button className="ci-cmt-close" onClick={() => setShowHistory(false)} aria-label="Close history"><IconX size={16} /></button>
             </div>
             <div className="ci-cmt-compose" style={{ borderTop: 'none', borderBottom: '1px solid var(--border-main, rgba(127,168,181,0.14))' }}>
               <button className="ci-cmt-send" style={{ alignSelf: 'stretch' }} onClick={saveVersion} disabled={!canEdit}>
-                💾 Save current version
+                <IconSave size={15} /> Save current version
               </button>
             </div>
             <div className="ci-cmt-list">
@@ -851,7 +852,7 @@ function CueInput({ projects }: CueInputProps) {
                   <button className="ci-ver-restore" onClick={() => restoreVersion(s)} disabled={restoring || !canEdit}>
                     {restoring ? '…' : 'Restore'}
                   </button>
-                  <button className="ci-cmt-del" onClick={() => deleteVersion(s.id)} aria-label="Delete version">✕</button>
+                  <button className="ci-cmt-del" onClick={() => deleteVersion(s.id)} aria-label="Delete version"><IconX size={13} /></button>
                 </div>
               ))}
             </div>

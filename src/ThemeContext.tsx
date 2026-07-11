@@ -13,9 +13,9 @@ const ThemeContext = createContext<ThemeContextValue>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('lc_theme') as Theme) || 'dark';
-  });
+  // Light mode is not finished yet — force dark for everyone (including anyone
+  // whose stored preference was 'light') until it's ready.
+  const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);

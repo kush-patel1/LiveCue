@@ -7,6 +7,9 @@ type StripeClient = ReturnType<typeof Stripe>;
 admin.initializeApp();
 const db = admin.firestore();
 
+// Branded password-reset email (Option B) — see passwordResetEmail.ts.
+export { sendPasswordResetBranded } from "./passwordResetEmail";
+
 // ---------------------------------------------------------------------------
 // Stripe client — lazy, reads secret at call time (never baked into bundle).
 // Set secrets with:

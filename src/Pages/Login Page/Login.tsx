@@ -6,6 +6,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CredentialLoadingScreen } from "../../Components/LoadingScreen/CredentialLoadingScreen";
 import { auth } from "../../Backend/firebase";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { applyGrantIfExists } from "../../Services/PlanService/grantCheck";
 import { claimMyInvite } from "../../Services/TeamService/teamService";
 import { User as FirebaseUser } from "firebase/auth";
@@ -43,14 +44,20 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
     }
     setResetSending(true);
     try {
-      await sendPasswordResetEmail(auth, email);
+      // Prefer the branded email (Cloud Function). If it isn't deployed/configured
+      // yet, fall back to Firebase's built-in reset email so this always works.
+      try {
+        await httpsCallable(getFunctions(), "sendPasswordResetBranded")({ email });
+      } catch {
+        await sendPasswordResetEmail(auth, email);
+      }
       // Neutral wording avoids leaking whether an account exists.
       setResetMsg(`If an account exists for ${email}, a reset link is on its way. Check your inbox and spam folder.`);
     } catch (error: any) {
       if (error.code === "auth/invalid-email") {
         setEmailError("That doesn't look like a valid email");
       } else {
-        setResetMsg(`If an account exists for ${email}, a reset link is on its way.`);
+        setResetMsg(`If an account exists for ${email}, a reset link is on its way. Check your inbox and spam folder.`);
       }
     } finally {
       setResetSending(false);
@@ -78,10 +85,17 @@ function Login({ setUser }: LoginPageProps): React.JSX.Element {
     } catch (error: any) {
       setLoading(false);
       const code = error.code;
-      if (code === "auth/user-not-found" || code === "auth/invalid-credential") {
-        setEmailError("No account found with this email");
-      } else if (code === "auth/wrong-password") {
-        setPasswordError("Incorrect password");
+      // Firebase returns auth/invalid-credential for both a wrong password and a
+      // non-existent account (email-enumeration protection), so use one neutral
+      // message rather than revealing which field was wrong.
+      if (
+        code === "auth/invalid-credential" ||
+        code === "auth/wrong-password" ||
+        code === "auth/user-not-found"
+      ) {
+        setPasswordError("Incorrect email or password");
+      } else if (code === "auth/too-many-requests") {
+        setPasswordError("Too many attempts. Try again later or reset your password.");
       } else {
         setEmailError(error.message);
       }

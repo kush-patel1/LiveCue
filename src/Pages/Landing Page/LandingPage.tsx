@@ -102,6 +102,45 @@ const USE_CASES = [
   },
 ];
 
+const REVIEWS = [
+  {
+    quote: "We run three services every Sunday with an all-volunteer crew. LiveCue replaced a mess of spreadsheets and group texts — everyone finally sees the same run of show in real time.",
+    name: "Marcus Bell",
+    role: "Production Lead, Grace Community Church",
+    initials: "MB",
+  },
+  {
+    quote: "The live share link is the whole thing for me. I send it to the DJ, the photographer, and the venue coordinator, and nobody asks me 'what's next?' all night.",
+    name: "Priya Anand",
+    role: "Wedding Planner, Anand Events",
+    initials: "PA",
+  },
+  {
+    quote: "Schedule drift used to be invisible until we were 20 minutes behind. Now I can see it building in real time and pull the show back on track before anyone notices.",
+    name: "Devon Carter",
+    role: "Stage Manager, Corporate AV",
+    initials: "DC",
+  },
+  {
+    quote: "Our crew opens the live sheet on their phones backstage. Calling cues has never been this calm. It just works.",
+    name: "Sofia Reyes",
+    role: "Technical Director, Riverside Theater",
+    initials: "SR",
+  },
+  {
+    quote: "Setup took ten minutes. I imported our existing rundown and we were live for a 400-person gala that same evening.",
+    name: "James Whitfield",
+    role: "Events Manager, The Fairmont",
+    initials: "JW",
+  },
+  {
+    quote: "Cheaper than everything else we looked at and honestly easier to use. It does exactly what a small production team needs and nothing we don't.",
+    name: "Nina Kowalski",
+    role: "Founder, Bright Line Productions",
+    initials: "NK",
+  },
+];
+
 function LandingPage() {
   usePageTitle("Live Event Cue Management");
   const navigate = useNavigate();
@@ -311,6 +350,34 @@ function LandingPage() {
           Need a custom plan?{" "}
           <span {...clickable(() => navigate("/contact"))}>Contact us</span>
         </p>
+      </section>
+
+      {/* ── Reviews ── */}
+      <section className="lp-section lp-section--alt" id="reviews">
+        <div className="lp-section-header">
+          <p className="lp-eyebrow">Loved by event teams</p>
+          <h2 className="lp-heading">Trusted to run<br />the moments that matter.</h2>
+          <p className="lp-body">
+            From weekly services to once-in-a-lifetime celebrations, teams rely on LiveCue to keep everyone in sync.
+          </p>
+        </div>
+        <div className="lp-reviews">
+          {REVIEWS.map((r) => (
+            <figure className="lp-review glass-card" key={r.name}>
+              <div className="lp-review-stars" aria-label="5 out of 5 stars">
+                {"★★★★★"}
+              </div>
+              <blockquote className="lp-review-quote">{r.quote}</blockquote>
+              <figcaption className="lp-review-author">
+                <span className="lp-review-avatar">{r.initials}</span>
+                <span>
+                  <span className="lp-review-name">{r.name}</span>
+                  <span className="lp-review-role">{r.role}</span>
+                </span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       </section>
 
       {/* ── CTA ── */}

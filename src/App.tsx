@@ -61,7 +61,7 @@ function App() {
           <Route path="/demo/timer" element={<DemoTimer />} />
           <Route path="/checkout-success" element={<CheckoutSuccess />} />
           <Route path="/accept-invite" element={<AcceptInvite />} />
-          <Route path="/settings" element={<SettingsPage projects={projects} setProjects={setProjects} />} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage projects={projects} setProjects={setProjects} /></ProtectedRoute>} />
           <Route path="/CueInput/:projectId" element={<ProtectedRoute><CueInput projects={projects} /></ProtectedRoute>} />
           <Route path="/HomePage" element={<ProtectedRoute><HomePage user={user} setUser={setUser} projects={projects} setProjects={setProjects} /></ProtectedRoute>} />
           <Route path="/LiveCueSheet/:projectId" element={<LiveCueSheet projects={projects} />} />
